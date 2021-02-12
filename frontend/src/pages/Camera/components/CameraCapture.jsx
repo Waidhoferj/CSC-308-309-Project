@@ -9,7 +9,7 @@ import {
 } from "react-feather";
 
 const videoConstraints = {
-  facingMode: { exact: "environment" },
+  facingMode: "environment",
 };
 
 export default function CameraCapture({ onShowPhotos, onImageCapture }) {
@@ -39,7 +39,6 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
     const fr = new FileReader();
     fr.addEventListener("load", () => {
       onImageCapture(fr.result.toString());
-      e.target.files = new FileList();
     });
     fr.readAsDataURL(files[0]);
   }

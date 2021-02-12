@@ -7,6 +7,16 @@
     height: 100vh;
     object-fit: cover;
   }
+
+  button {
+    background: transparent;
+
+    svg {
+      color: white;
+      width: 40px;
+      height: 40px;
+    }
+  }
   .camera-nav {
     position: absolute;
     top: 0;
@@ -15,6 +25,13 @@
     padding: 30px;
     display: flex;
     justify-content: space-between;
+
+    svg {
+      color: white;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
   }
 
   .action-tray {
@@ -51,16 +68,6 @@
         transform: translate(-50%, -50%) scale(0);
         background-color: white;
       }
-    }
-  }
-
-  button {
-    background: transparent;
-
-    svg {
-      color: white;
-      width: 40px;
-      height: 40px;
     }
   }
 }
