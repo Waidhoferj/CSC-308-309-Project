@@ -1,6 +1,7 @@
 import "./ArtMap.scss";
-import ReactMapboxGl, { ScaleControl } from "react-mapbox-gl";
+import ReactMapboxGl, { ScaleControl, GeoJSONLayer } from "react-mapbox-gl";
 import { useState } from "react";
+import artAreasJSON from "./art-areas.json"
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -27,6 +28,22 @@ export default function ArtMap() {
         center={location}
         zoom={zoom}
       >
+        <GeoJSONLayer
+          data={artAreasJSON}
+          /*
+          symbolLayout={{
+            "text-field": "hello",
+            "text-font": ["Open Sans Semibold"],
+            "text-offset": [0, 0.6],
+            "text-anchor": "top"
+          }}
+          */
+          fillLayout={{visibility: "visible"}}
+          fillPaint={{
+            "fill-color": "blue",
+            "fill-opacity": 1,
+          }}
+        />
         <ScaleControl measurement="mi" />
       </Map>
     </article>
