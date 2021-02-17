@@ -4,9 +4,34 @@
     {
       "type": "Feature",
       "id": 1,
+      "properties": {
+        "color": "green"
+      },
       "geometry": {
         "type": "Point",
-        "coordinates": [37.7, -122.4]
+        "coordinates": [-122.4, 37.7]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 1,
+      "properties": {
+        "color": "blue"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4, 37.75]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 1,
+      "properties": {
+        "color": "green"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4, 37.65]
       }
     }
   ]

@@ -38,10 +38,21 @@ export default function ArtMap() {
             "text-anchor": "top"
           }}
           */
-          fillLayout={{visibility: "visible"}}
-          fillPaint={{
-            "fill-color": "blue",
-            "fill-opacity": 1,
+          circlePaint={{
+            "circle-color": "{color}",
+            "circle-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              10,
+              5,
+              15,
+              19,
+            ],
+            "circle-opacity": 0.4,
+            "circle-stroke-color": "{color}",
+            "circle-stroke-width": 2,
+            "circle-stroke-opacity": 1
           }}
         />
         <ScaleControl measurement="mi" />
