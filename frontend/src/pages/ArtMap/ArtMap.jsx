@@ -1,6 +1,7 @@
 import "./ArtMap.scss";
-import ReactMapboxGl, { ScaleControl } from "react-mapbox-gl";
+import ReactMapboxGl, { ScaleControl, GeoJSONLayer } from "react-mapbox-gl";
 import { useState } from "react";
+import artAreasJSON from "./art-areas.json"
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -13,6 +14,8 @@ const mapStyles = {
   position: "absolute",
   top: 0,
 };
+
+function handleClick() {}  // Needs functionality
 
 export default function ArtMap() {
   const [location, setLocation] = useState([-122.447372, 37.750411]);
@@ -27,6 +30,26 @@ export default function ArtMap() {
         center={location}
         zoom={zoom}
       >
+        <GeoJSONLayer
+          data={artAreasJSON}
+          circlePaint={{
+            "circle-color": ["get", "color"],
+            "circle-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              10,
+              5,
+              100,
+              1500
+            ],
+            "circle-opacity": 0.4,
+            "circle-stroke-color": ["get", "color"],
+            "circle-stroke-width": 2,
+            "circle-stroke-opacity": 1
+          }}
+          circleOnClick={handleClick}
+        />
         <ScaleControl measurement="mi" />
       </Map>
     </article>
