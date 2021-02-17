@@ -15,6 +15,8 @@ const mapStyles = {
   top: 0,
 };
 
+function handleClick() {}  // Needs functionality
+
 export default function ArtMap() {
   const [location, setLocation] = useState([-122.447372, 37.750411]);
   const [zoom, setZoom] = useState([11]);
@@ -30,30 +32,23 @@ export default function ArtMap() {
       >
         <GeoJSONLayer
           data={artAreasJSON}
-          /*
-          symbolLayout={{
-            "text-field": "hello",
-            "text-font": ["Open Sans Semibold"],
-            "text-offset": [0, 0.6],
-            "text-anchor": "top"
-          }}
-          */
           circlePaint={{
-            "circle-color": "{color}",
+            "circle-color": ["get", "color"],
             "circle-radius": [
               "interpolate",
               ["linear"],
               ["zoom"],
               10,
               5,
-              15,
-              19,
+              100,
+              1500
             ],
             "circle-opacity": 0.4,
-            "circle-stroke-color": "{color}",
+            "circle-stroke-color": ["get", "color"],
             "circle-stroke-width": 2,
             "circle-stroke-opacity": 1
           }}
+          circleOnClick={handleClick}
         />
         <ScaleControl measurement="mi" />
       </Map>
