@@ -1,2 +1,137 @@
-.Camera {
+.CameraCapture {
+  video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+  }
+
+  button {
+    background: transparent;
+
+    svg {
+      color: white;
+      width: 40px;
+      height: 40px;
+    }
+  }
+  .camera-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+
+    svg {
+      color: white;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+  }
+
+  .action-tray {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+
+    .snapshot-button {
+      position: relative;
+      padding: 24px;
+      background: white;
+      border-radius: 50%;
+      margin: 0 50px;
+
+      svg {
+        color: var(--c-primary);
+        width: 35px;
+        height: 35px;
+      }
+
+      .flash {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        background-color: white;
+      }
+    }
+  }
+}
+
+.PhotoGallery {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+
+  nav {
+    position: absolute;
+    z-index: 1;
+  }
+
+  .photos {
+    display: flex;
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 0;
+
+    .photo {
+      position: relative;
+      min-width: 100vw;
+      height: 100vh;
+      scroll-snap-align: center;
+      img {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  .no-photos {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    p {
+      color: rgb(150, 150, 150);
+      font-weight: 700;
+    }
+  }
+
+  .trash-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 50%;
+    padding: 25px;
+    box-shadow: var(--shadow-button);
+
+    svg {
+      stroke: var(--c-problem);
+    }
+  }
 }
