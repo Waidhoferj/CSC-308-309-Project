@@ -3,38 +3,67 @@
   "features": [
     {
       "type": "Feature",
-      "id": 1,
       "geometry": {
         "type": "Point",
         "coordinates": [-122.4, 37.7]
       },
       "properties": {
-        "color": "green",
-        "type": "artwork"
+        "id": 1,
+        "type": "artwork",
+        "title": "Nobody Likes Me",
+        "description": "An (arguably too young) boy holds a mobile phone, his face contorted with the agonising discovery that nobody has liked his latest Instagram post.",
+        "rating": 4.6,
+        "visited": false,
+        "tags": ["very", "nice"]
       }
     },
     {
       "type": "Feature",
-      "id": 1,
       "geometry": {
         "type": "Point",
         "coordinates": [-122.4, 37.75]
       },
       "properties": {
-        "color": "blue",
-        "type": "user"
+        "type": "artwork",
+        "id": 2,
+        "title": "My God, Help Me to Survive This Deadly Love",
+        "description": "Vrubel’s mural is an interpretation of a photograph taken in 1979, at the 30th anniversary of the celebration of the German Democratic Republic (GDR).",
+        "rating": 4.8,
+        "visited": true,
+        "tags": ["very", "nice"]
       }
     },
     {
       "type": "Feature",
-      "id": 1,
       "geometry": {
         "type": "Point",
         "coordinates": [-122.4, 37.65]
       },
       "properties": {
-        "color": "green",
-        "type": "artwork"
+        "type": "artwork",
+        "id": 3,
+        "title": "Faith in Women",
+        "description": "Faith in Women explores a somewhat feminised version of war; where a baby pink tanker nonchalantly runs over an unsuspecting rabbit, and dozens of guileless skulls congregate beneath a vibrant rainbow of colour",
+        "rating": 4.2,
+        "visited": true,
+        "tags": ["very", "nice"]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.9, 37.55]
+      },
+      "properties": {
+        "type": "artwork",
+        "id": 4,
+        "title": "Spiderman",
+        "description": " Painted superheroes, gaming icons, fantastic figures… Like his pixelated characters, Invader invades the public space, and has been doing so since 1998.",
+        "rating": 3.2,
+        "visited": false,
+        "tags": ["very", "nice"]
       }
     }
   ]

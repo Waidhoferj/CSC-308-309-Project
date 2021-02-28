@@ -1,3 +1,19 @@
 .ArtMap {
-    
+  width: 100%;
+  height: 100vh;
+
+  svg {
+    color: var(--c-primary);
+  }
+
+  .card {
+    nav {
+      padding: 0;
+    }
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: white;
+    padding: 20px;
+  }
 }
