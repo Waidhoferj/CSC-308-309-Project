@@ -11,7 +11,7 @@ def init_db():
     # Note that duplicates are made for every refresh
 
     achievements = [
-        Achievement(title="Explored 10 Art Locations", description="You have officially discovered 10 art locations. Keep it up!", points=10)
+        Achievement(title="Explored 10 Art Locations", description="You have officially discovered 10 art locations. Keep it up!", points=10),
         Achievement(title="Noob", description="You signed up for the service!", points=10)
     ]
     for achievement in achievements:

@@ -8,7 +8,6 @@ from graphene_mongo import MongoengineObjectType
 class SettingsType(MongoengineObjectType):
     class Meta:
         model = Settings
-        interfaces = (Node,)
 
 class UserType(MongoengineObjectType):
     class Meta:
