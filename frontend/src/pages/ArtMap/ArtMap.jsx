@@ -44,7 +44,7 @@ export default function ArtMap() {
 
   const { push: goTo, goBack } = useHistory();
   const viewingArtwork = useRouteMatch({ path: "/map/:artwork", exact: true });
-  const navigating = useRouteMatch("/map/:artwork/tracking");
+  const navigating = useRouteMatch("/map/:artwork/track");
   const cardOpen = (viewingArtwork || selectedCluster.length) && !navigating;
 
   useEffect(
