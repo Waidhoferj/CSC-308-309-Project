@@ -1,26 +1,33 @@
-import { useLocation } from "react-router-dom";
-
 import MetricBadge from "../../../components/MetricBadge/MetricBadge";
 import Tag from "../../../components/Tag/Tag";
 
-export default function ArtInfo({ description, rating, title, tags }) {
-  console.log({ tags });
+export default function ArtInfo({
+  description,
+  rating,
+  title,
+  tags,
+  visitors,
+  distance,
+  onConfirm,
+}) {
   return (
     <div className="ArtInfo">
-      <h1>{title}</h1>
+      <h2>{title}</h2>
       <p>{description}</p>
       <div className="metrics">
         <MetricBadge value={rating} unit="star rating" />
+        <MetricBadge value={visitors} unit="visitors" />
+        {distance && <MetricBadge value={distance} unit="miles away" />}
       </div>
 
       {tags && (
-        <ul>
+        <ul className="wrapper">
           {tags.map((tag) => (
-            <Tag key={tag} {...tag} />
+            <Tag key={tag}>{tag}</Tag>
           ))}
         </ul>
       )}
-      <button>Let's Go</button>
+      <button onClick={onConfirm}>Let's Go</button>
     </div>
   );
 }

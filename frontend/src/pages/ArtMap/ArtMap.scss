@@ -1,3 +1,5 @@
+@use "../../styles/utils.scss" as utils;
+
 .ArtMap {
   width: 100%;
   height: 100vh;
@@ -7,6 +9,7 @@
   }
 
   .card {
+    z-index: 20;
     nav {
       padding: 0;
     }
@@ -14,6 +17,141 @@
     bottom: 10px;
     left: 10px;
     background-color: white;
-    padding: 20px;
+    padding: 20px 30px;
+    width: 30vw;
+    min-width: 400px;
+    max-width: 1000px;
+    min-height: 50vh;
+    overflow-y: scroll;
+
+    @include utils.viewport(small) {
+      min-width: initial;
+      min-height: initial;
+      max-height: 50%;
+      bottom: 0px;
+      left: 0px;
+      width: 100%;
+    }
+  }
+
+  .art-marker,
+  .ClusterMarker {
+    cursor: pointer;
+    p {
+      display: inline-block;
+      margin: 0;
+      vertical-align: middle;
+    }
+    svg {
+      width: 20px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  .ClusterMarker {
+    min-width: 50px;
+    text-align: center;
+    padding: 7px 10px;
+    border-radius: 14px;
+    background-color: white;
+    color: var(--c-primary);
+  }
+
+  .art-marker {
+    position: relative;
+    padding: 10px;
+    border-radius: 3px;
+    background-color: white;
+    border: 1px solid var(--c-primary);
+    text-align: center;
+    min-width: 60px;
+    color: var(--c-primary);
+    &::before {
+      $size: 10px;
+      background: var(--c-primary);
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: $size;
+      height: $size;
+      transform: rotate(315deg) translateX(-50%);
+    }
+  }
+}
+
+.ArtChoices {
+  h2 {
+    margin-bottom: 0;
+  }
+  hr {
+    border-color: black;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    max-height: 50vh;
+    overflow-y: scroll;
+  }
+  .ArtChoice {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin: 0;
+    border-bottom: 1px solid rgb(209, 209, 209);
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    .title {
+      max-width: 80%;
+      margin: 10px 0;
+    }
+
+    svg {
+      width: 20px;
+      vertical-align: bottom;
+    }
+  }
+}
+
+.DirectionsCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  max-width: 90%;
+  top: 20px;
+  left: 50%;
+  padding: 20px;
+  background-color: white;
+  border-radius: 20px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 15px #0000001f;
+
+  p {
+    height: min-content;
+    width: 55px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 25px;
+  }
+  h3 {
+    margin: 0;
+    margin-bottom: 10px;
+    font-size: 17px;
+  }
+
+  .mid-wrapper {
+    text-align: center;
+    margin: 0 20px;
   }
 }

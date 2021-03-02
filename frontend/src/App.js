@@ -9,9 +9,9 @@ function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/map" component={ArtMap} />
-        <Route path="/map/:artwork" component={ArtMap} />
-        <Route path="/map/:artwork/directions" component={ArtMap} />
+        <Route exact path="/map" component={ArtMap} />
+        <Route exact path="/map/:artwork" component={ArtMap} />
+        <Route exact path="/map/:artwork/track" component={ArtMap} />
         {/* For example /artwork/1 */}
         <Route path="/artwork/:id" component={Artwork} />
         <Route path="/camera" component={Camera} />

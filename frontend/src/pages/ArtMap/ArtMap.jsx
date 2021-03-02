@@ -1,11 +1,22 @@
 import "./ArtMap.scss";
-import ReactMapboxGl, { ScaleControl, Source, Layer } from "react-mapbox-gl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import artAreasJSON from "./art-areas.json";
 import ArtInfo from "./components/ArtInfo";
 import ArtChoices from "./components/ArtChoices";
-import { useRouteMatch, useHistory, useParams } from "react-router-dom";
-import { X as XIcon, ArrowLeft } from "react-feather";
+import DirectionsCard from "./components/DirectionsCard";
+
+import {
+  useRouteMatch,
+  useHistory,
+  useParams,
+  Switch,
+  Route,
+} from "react-router-dom";
+import { ArrowLeft, Star } from "react-feather";
+import { motion, AnimatePresence } from "framer-motion";
+import { GeolocateControl } from "mapbox-gl";
+import ReactMapboxGl, { ScaleControl, Cluster, Marker } from "react-mapbox-gl";
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -17,95 +28,97 @@ const mapStyles = {
   height: "100%",
   position: "absolute",
   top: 0,
-  position: "relative",
-};
-
-const geojsonSource = {
-  type: "geojson",
-  data: artAreasJSON,
-  cluster: true,
-  clusterMaxZoom: 10,
-  clusterRadius: 20,
-};
-
-const clusterLayer = {
-  id: "clusters",
-  type: "circle",
-  sourceId: "artworks",
-  filter: ["has", "point_count"],
-  paint: {
-    "circle-color": "#f1f075",
-    "circle-radius": 20,
-  },
-};
-
-const clusterCountLayer = {
-  id: "cluster-count",
-  type: "symbol",
-  sourceId: "artworks",
-  filter: ["has", "point_count"],
-  layout: {
-    "text-field": "{point_count_abbreviated}",
-    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-    "text-size": 12,
-  },
-};
-
-const unclusteredPoint = {
-  id: "unclustered-point",
-  type: "circle",
-  sourceId: "artworks",
-  filter: ["!", ["has", "point_count"]],
-  paint: {
-    "circle-color": "#11b4da",
-    "circle-radius": 4,
-    "circle-stroke-width": 1,
-    "circle-stroke-color": "#fff",
-    "circle-radius": 10,
-  },
 };
 
 export default function ArtMap() {
-  const { artwork } = useParams();
-  console.log({ artwork });
-  const [location, setLocation] = useState([-122.447372, 37.750411]);
-  const [zoom, setZoom] = useState([11]);
+  const { artwork: artId } = useParams();
+  const [mapLocation] = useState([-122.447372, 37.750411]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [zoom] = useState([11]);
   const [selectedCluster, setSelectedCluster] = useState([]);
-  const [selectedArtwork, setSelectedArtwork] = useState(-1);
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const artDistance =
+    userLocation && selectedArtwork
+      ? getGeoDistance(userLocation, selectedArtwork.coordinates)
+      : null;
 
-  const { goBack, push: goTo } = useHistory();
+  const { push: goTo, goBack } = useHistory();
   const viewingArtwork = useRouteMatch({ path: "/map/:artwork", exact: true });
-  const navigating = useRouteMatch("/map/:artwork/directions");
-  console.log({ viewingArtwork, navigating });
+  const navigating = useRouteMatch("/map/:artwork/tracking");
+  const cardOpen = (viewingArtwork || selectedCluster.length) && !navigating;
 
-  const cardOpen = viewingArtwork || selectedCluster.length;
+  useEffect(
+    function handleDirectNavigation() {
+      if ((viewingArtwork || navigating) && !selectedArtwork) {
+        // Reach out to the server and get the correct artwork
+        // This is gonna trigger if someone shares a link, skipping the browsing phase.
+        const id = Number(artId);
+        const targetArt = artAreasJSON.features.find(
+          (art) => art.properties.id === id
+        );
+        setSelectedArtwork({
+          ...targetArt.properties,
+          coordinates: targetArt.geometry.coordinates,
+        });
+      }
+    },
+    [viewingArtwork, navigating, artId, selectedArtwork]
+  );
 
-  function onClusterClick(e) {
-    const features = e.target.queryRenderedFeatures(e.point, {
-      layers: ["clusters"],
+  function onMapLoad(map) {
+    const geoControl = new GeolocateControl({ trackUserLocation: true });
+    map.addControl(geoControl);
+
+    geoControl.on("geolocate", (e) => {
+      setUserLocation([e.coords.longitude, e.coords.latitude]);
     });
-    const clusterId = features[0].properties.cluster_id;
-    const pointCount = features[0].properties.point_count;
-    e.target
-      .getSource("artworks")
-      .getClusterLeaves(clusterId, pointCount, 0, function (err, children) {
-        console.log(children);
-        setSelectedCluster(children.map((c) => c.properties));
-      });
   }
 
-  function onArtworkClick(e) {
-    setSelectedCluster([e.features[0].properties]);
-    setSelectedArtwork(e.features[0].properties.id);
-    goTo("/map/" + e.features[0].properties.id);
+  function chooseArtworkMarker(artwork) {
+    setSelectedCluster([]);
+    setSelectedArtwork(artwork);
+    goTo("/map/" + artwork.id);
   }
 
-  function showPointer({ target }) {
-    target.getCanvas().style.cursor = "pointer";
+  function chooseArtwork(artwork) {
+    setSelectedArtwork(artwork);
+    goTo("/map/" + artwork.id);
   }
 
-  function hidePointer({ target }) {
-    target.getCanvas().style.cursor = "";
+  function chooseCluster(children) {
+    const clusterArtworks = children.map((child) => ({
+      ...child.props.artwork,
+      coordinates: child.props.coordinates,
+    }));
+    setSelectedArtwork(null);
+    setSelectedCluster(clusterArtworks);
+  }
+
+  function deselectArtwork() {
+    setSelectedArtwork(null);
+    goTo("/map");
+  }
+
+  function startDirecting() {
+    if (!userLocation) {
+      const geolocateControl = document.querySelector(
+        ".mapboxgl-ctrl-geolocate"
+      );
+      geolocateControl?.click();
+    }
+    goTo(`/map/${artId}/track`);
+  }
+
+  function ClusterMarker(coordinates, pointCount, getLeaves) {
+    return (
+      <Marker
+        className="ClusterMarker"
+        coordinates={coordinates}
+        onClick={() => chooseCluster(getLeaves())}
+      >
+        <p>{pointCount}</p>
+      </Marker>
+    );
   }
 
   return (
@@ -114,42 +127,101 @@ export default function ArtMap() {
         // eslint-disable-next-line
         style="mapbox://styles/mapbox/light-v10"
         containerStyle={mapStyles}
-        center={location}
+        center={mapLocation}
         zoom={zoom}
+        onStyleLoad={onMapLoad}
+        renderChildrenInPortal={true}
       >
-        <Source id="artworks" geoJsonSource={geojsonSource} />
-        <Layer
-          {...clusterLayer}
-          onClick={onClusterClick}
-          onMouseEnter={showPointer}
-          onMouseLeave={hidePointer}
-        />
-        <Layer {...clusterCountLayer} />
-        <Layer
-          {...unclusteredPoint}
-          onClick={onArtworkClick}
-          onMouseEnter={showPointer}
-          onMouseLeave={hidePointer}
-        />
+        <Cluster ClusterMarkerFactory={ClusterMarker}>
+          {artAreasJSON.features.map((feature, key) => (
+            <Marker
+              coordinates={feature.geometry.coordinates}
+              key={key}
+              onClick={() =>
+                chooseArtworkMarker({
+                  ...feature.properties,
+                  coordinates: feature.geometry.coordinates,
+                })
+              }
+              artwork={feature.properties}
+            >
+              <div className="art-marker">
+                <p>{feature.properties.rating}</p> <Star />
+              </div>
+            </Marker>
+          ))}
+        </Cluster>
         <ScaleControl measurement="mi" />
       </Map>
-
-      {cardOpen && (
-        <aside className="card">
-          <nav>
-            <button className="wrapper" onClick={goBack}>
-              {viewingArtwork ? <ArrowLeft /> : <XIcon />}
-            </button>
-          </nav>
-          {viewingArtwork ? (
-            <ArtInfo
-              {...selectedCluster.filter(({ id }) => id === selectedArtwork)[0]}
-            />
-          ) : (
-            <ArtChoices choices={selectedCluster} />
-          )}
-        </aside>
-      )}
+      <AnimatePresence>
+        {cardOpen && (
+          <motion.aside
+            className="card"
+            initial={{ y: "110%" }}
+            animate={{ y: "0%" }}
+            exit={{ y: "110%" }}
+            transition={{ duration: 0.5, type: "tween" }}
+          >
+            <nav>
+              <button className="wrapper">
+                <ArrowLeft
+                  onClick={() =>
+                    viewingArtwork ? deselectArtwork() : setSelectedCluster([])
+                  }
+                />
+              </button>
+            </nav>
+            <Switch>
+              <Route exact path="/map/:artwork">
+                <ArtInfo
+                  {...selectedArtwork}
+                  distance={artDistance}
+                  onConfirm={startDirecting}
+                />
+              </Route>
+              <Route exact path="*">
+                <ArtChoices
+                  artworks={selectedCluster}
+                  onArtworkSelected={chooseArtwork}
+                />
+              </Route>
+            </Switch>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+      <Route exact path="/map/:artwork/track">
+        <DirectionsCard
+          {...selectedArtwork}
+          distance={artDistance}
+          onCancel={goBack}
+        />
+      </Route>
     </article>
   );
+}
+
+/**
+ *
+ * @param {number[]} p1
+ * @param {number[]} p2
+ * @returns distance
+ */
+function getGeoDistance(p1, p2) {
+  if (p1[0] === p2[0] && p1[1] === p2[1]) {
+    return 0;
+  } else {
+    p1[1] = (Math.PI * p1[1]) / 180;
+    p2[1] = (Math.PI * p2[1]) / 180;
+    let theta = (Math.PI * (p1[0] - p2[0])) / 180;
+    var dist =
+      Math.sin(p1[1]) * Math.sin(p2[1]) +
+      Math.cos(p1[1]) * Math.cos(p2[1]) * Math.cos(theta);
+    if (dist > 1) {
+      dist = 1;
+    }
+    dist = Math.acos(dist);
+    dist = (dist * 180) / Math.PI;
+    dist = dist * 60 * 1.1515;
+    return Math.round(dist * 100) / 100;
+  }
 }
