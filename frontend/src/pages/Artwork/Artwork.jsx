@@ -10,13 +10,16 @@ import {
 } from "react-feather";
 import exampleArt from "../../assets/example-art.jpg";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
+import Tag from "../../components/Tag/Tag";
 
 const artwork = {
   title: "Some Artwork",
   description:
     "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laboriosam est atque, similique dignissimos itaque ipsum, nemo, dolore modi tempore esse voluptatem temporibus? Recusandae molestias dolor non beatae nobis enim debitis!",
-  tags: ["very", "noice"],
-  metrics: [{ value: 17, unit: "People Visited" }],
+  tags: ["very", "noice", "tag3"],
+  metrics: [{ value: 17, unit: "People Visited" },
+            { value: 12, unit: "Related Pieces"},
+            { value: 53, unit: "Comments"}],
   rating: 3.2,
 };
 
@@ -43,7 +46,9 @@ export default function Artwork() {
         <p className="description">{artwork.description}</p>
         <ul className="tags">
           {artwork.tags.map((tag) => (
-            <li>{tag}</li>
+            <li>
+              <Tag children={tag} />
+            </li>
           ))}
         </ul>
 
