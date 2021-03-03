@@ -1,4 +1,3 @@
-import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ArtMap from "./pages/ArtMap/ArtMap";
 import Camera from "./pages/Camera/Camera";

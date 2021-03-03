@@ -61,7 +61,8 @@ ul.wrapper {
   list-style: none;
 }
 
-button {
+button,
+input[type="submit"] {
   background: var(--c-primary);
   padding: 15px 30px;
   margin: 5px;
@@ -72,19 +73,20 @@ button {
   border-radius: 10px;
   cursor: pointer;
   transition: transform 0.1s;
-}
 
-button.wrapper {
-  padding: 0;
-  background: transparent;
-  border-radius: 0;
-}
-button.wrapper:focus {
-  outline: none;
-}
+  &.wrapper {
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
 
-button:active {
-  transform: scale(0.97);
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
 input[type="text"],
