@@ -1,7 +1,6 @@
 import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ArtMap from "./pages/ArtMap/ArtMap";
-import Compass from "./pages/Compass/Compass";
 import Camera from "./pages/Camera/Camera";
 import Artwork from "./pages/Artwork/Artwork";
 import StyleGuide from "./components/StyleGuide";
@@ -10,8 +9,9 @@ function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/map" component={ArtMap} />
-        <Route path="/compass" component={Compass} />
+        <Route exact path="/map" component={ArtMap} />
+        <Route exact path="/map/:artwork" component={ArtMap} />
+        <Route exact path="/map/:artwork/track" component={ArtMap} />
         {/* For example /artwork/1 */}
         <Route path="/artwork/:id" component={Artwork} />
         <Route path="/camera" component={Camera} />

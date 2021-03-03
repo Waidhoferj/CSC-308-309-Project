@@ -56,6 +56,11 @@ p {
   font-weight: 500;
 }
 
+ul.wrapper {
+  padding: 0;
+  list-style: none;
+}
+
 button {
   background: var(--c-primary);
   padding: 15px 30px;
@@ -73,6 +78,9 @@ button.wrapper {
   padding: 0;
   background: transparent;
   border-radius: 0;
+}
+button.wrapper:focus {
+  outline: none;
 }
 
 button:active {
