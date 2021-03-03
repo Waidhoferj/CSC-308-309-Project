@@ -17,12 +17,13 @@ class UserMetrics(EmbeddedDocument):
     works_visited = IntField(default=0)
     works_found = IntField(default=0)
     cities_visited = IntField(default=0)
-    posts_written = IntField(default=0)
+    posts_written = IntField(default=0) # not entirely sure what this represents
 
 class User(Document):
     meta = {"collection": "user"}
     name = StringField(required=True)
-    bio = StringField()
+    bio = StringField(),
+    profile_pic = StringField(),
     date_joined = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("UserMetrics", dbref=True)
     achievements = ListField(ReferenceField("Achievement"), default=list)
@@ -46,7 +47,10 @@ class Comment(EmbeddedDocument):
     # could add int attribute for likes, would have to associate it with the user though
 
 class Artwork(Document):
-    meta = {"collection": "artwork"}
+    meta = {
+        "collection": "artwork",
+        "indexes": [("location", "2dsphere")]
+    }
     title = StringField(required=True)
     artist = StringField(required=False)
     description = StringField(required=True)

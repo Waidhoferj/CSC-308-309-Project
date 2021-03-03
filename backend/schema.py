@@ -19,5 +19,5 @@ class Mutations(graphene.ObjectType):
     delete_user = DeleteUserMutation.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutations)
-# Not sure why types is was here
+# Not sure why types was here
 # schema = graphene.Schema(query=Query, mutation=Mutations, types=[ArtworkType, UserType, PortfolioType, AchievementType])
