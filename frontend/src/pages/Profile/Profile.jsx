@@ -1,16 +1,38 @@
 import "./Profile.scss";
-import { useQuery } from "@apollo/client";
+import { useQuery, gql } from "@apollo/client";
 import { MoreHorizontal } from "react-feather";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import exampleProfile from "../../assets/example-profile.jpg";
 
+const GET_USER_QUERY = gql`
+  query getUsers($userId: ID!) {
+    users(id: $userId) {
+      edges {
+        node {
+          name
+          bio
+          metrics {
+            worksFound
+            worksVisited
+            postsWritten
+          }
+        }
+      }
+    }
+  }
+`;
 export default function Profile() {
+  const { data, loading } = useQuery(GET_USER_QUERY, {
+    variables: { userId: "0" },
+  });
+
+  const user = loading ? {} : data?.users.edges[0].node;
   return (
     <article className="Profile">
       <header>
         <div className="user">
           <img src={exampleProfile} alt="Profile" />
-          <h1>User</h1>
+          <h1>{user?.name}</h1>
         </div>
         <div className="options">
           <button className="wrapper">
@@ -26,12 +48,7 @@ export default function Profile() {
         </div>
 
         <h2>Bio</h2>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Iste dolorem
-          unde ex sit veritatis suscipit voluptatum aliquam harum similique
-          exercitationem, fuga aspernatur dolores repudiandae facere voluptatem
-          eum, delectus natus molestiae!
-        </p>
+        <p>{user?.bio}</p>
       </div>
     </article>
   );
