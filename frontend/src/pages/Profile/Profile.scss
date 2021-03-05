@@ -1,0 +1,36 @@
+.Profile {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+    box-shadow: var(--shadow-button);
+
+    .user {
+      display: flex;
+      align-items: center;
+      h1 {
+        display: inline-block;
+        margin: 0;
+        margin-left: 25px;
+      }
+
+      img {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        object-position: center;
+        object-fit: cover;
+      }
+    }
+
+    .options svg {
+      color: var(--c-primary);
+    }
+  }
+
+  .content {
+    padding: 30px;
+    overflow-y: scroll;
+  }
+}

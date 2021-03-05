@@ -4,6 +4,7 @@ import Camera from "./pages/Camera/Camera";
 import Artwork from "./pages/Artwork/Artwork";
 import StyleGuide from "./components/StyleGuide";
 import ArtSubmission from "./pages/ArtSubmission/ArtSubmission";
+import Profile from "./pages/Profile/Profile";
 import { client } from "./graphql-config";
 import { ApolloProvider } from "@apollo/client";
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/artwork/:id" component={Artwork} />
           <Route path="/camera" component={Camera} />
           <Route path="/art-submission" component={ArtSubmission} />
+          <Route path="/profile" component={Profile} />
           <Route path="/style-guide" component={StyleGuide} />
           <Route path="*" component={ArtMap} />
         </Switch>
