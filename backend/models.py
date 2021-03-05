@@ -52,11 +52,10 @@ class Artwork(Document):
     description = StringField(required=True)
     found_by = ReferenceField("User")
     location = PointField()
-    metrics = EmbeddedDocumentField("ArtworkMetrics")
+    metrics = EmbeddedDocumentField("ArtworkMetrics", default=ArtworkMetrics)
     rating = FloatField(min_value=0, max_value=100)
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
     tags = ListField(StringField(), default=list)
-    # could make tags their own type of document to parse and reference
 
 class Group(Document):
     meta = {"collection": "group"}

@@ -6,7 +6,7 @@ export default function ArtInfo({
   rating,
   title,
   tags,
-  visitors,
+  metrics,
   distance,
   onConfirm,
 }) {
@@ -15,8 +15,10 @@ export default function ArtInfo({
       <h2>{title}</h2>
       <p>{description}</p>
       <div className="metrics">
-        <MetricBadge value={rating} unit="star rating" />
-        <MetricBadge value={visitors} unit="visitors" />
+        {rating && <MetricBadge value={rating} unit="star rating" />}
+        {metrics?.totalVisits && (
+          <MetricBadge value={metrics.totalVisits} unit="visitors" />
+        )}
         {distance && <MetricBadge value={distance} unit="miles away" />}
       </div>
 

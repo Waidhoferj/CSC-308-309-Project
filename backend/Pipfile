@@ -9,6 +9,7 @@ flask-graphql = "*"
 graphene-mongo = "*"
 mongomock = "*"
 dnspython = "*"
+flask-cors = "*"
 
 [dev-packages]
 

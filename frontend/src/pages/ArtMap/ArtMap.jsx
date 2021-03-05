@@ -1,10 +1,11 @@
 import "./ArtMap.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import artAreasJSON from "./art-areas.json";
 import ArtInfo from "./components/ArtInfo";
 import ArtChoices from "./components/ArtChoices";
 import DirectionsCard from "./components/DirectionsCard";
+import queries from "./queries";
 
 import {
   useRouteMatch,
@@ -17,6 +18,7 @@ import { ArrowLeft, Star } from "react-feather";
 import { motion, AnimatePresence } from "framer-motion";
 import { GeolocateControl } from "mapbox-gl";
 import ReactMapboxGl, { ScaleControl, Cluster, Marker } from "react-mapbox-gl";
+import { useQuery } from "@apollo/client";
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -32,7 +34,13 @@ const mapStyles = {
 
 export default function ArtMap() {
   const { artwork: artId } = useParams();
-  const [mapLocation] = useState([-122.447372, 37.750411]);
+  const {
+    loading: loadingArt,
+    error: artLoadingError,
+    data: rawArtData,
+  } = useQuery(queries.getArtworks);
+
+  const [mapLocation] = useState([-120.666132, 35.311089]);
   const [userLocation, setUserLocation] = useState(null);
   const [zoom] = useState([11]);
   const [selectedCluster, setSelectedCluster] = useState([]);
@@ -47,24 +55,42 @@ export default function ArtMap() {
   const navigating = useRouteMatch("/map/:artwork/track");
   const cardOpen = (viewingArtwork || selectedCluster.length) && !navigating;
 
+  // Reformats the fetched data into a more manageable structure.
+  const artworkData = useMemo(() => {
+    return navigating
+      ? [{ ...selectedArtwork }]
+      : rawArtData?.artwork.edges.map(
+          ({
+            node: { title, id, description, rating, metrics, tags, location },
+          }) => ({
+            id,
+            title,
+            description,
+            coordinates: [...location.coordinates],
+            rating: (Math.round(rating) / 100) * 5,
+            metrics,
+            tags,
+          })
+        );
+  }, [loadingArt, navigating]);
+
   useEffect(
     function handleDirectNavigation() {
-      if ((viewingArtwork || navigating) && !selectedArtwork) {
-        // Reach out to the server and get the correct artwork
-        // This is gonna trigger if someone shares a link, skipping the browsing phase.
-        const id = Number(artId);
-        const targetArt = artAreasJSON.features.find(
-          (art) => art.properties.id === id
-        );
+      // If the art should be shown and the art is available
+      if ((viewingArtwork || navigating) && !selectedArtwork && !loadingArt) {
+        const targetArt = artworkData?.find((art) => art.id === artId);
         setSelectedArtwork({
-          ...targetArt.properties,
-          coordinates: targetArt.geometry.coordinates,
+          ...targetArt,
         });
       }
     },
-    [viewingArtwork, navigating, artId, selectedArtwork]
+    [viewingArtwork, navigating, artId, selectedArtwork, loadingArt]
   );
 
+  /**
+   * Called when map has initialized. Used for instantiating plugins and controls.
+   * @param {*} map mapbox instance
+   */
   function onMapLoad(map) {
     const geoControl = new GeolocateControl({ trackUserLocation: true });
     map.addControl(geoControl);
@@ -74,21 +100,32 @@ export default function ArtMap() {
     });
   }
 
+  /**
+   * Selects a single piece of artwork and deselects any clusters.
+   * @param {*} artwork Data of single artwork
+   */
   function chooseArtworkMarker(artwork) {
     setSelectedCluster([]);
     setSelectedArtwork(artwork);
     goTo("/map/" + artwork.id);
   }
 
+  /**
+   * Selects a target artwork.
+   * @param {*} artwork A single piece of artwork
+   */
   function chooseArtwork(artwork) {
     setSelectedArtwork(artwork);
     goTo("/map/" + artwork.id);
   }
 
+  /**
+   * Opens card displaying all artworks that belong to the selected cluster.
+   * @param {*} children mapbox nodes that belong to the cluster
+   */
   function chooseCluster(children) {
     const clusterArtworks = children.map((child) => ({
       ...child.props.artwork,
-      coordinates: child.props.coordinates,
     }));
     setSelectedArtwork(null);
     setSelectedCluster(clusterArtworks);
@@ -99,6 +136,9 @@ export default function ArtMap() {
     goTo("/map");
   }
 
+  /**
+   * Triggers user location services and opens directions screen.
+   */
   function startDirecting() {
     if (!userLocation) {
       const geolocateControl = document.querySelector(
@@ -109,6 +149,13 @@ export default function ArtMap() {
     goTo(`/map/${artId}/track`);
   }
 
+  /**
+   * Represents a group of artworks on the map.
+   * @param {*} coordinates position of cluster marker
+   * @param {*} pointCount Number of artworks under the cluster
+   * @param {*} getLeaves Returns artwork nodes that belong to the cluster
+   * @returns A cluster marker
+   */
   function ClusterMarker(coordinates, pointCount, getLeaves) {
     return (
       <Marker
@@ -133,20 +180,15 @@ export default function ArtMap() {
         renderChildrenInPortal={true}
       >
         <Cluster ClusterMarkerFactory={ClusterMarker}>
-          {artAreasJSON.features.map((feature, key) => (
+          {artworkData?.map((artwork, key) => (
             <Marker
-              coordinates={feature.geometry.coordinates}
+              coordinates={artwork.coordinates}
               key={key}
-              onClick={() =>
-                chooseArtworkMarker({
-                  ...feature.properties,
-                  coordinates: feature.geometry.coordinates,
-                })
-              }
-              artwork={feature.properties}
+              onClick={() => chooseArtworkMarker(artwork)}
+              artwork={artwork}
             >
               <div className="art-marker">
-                <p>{feature.properties.rating}</p> <Star />
+                <p>{artwork.rating}</p> <Star />
               </div>
             </Marker>
           ))}
@@ -190,23 +232,27 @@ export default function ArtMap() {
         )}
       </AnimatePresence>
       <Route exact path="/map/:artwork/track">
-        <DirectionsCard
-          {...selectedArtwork}
-          distance={artDistance}
-          onCancel={goBack}
-        />
+        {selectedArtwork && (
+          <DirectionsCard
+            {...selectedArtwork}
+            distance={artDistance}
+            onCancel={goBack}
+          />
+        )}
       </Route>
     </article>
   );
 }
 
 /**
- *
+ * Gets the distance in miles between two [lon, lat] points
  * @param {number[]} p1
  * @param {number[]} p2
  * @returns distance
  */
-function getGeoDistance(p1, p2) {
+function getGeoDistance(point1, point2) {
+  let p1 = [...point1];
+  let p2 = [...point2];
   if (p1[0] === p2[0] && p1[1] === p2[1]) {
     return 0;
   } else {
