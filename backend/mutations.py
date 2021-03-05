@@ -9,10 +9,16 @@ List of possible mutations to make:
 
     create_group - todo
     update_group - todo
-    delete_group - todo, when should a group be deleted?
+    delete_group - todo
+
+    incrementing metrics mutations - todo
 
     
 '''
+
+# Note reference fields need ObjectId typed input
+
+# Idea, might wanna store the graphql id in mongodb
 
 #class UpdateAchievementMutation(graphene.Mutation): # this will be for us
 
@@ -83,6 +89,7 @@ class UpdateUserMutation(graphene.Mutation):
 
     def mutate(self, info, user_data=None):
         user = UpdateUserMutation.get_object(user_data.id)
+        print(user)
         if user_data.name:
             user.name = user_data.name
         if user_data.bio:
@@ -98,9 +105,12 @@ class UpdateUserMutation(graphene.Mutation):
         if user_data.achievement:
             user.achievements.append(Achievement.objects.get(user_data.achievement)) 
         if user_data.art_to_add:
-            user.portfolio.artworks.append(user_data.art_to_add) # need to fix
+            print(type(user.personal_portfolio.artworks))
+            user.personal_portfolio.artworks.append(UpdateArtworkMutation.get_object(user_data.art_to_add)) # fixed
         if user_data.art_to_remove:
-            user.portfolio.artworks.update(pull__following=art_to_remove)
+            # user.personal_portfolio.artworks.update(pull__following=art_to_remove)
+            user.personal_portfolio.artworks = user.personal_portfolio.artworks.exclude(UpdateArtworkMutation.get_object(user_data.art_to_add))
+            # it won't let me us update or exclude which are the only ways I can find out how to do this
         if user_data.group:
             user.groups.append(Group.objects.get(user_data.group))
         if user_data.settings:
@@ -149,7 +159,6 @@ class ArtworkInput(graphene.InputObjectType):
 
 ''' 
 where I left off:
-    Need to test edits thus far, unsure the most about the nested inputs
     Need to finish artwork mutations
         Figure out how artwork is stored: https://www.reddit.com/r/flask/comments/b88o0u/save_image_in_mongodb_with_mongoengine/
             https://docs.mongoengine.org/apireference.html#mongoengine.fields.ImageField

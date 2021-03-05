@@ -49,6 +49,9 @@ def connect_to_db(type):
 
 
 def mock_db_setup():
+    ''' NOTE: by default, graphql turns everything into camel case
+                and we must query by that'''
+
     client = Client(schema)
 >>>>>>> 4de2d24 (Updated mutations and mock db)
 
@@ -103,17 +106,21 @@ def mock_db_setup():
             }}
         }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4]))
         artwork_ids.append(executed["data"]["createArtwork"]["id"])
-    print(user_ids)
-    print(artwork_ids)
+    
+    for id in user_ids:
+        print("User Id: " + id)
+    for id in artwork_ids:
+        print("Artwork Id: " + id)
 
 
     for user, artwork in zip(user_ids, artwork_ids):
         # this mutation doesn't seem to work entirely
+        print(user, artwork)
         executed = client.execute("""
         mutation {{
             updateUser(userData: {{
                 id: "{0}",
-                art_to_add: "{1}"    
+                artToAdd: "{1}"    
             }}) {{
                 user {{
                     name,

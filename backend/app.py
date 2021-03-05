@@ -24,6 +24,7 @@ app.add_url_rule("/graphql", view_func=GraphQLView.as_view('graphql', schema=sch
 
 if __name__ == '__main__':
 <<<<<<< HEAD
+<<<<<<< HEAD
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('-l', "--l", "-local", dest='local', action='store_const', const=True, default=False, help='Indicates if the program should run in development mode')
     args = parser.parse_args()
@@ -43,4 +44,7 @@ if __name__ == '__main__':
 =======
     connect_to_db("MOCK")   # types: "TESTING", "ACTUAL", "MOCK"
 >>>>>>> 4de2d24 (Updated mutations and mock db)
+=======
+    connect_to_db("TESTING")   # types: "TESTING", "ACTUAL", "MOCK"
+>>>>>>> d2f9822 (Fixed adding art to user's portfolio)
     app.run(debug=True)
