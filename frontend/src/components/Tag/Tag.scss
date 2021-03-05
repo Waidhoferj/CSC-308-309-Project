@@ -1,12 +1,17 @@
 .Tag {
   display: inline-block;
-  margin: 5px;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 10px 24px;
+  margin: 2px;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 4px 17px;
   background: transparent;
-  border: 3px solid var(--c-primary);
+  border: 2px solid var(--c-primary);
   color: var(--c-primary);
   border-radius: 25px;
   cursor: pointer;
+  transition-duration: 0.05s;
+
+  &:active {
+    transform: scale(0.97);
+  }
 }

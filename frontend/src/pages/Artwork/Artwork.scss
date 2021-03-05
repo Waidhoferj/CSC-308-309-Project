@@ -1,2 +1,61 @@
 .Artwork {
+  header {
+    $abs-pad: 30px;
+    position: relative;
+    width: 100%;
+    height: 50vh;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    h1 {
+      position: absolute;
+      bottom: $abs-pad;
+      left: $abs-pad;
+      color: white;
+      margin: 0;
+    }
+
+    .back-button {
+      position: absolute;
+      top: $abs-pad;
+      left: $abs-pad;
+    }
+
+    .options {
+      position: absolute;
+      bottom: $abs-pad;
+      right: $abs-pad;
+
+      button {
+        display: block;
+        margin: 5px;
+      }
+    }
+  }
+
+  .content {
+    height: 50vh;
+    overflow-y: scroll;
+    padding: 20px;
+
+    .tags {
+      list-style: none;
+      padding: 0;
+      li {
+        display: inline-block;
+        margin: 2px;
+      }
+    }
+    .actions {
+      button {
+        display: inline-block;
+        margin: 10px;
+        outline: none;
+      }
+    }
+  }
 }

@@ -124,6 +124,7 @@
 .DirectionsCard {
   display: flex;
   justify-content: space-between;
+  z-index: 5;
   align-items: center;
   position: absolute;
   max-width: 90%;
