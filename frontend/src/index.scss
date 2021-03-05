@@ -4,7 +4,7 @@
 
 :root {
   --c-background: white;
-  --c-primary: #32A5ff;
+  --c-primary: #3288ff;
   --c-accent: #71ac62;
   --c-problem: #fa6d42;
   --shadow-button: 0 0 20px rgba(0, 0, 0, 0.192);
@@ -78,10 +78,7 @@ input[type="submit"] {
     padding: 0;
     background: transparent;
     border-radius: 0;
-
-    &:focus {
-      outline: none;
-    }
+    outline: none;
   }
 
   &:active {

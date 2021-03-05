@@ -47,7 +47,7 @@ export default function Artwork() {
         <ul className="tags">
           {artwork.tags.map((tag) => (
             <li>
-              <Tag children={tag} />
+              <Tag>{tag}</Tag>
             </li>
           ))}
         </ul>
