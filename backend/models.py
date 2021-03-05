@@ -22,8 +22,8 @@ class UserMetrics(EmbeddedDocument):
 class User(Document):
     meta = {"collection": "user"}
     name = StringField(required=True)
-    bio = StringField(),
-    profile_pic = StringField(),
+    bio = StringField()
+    profile_pic = StringField()
     date_joined = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("UserMetrics", dbref=True)
     achievements = ListField(ReferenceField("Achievement"), default=list)
@@ -39,7 +39,7 @@ class Achievement(Document):
     # might wanna have metrics that have to be met to obtain
 
 class ArtworkMetrics(EmbeddedDocument):
-    totalVisits = IntField(default=0)
+    total_visits = IntField(default=0)
 
 class Comment(EmbeddedDocument):
     content = StringField(required=True)
@@ -49,7 +49,7 @@ class Comment(EmbeddedDocument):
 class Artwork(Document):
     meta = {
         "collection": "artwork",
-        "indexes": [("location", "2dsphere")]
+        #"indexes": [("location", "2dsphere")]
     }
     title = StringField(required=True)
     artist = StringField(required=False)
@@ -60,12 +60,17 @@ class Artwork(Document):
     rating = FloatField(min_value=0, max_value=100)
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
     tags = ListField(StringField(), default=list)
+<<<<<<< HEAD
+=======
+    # could make tags their own type of document to parse and reference
+    # Need to add a way to store pictures
+>>>>>>> 4de2d24 (Updated mutations and mock db)
 
 class Group(Document):
     meta = {"collection": "group"}
     name = StringField(required=True)
     bio = StringField()
     members = ListField(ReferenceField("User"), default=list)
-    portfolio = EmbeddedDocumentField("Portfolio") 
+    portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
 
