@@ -1,7 +1,6 @@
 import "./ArtMap.scss";
 import { useEffect, useMemo, useState } from "react";
 
-import artAreasJSON from "./art-areas.json";
 import ArtInfo from "./components/ArtInfo";
 import ArtChoices from "./components/ArtChoices";
 import DirectionsCard from "./components/DirectionsCard";
@@ -34,11 +33,9 @@ const mapStyles = {
 
 export default function ArtMap() {
   const { artwork: artId } = useParams();
-  const {
-    loading: loadingArt,
-    error: artLoadingError,
-    data: rawArtData,
-  } = useQuery(queries.getArtworks);
+  const { loading: loadingArt, data: rawArtData } = useQuery(
+    queries.getArtworks
+  );
 
   const [mapLocation] = useState([-120.666132, 35.311089]);
   const [userLocation, setUserLocation] = useState(null);
@@ -129,6 +126,7 @@ export default function ArtMap() {
     }));
     setSelectedArtwork(null);
     setSelectedCluster(clusterArtworks);
+    goTo("/map");
   }
 
   function deselectArtwork() {
@@ -179,20 +177,22 @@ export default function ArtMap() {
         onStyleLoad={onMapLoad}
         renderChildrenInPortal={true}
       >
-        <Cluster ClusterMarkerFactory={ClusterMarker}>
-          {artworkData?.map((artwork, key) => (
-            <Marker
-              coordinates={artwork.coordinates}
-              key={key}
-              onClick={() => chooseArtworkMarker(artwork)}
-              artwork={artwork}
-            >
-              <div className="art-marker">
-                <p>{artwork.rating}</p> <Star />
-              </div>
-            </Marker>
-          ))}
-        </Cluster>
+        {rawArtData && (
+          <Cluster ClusterMarkerFactory={ClusterMarker}>
+            {artworkData.map((artwork, key) => (
+              <Marker
+                coordinates={artwork.coordinates}
+                key={key}
+                onClick={() => chooseArtworkMarker(artwork)}
+                artwork={artwork}
+              >
+                <div className="art-marker">
+                  <p>{artwork.rating}</p> <Star />
+                </div>
+              </Marker>
+            ))}
+          </Cluster>
+        )}
         <ScaleControl measurement="mi" />
       </Map>
       <AnimatePresence>
