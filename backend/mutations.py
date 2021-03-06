@@ -5,22 +5,23 @@ from api_types import UserType, UserMetricsType, PortfolioType, SettingsType, Ac
 from api_types import ArtworkType
 
 '''
+Need to research more into mutation arguments, but I think how I have them right now is how it should be
 List of possible mutations to make:
 
     create_group - todo
     update_group - todo
     delete_group - todo
 
-    incrementing metrics mutations - todo
+    create_achievement - todo
+    update_achievement - todo
+    remove_achievement - todo
 
-    
+    incrementing metrics mutations (users and artworks) - todo    
 '''
 
-# Note reference fields need ObjectId typed input
-
+# NOTE: reference fields need ObjectId-typed input
+# NOTE: Collection methods - Remove deletes everything in the list, pop removes by index
 # Idea, might wanna store the graphql id in mongodb
-
-#class UpdateAchievementMutation(graphene.Mutation): # this will be for us
 
 class UserSettingsInput(graphene.InputObjectType):
     autoAddToGroupPortfolio = graphene.Boolean()
@@ -45,8 +46,6 @@ class UserInput(graphene.InputObjectType):
     settings = graphene.InputField(UserSettingsInput)
 
 
-
-
 class CreateUserMutation(graphene.Mutation):
     # possible output types to show with return query
     user = graphene.Field(UserType)
@@ -56,7 +55,6 @@ class CreateUserMutation(graphene.Mutation):
         user_data = UserInput(required=True)
 
     def mutate(self, info, user_data=None):
-        # Unsure how to reference the portfolio here
         portfolio = Portfolio()
         settings = Settings()
         metrics = UserMetrics()
@@ -89,12 +87,11 @@ class UpdateUserMutation(graphene.Mutation):
 
     def mutate(self, info, user_data=None):
         user = UpdateUserMutation.get_object(user_data.id)
-        print(user)
+        # print(user)
         if user_data.name:
             user.name = user_data.name
         if user_data.bio:
             user.bio = user_data.bio
-        # Not exactly sure on how we're tracking metrics incrementally
         if user_data.metrics:
             user.metrics = UserMetrics(
                 works_visited = user_data.metrics.works_visited,
@@ -105,15 +102,17 @@ class UpdateUserMutation(graphene.Mutation):
         if user_data.achievement:
             user.achievements.append(Achievement.objects.get(user_data.achievement)) 
         if user_data.art_to_add:
-            print(type(user.personal_portfolio.artworks))
-            user.personal_portfolio.artworks.append(UpdateArtworkMutation.get_object(user_data.art_to_add)) # fixed
+            user.personal_portfolio.artworks.append(UpdateArtworkMutation.get_object(user_data.art_to_add))
         if user_data.art_to_remove:
-            # user.personal_portfolio.artworks.update(pull__following=art_to_remove)
-            user.personal_portfolio.artworks = user.personal_portfolio.artworks.exclude(UpdateArtworkMutation.get_object(user_data.art_to_add))
-            # it won't let me us update or exclude which are the only ways I can find out how to do this
-        if user_data.group:
+            artworkToRemove = UpdateArtworkMutation.get_object(user_data.art_to_remove)
+            index = user.personal_portfolio.artworks.index(artworkToRemove)
+            if index == -1:
+                print(f"Art ({artToRemove.id}) is not in User's portfolio")
+            else:
+                user.personal_portfolio.artworks.pop(index)
+        if user_data.group: # to be tested
             user.groups.append(Group.objects.get(user_data.group))
-        if user_data.settings:
+        if user_data.settings: # to be tested but I imagine works
             user.settings = Settings(
                 autoAddToGroupPortfolio = settings.autoAddToGroupPortfolio
             )
@@ -150,37 +149,18 @@ class ArtworkInput(graphene.InputObjectType):
     title = graphene.String()
     artist = graphene.String()
     description = graphene.String()
-    found_by = graphene.String()  # will likely be user id
-    location = graphene.List(graphene.Float) # (longitude, latitude)
+    found_by = graphene.String()  # will be user id
+    location = graphene.List(graphene.Float)    # (longitude, latitude)
     metrics = graphene.InputField(ArtworkMetricsInput)
-    rating = graphene.Float()
-    comment = graphene.InputField(CommentInput)    # need a comment input field to append one, will likely add one at a time
-    tag = graphene.List(graphene.String)  # tag id to reference     
+    rating = graphene.Float()    # assuming 1-100 at the moment
+    comment = graphene.InputField(CommentInput)
+    tags = graphene.List(graphene.String)    
 
-''' 
-where I left off:
-    Need to finish artwork mutations
-        Figure out how artwork is stored: https://www.reddit.com/r/flask/comments/b88o0u/save_image_in_mongodb_with_mongoengine/
-            https://docs.mongoengine.org/apireference.html#mongoengine.fields.ImageField
-    Create mock artwork mutations
-    Test out geospacial indexing with mock artwork data
-        https://docs.mongodb.com/manual/geospatial-queries/
-        https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex
-        https://www.youtube.com/watch?v=iGnSNfzaLf4&ab_channel=Udacity
-        https://docs.mongoengine.org/guide/defining-documents.html# 
-        https://docs.mongoengine.org/guide/querying.html#advanced-queries - will want to use near
-    Then finish CRUD operations if possible
-
-    Extra:
-        What is the process of updating the metrics and achievements?
-
-
-'''
 
 class CreateArtworkMutation(graphene.Mutation):
-    # possible output types to show with return query
     artwork = graphene.Field(ArtworkType)
     id = graphene.ID()
+    tags = graphene.List(graphene.String)
 
     class Arguments:
         artwork_data = ArtworkInput(required=True)
@@ -199,13 +179,11 @@ class CreateArtworkMutation(graphene.Mutation):
             metrics = metrics,
             rating = artwork_data.rating,
             comments = [],
-            tags = []
+            tags = artwork_data.tags
         )
         artwork.save()
-        # artwork.location.point = [artwork_data.location[0], artwork_data.location[1]]
-        # artwork.save()
 
-        return CreateArtworkMutation(artwork=artwork, id=artwork.id)
+        return CreateArtworkMutation(artwork=artwork, id=artwork.id, tags=artwork.tags)
 
 class UpdateArtworkMutation(graphene.Mutation):
     artwork = graphene.Field(ArtworkType)
@@ -225,23 +203,23 @@ class UpdateArtworkMutation(graphene.Mutation):
             artwork.artist = artwork_data.artist
         if artwork_data.description:
             artwork.description = artwork_data.description
-        if artwork_data.found_by:
+        if artwork_data.found_by:   # not tested
             artwork.found_by = artwork_data.found_by
-        if artwork_data.location:
+        if artwork_data.location: # not tested
             artwork.location = {
                 "type": "Point",
                 "coordinates": [artwork_data.location[0], artwork_data.location[1]]
             }
-        if artwork_data.metrics:
+        if artwork_data.metrics: # not tested
             artwork.metrics = ArtworkMetrics(
                 total_visits = artwork_data.metrics.total_visits
             )
         if artwork_data.rating:
             artwork.rating = artwork_data.rating
-        if artwork_data.comment:
+        if artwork_data.comment:    # not tested and probably need to add more logic to control comments
             artwork.comments.append(artwork_data.comment)
-        # if artwork_data.tag:          leaving this out for until we're sure about how we are dealing with tags
-        #     artwork.tags.append(artwork_data.tag)
+        if artwork_data.tags:        # not tested, and might wanna add additional logic
+            artwork.tags = artwork_data.tags
         artwork.save()
 
         return UpdateArtworkMutation(artwork=artwork)
@@ -262,9 +240,18 @@ class DeleteArtworkMutation(graphene.Mutation):
 
         return DeleteArtworkMutation(success=success)
 
+''' 
+Geospatial Indexing Links:
+    https://docs.mongodb.com/manual/geospatial-queries/
+    https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex
+    https://www.youtube.com/watch?v=iGnSNfzaLf4&ab_channel=Udacity
+    https://docs.mongoengine.org/guide/defining-documents.html# 
+    https://docs.mongoengine.org/guide/querying.html#advanced-queries - will want to use near
 
 '''
-example mutations in graphql interface
+
+'''
+example mutations in graphql interface (see testing.py for more)
 ---------------------------------------
 
 Creates user and returns most relevant information about them:

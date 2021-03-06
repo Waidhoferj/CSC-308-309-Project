@@ -17,7 +17,7 @@ class UserMetrics(EmbeddedDocument):
     works_visited = IntField(default=0)
     works_found = IntField(default=0)
     cities_visited = IntField(default=0)
-    posts_written = IntField(default=0) # not entirely sure what this represents
+    posts_written = IntField(default=0) # not entirely sure what this represents, might wanna change it to works_created
 
 class User(Document):
     meta = {"collection": "user"}
@@ -60,11 +60,8 @@ class Artwork(Document):
     rating = FloatField(min_value=0, max_value=100)
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
     tags = ListField(StringField(), default=list)
-<<<<<<< HEAD
-=======
     # could make tags their own type of document to parse and reference
     # Need to add a way to store pictures
->>>>>>> 4de2d24 (Updated mutations and mock db)
 
 class Group(Document):
     meta = {"collection": "group"}

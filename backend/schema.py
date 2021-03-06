@@ -16,10 +16,10 @@ class Query(graphene.ObjectType):
     artwork = MongoengineConnectionField(ArtworkType)
     portfolios = MongoengineConnectionField(PortfolioType)
     achievements = MongoengineConnectionField(AchievementType)
-    location = graphene.List(graphene.Float)
+    # location = graphene.List(graphene.Float)
 
-    def resolve_near_artworks(root, info, location):
-        return Artwork.objects(point__near=location)
+    # def resolve_near_artworks(root, info, location):
+    #     return Artwork.objects(point__near=location)
 
 
 class Mutations(graphene.ObjectType):
