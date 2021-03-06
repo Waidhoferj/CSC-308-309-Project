@@ -21,7 +21,7 @@ List of possible mutations to make:
 
 # NOTE: reference fields need ObjectId-typed input
 # NOTE: Collection methods - Remove deletes everything in the list, pop removes by index
-# Idea, might wanna store the graphql id in mongodb
+# Idea, might wanna store the graphql id in mongodb or vise versa somehow
 
 class UserSettingsInput(graphene.InputObjectType):
     autoAddToGroupPortfolio = graphene.Boolean()
