@@ -2,7 +2,7 @@ from flask import Flask
 from flask_graphql import GraphQLView
 from schema import schema
 from database import init_db
-from testing import mock_db_setup
+from testing import testing_boot_up
 import argparse
 from mongoengine import connect
 import importlib
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     connect(host=database_uri)
     if use_local_dev:
         if execute_tests:
-            mock_db_setup() # must use both local and testing tag to get here
+            testing_boot_up() # must use both local and testing tag to get here
         else:
             init_db()
     app.run(debug=True)

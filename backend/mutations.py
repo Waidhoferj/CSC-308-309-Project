@@ -383,6 +383,7 @@ mutation {
     foundBy: "603f37cc87708975e37f8b9c",
     location: [-120.677494, 35.292708],
     rating: 55.0,
+    tags: ["beautiful", "colorful"]
     }) {
     id
     artwork {

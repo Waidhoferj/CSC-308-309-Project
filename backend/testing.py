@@ -5,17 +5,26 @@ from schema import schema
 from graphene.test import Client
 
 
-def mock_db_setup():
+def testing_boot_up():
     # NOTE: Must use camel-case in graphql calls, can change this if wanted
     client = Client(schema)
-
-    users_with_ids = create_users(client)
-    artworks_with_ids = create_artworks(client, users_with_ids)
+    users_with_ids, artworks_with_ids = mock_db_setup(client)
     # print(users_with_ids)
     # print(artworks_with_ids)
-    assign_artworks(client, users_with_ids, artworks_with_ids)
+    run_tests(client, users_with_ids, artworks_with_ids)
 
-    test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1]) 
+
+def mock_db_setup(client):
+    ''' Will create a mock database with all relational objects
+        Currently, just users and artworks are created and related '''
+    users_with_ids = create_users(client) # creates users
+    artworks_with_ids = create_artworks(client, users_with_ids) # creates artworks, each with a user that "created" it
+    assign_artworks(client, users_with_ids, artworks_with_ids)  # makes sure each user's portfolio contains the artwork they created
+    return users_with_ids, artworks_with_ids
+
+
+def run_tests(client, users_with_ids, artworks_with_ids):
+    test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
 
 
 def create_users(client):
