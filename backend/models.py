@@ -17,12 +17,13 @@ class UserMetrics(EmbeddedDocument):
     works_visited = IntField(default=0)
     works_found = IntField(default=0)
     cities_visited = IntField(default=0)
-    posts_written = IntField(default=0)
+    posts_written = IntField(default=0) # not entirely sure what this represents, might wanna change it to works_created
 
 class User(Document):
     meta = {"collection": "user"}
     name = StringField(required=True)
     bio = StringField()
+    profile_pic = StringField()
     date_joined = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("UserMetrics", dbref=True)
     achievements = ListField(ReferenceField("Achievement"), default=list)
@@ -38,7 +39,7 @@ class Achievement(Document):
     # might wanna have metrics that have to be met to obtain
 
 class ArtworkMetrics(EmbeddedDocument):
-    totalVisits = IntField(default=0)
+    total_visits = IntField(default=0)
 
 class Comment(EmbeddedDocument):
     content = StringField(required=True)
@@ -46,7 +47,10 @@ class Comment(EmbeddedDocument):
     # could add int attribute for likes, would have to associate it with the user though
 
 class Artwork(Document):
-    meta = {"collection": "artwork"}
+    meta = {
+        "collection": "artwork",
+        #"indexes": [("location", "2dsphere")]
+    }
     title = StringField(required=True)
     artist = StringField(required=False)
     description = StringField(required=True)
@@ -62,6 +66,6 @@ class Group(Document):
     name = StringField(required=True)
     bio = StringField()
     members = ListField(ReferenceField("User"), default=list)
-    portfolio = EmbeddedDocumentField("Portfolio") 
+    portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
 
