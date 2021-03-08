@@ -133,7 +133,7 @@ def test_removing_artwork(client, userNameId, artworkNameId):
             }}
         }} }}
         """.format(userNameId[1]))
-    
+
     added = client.execute("""
         mutation {{
             updateUser(userData: {{

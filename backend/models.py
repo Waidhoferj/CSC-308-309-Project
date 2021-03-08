@@ -1,6 +1,8 @@
 from datetime import datetime
 from mongoengine import Document, EmbeddedDocument, CASCADE
 from mongoengine.fields import DateTimeField, ReferenceField, StringField, IntField, ListField, PointField, FloatField, BooleanField, EmbeddedDocumentField
+from mongoengine.fields import ObjectIdField
+from bson.objectid import ObjectId
 
 
 # Note: In reference fields, dbref = True will use DBRef whereas if it is false, the ObjectId will be used
@@ -17,7 +19,7 @@ class UserMetrics(EmbeddedDocument):
     works_visited = IntField(default=0)
     works_found = IntField(default=0)
     cities_visited = IntField(default=0)
-    posts_written = IntField(default=0) # not entirely sure what this represents, might wanna change it to works_created
+    locations_created = IntField(default=0) # not entirely sure what this represents, might wanna change it to works_created
 
 class User(Document):
     meta = {"collection": "user"}
@@ -66,6 +68,6 @@ class Group(Document):
     name = StringField(required=True)
     bio = StringField()
     members = ListField(ReferenceField("User"), default=list)
-    portfolio = EmbeddedDocumentField("Portfolio")
+    group_portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
 
