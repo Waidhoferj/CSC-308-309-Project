@@ -8,7 +8,7 @@ export default function MetricBadge({
 }) {
   return (
     <div className="MetricBadge" {...restProps}>
-      <p className="value">{value || fallbackVal}</p>
+      <p className="value">{value ?? fallbackVal}</p>
       <p className="unit">{unit}</p>
     </div>
   );
