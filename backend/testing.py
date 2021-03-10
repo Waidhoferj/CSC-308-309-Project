@@ -9,8 +9,8 @@ def testing_boot_up():
     # NOTE: Must use camel-case in graphql calls, can change this if wanted
     client = Client(schema)
     users_with_ids, artworks_with_ids = mock_db_setup(client)
-    # print(users_with_ids)
-    # print(artworks_with_ids)
+    print(users_with_ids)
+    print(artworks_with_ids)
     run_tests(client, users_with_ids, artworks_with_ids)
 
 
@@ -113,6 +113,29 @@ def assign_artworks(client, users_with_ids, artworks_with_ids):
 def test_removing_artwork(client, userNameId, artworkNameId):
     ''' Will add the artwork, and then delete it
         Assumptions: update mutation works to add artwork and artwork isn't already in user's portfolio '''
+    print("test1")
+    test1 = client.execute("""
+        {{
+            users(id: "{0}") {{
+                edges {{
+                    node {{
+                        name
+                    }}
+                }}
+            }}
+        }}
+    """.format(userNameId[1]))
+
+    print("test2")
+    test2 = client.execute("""
+    query {{
+        node(id: "604917bc04a5be639b6fb2bd") {{
+            id
+        }}
+    }}
+    """)
+    print(test2)
+    
     before = client.execute("""
         mutation {{
             updateUser(userData: {{
@@ -179,7 +202,3 @@ def test_removing_artwork(client, userNameId, artworkNameId):
         """.format(userNameId[1], artworkNameId[1]))
     if removed != before:
         print("Artwork Removal Failed")
-
-
-
-

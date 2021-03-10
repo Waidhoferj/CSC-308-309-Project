@@ -2,7 +2,7 @@ import graphene
 from graphene.relay import Node
 from mutations import UpdateUserMutation, CreateUserMutation, DeleteUserMutation, CreateArtworkMutation, UpdateArtworkMutation
 from mutations import DeleteArtworkMutation
-from api_types import UserType, PortfolioType, ArtworkType, AchievementType, GroupType
+from api_types import UserType, PortfolioType, ArtworkType, AchievementType, GroupType, CustomNode
 from graphene_mongo import MongoengineConnectionField
 from models import Artwork
 
@@ -10,7 +10,7 @@ from models import Artwork
 
 
 class Query(graphene.ObjectType):
-    node = Node.Field()
+    node = CustomNode.Field()       # Changed this from node to custom node (was Node.field())
     users = MongoengineConnectionField(UserType)
     groups = MongoengineConnectionField(GroupType)
     artwork = MongoengineConnectionField(ArtworkType)
