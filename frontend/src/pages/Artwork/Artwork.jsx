@@ -11,19 +11,39 @@ import {
 import exampleArt from "../../assets/example-art.jpg";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
+import { useParams } from "react-router-dom";
+import { gql, useQuery } from '@apollo/client';
 
-const artwork = {
-  title: "Some Artwork",
-  description:
-    "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laboriosam est atque, similique dignissimos itaque ipsum, nemo, dolore modi tempore esse voluptatem temporibus? Recusandae molestias dolor non beatae nobis enim debitis!",
-  tags: ["very", "noice", "tag3"],
-  metrics: [{ value: 17, unit: "People Visited" },
+const metrics = [{ value: 17, unit: "People Visited" },
             { value: 12, unit: "Related Pieces"},
-            { value: 53, unit: "Comments"}],
-  rating: 3.2,
-};
+            { value: 53, unit: "Comments"}];
+const rating = 3.2;
 
 export default function Artwork() {
+  const { id } = useParams();
+  const query = gql`
+    query {
+      artwork (id:"${id}") {
+        edges {
+          node {
+            title
+            description
+            tags
+          }
+        }
+      }
+    }
+  `;
+
+  const { loading, error, data } = useQuery(query);
+
+  if (loading) return (<h1>Loading...</h1>);
+  if (error) return (<h1>Error: {error.message}</h1>);
+
+  const artwork = data.artwork.edges[0]?.node;
+
+  if (artwork == undefined) return (<h1>Error: Artwork does not exist</h1>);
+
   return (
     <article className="Artwork">
       <header>
@@ -31,7 +51,7 @@ export default function Artwork() {
         <button className="wrapper back-button">
           <ArrowLeft />
         </button>
-        <h1>Artwork</h1>
+        <h1>{artwork.title}</h1>
         <div className="options">
           <button className="wrapper">
             <Upload />
@@ -44,8 +64,9 @@ export default function Artwork() {
 
       <div className="content">
         <p className="description">{artwork.description}</p>
+        
         <ul className="tags">
-          {artwork.tags.map((tag) => (
+          {artwork.tags?.map((tag) => (
             <li>
               <Tag>{tag}</Tag>
             </li>
@@ -54,7 +75,7 @@ export default function Artwork() {
 
         <h2>Stats</h2>
         <div className="metric-badges">
-          {artwork.metrics.map((metric) => (
+          {metrics.map((metric) => (
             <MetricBadge {...metric} />
           ))}
         </div>
