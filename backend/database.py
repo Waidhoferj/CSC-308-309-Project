@@ -32,10 +32,10 @@ def init_db():
     ]
 
     users = [
-        User(name="Grant", personal_portfolio=portfolios[0], bio="Love me some AI and maybe web dev.", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
-        User(name="Braden", personal_portfolio=portfolios[1], bio="Spending some time on CSC 400.", metrics=UserMetrics(), achievements=[achievements[1]]),
-        User(name="Kyle", personal_portfolio=portfolios[2], bio="Fitness, meditation and good books.", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
-        User(name="John", personal_portfolio=portfolios[3], bio="Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", metrics=UserMetrics(), achievements=[achievements[1]])
+        User(name="Grant", personal_portfolio=portfolios[0], bio="Love me some AI and maybe web dev.", email="grant@grant.com", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
+        User(name="Braden", personal_portfolio=portfolios[1], bio="Spending some time on CSC 400.", email="braden@braden.com", metrics=UserMetrics(), achievements=[achievements[1]]),
+        User(name="Kyle", personal_portfolio=portfolios[2], bio="Fitness, meditation and good books.", email="kyle@kyle.com", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
+        User(name="John", personal_portfolio=portfolios[3], bio="Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", email="john@john.com", metrics=UserMetrics(), achievements=[achievements[1]])
     ]
 
     for user in users:

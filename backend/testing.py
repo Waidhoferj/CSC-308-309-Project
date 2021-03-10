@@ -9,8 +9,8 @@ def testing_boot_up():
     # NOTE: Must use camel-case in graphql calls, can change this if wanted
     client = Client(schema)
     users_with_ids, artworks_with_ids = mock_db_setup(client)
-    print(users_with_ids)
-    print(artworks_with_ids)
+    # print(users_with_ids)
+    # print(artworks_with_ids)
     run_tests(client, users_with_ids, artworks_with_ids)
 
 
@@ -25,23 +25,25 @@ def mock_db_setup(client):
 
 def run_tests(client, users_with_ids, artworks_with_ids):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
+    test_consistent_ids(client)
 
 
 def create_users(client):
-    names_and_bios = [
-        ("Braden", "Spending some time on CSC 400."),
-        ("Grant", "Love me some AI and maybe web dev."),
-        ("Kyle", "Fitness, meditation and good books."),
-        ("John", "Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.")]
+    create_user_inputs = [
+        ("Braden", "Spending some time on CSC 400.", "braden@gmail.com"),
+        ("Grant", "Love me some AI and maybe web dev.", "grant@gmail.com"),
+        ("Kyle", "Fitness, meditation and good books.", "kyle@gmail.com"),
+        ("John", "Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", "john@gmail.com")]
     
     users_with_ids = [] # user names with db ids
-    for nameBio in names_and_bios:
+    for user_input in create_user_inputs:
         executed = client.execute("""
         mutation {{
             createUser(
   	            userData: {{
     	            name: "{0}"
     	            bio: "{1}"
+                    email: "{2}"
   	            }}
 	        ) {{
                 id
@@ -49,8 +51,9 @@ def create_users(client):
                   name
                 }}
             }}
-        }}""".format(nameBio[0], nameBio[1]))
-        users_with_ids.append((nameBio[0], executed["data"]["createUser"]["id"]))
+        }}""".format(user_input[0], user_input[1], user_input[2]))
+        users_with_ids.append((user_input[0], executed["data"]["createUser"]["id"]))
+        # append (user's name, user id)
     return(users_with_ids)
     
 
@@ -82,7 +85,6 @@ def create_artworks(client, users_with_ids):
                 tags
             }}
         }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4], artwork[5]))
-        # print(executed)
         artworks_with_ids.append((artwork[0], executed["data"]["createArtwork"]["id"]))
     return artworks_with_ids
 
@@ -110,13 +112,11 @@ def assign_artworks(client, users_with_ids, artworks_with_ids):
         }} }}
         """.format(user[1], artwork[1]))
 
-def test_removing_artwork(client, userNameId, artworkNameId):
-    ''' Will add the artwork, and then delete it
-        Assumptions: update mutation works to add artwork and artwork isn't already in user's portfolio '''
-    print("test1")
+def test_consistent_ids(client):
+    ''' Tests whether or not hard coded ids have changed '''
     test1 = client.execute("""
-        {{
-            users(id: "{0}") {{
+        query {{
+            users(id: "braden@gmail.com") {{
                 edges {{
                     node {{
                         name
@@ -124,17 +124,12 @@ def test_removing_artwork(client, userNameId, artworkNameId):
                 }}
             }}
         }}
-    """.format(userNameId[1]))
-
-    print("test2")
-    test2 = client.execute("""
-    query {{
-        node(id: "604917bc04a5be639b6fb2bd") {{
-            id
-        }}
-    }}
     """)
-    print(test2)
+
+
+def test_removing_artwork(client, userNameId, artworkNameId):
+    ''' Will add the artwork, and then delete it
+        Assumptions: update mutation works to add artwork and artwork isn't already in user's portfolio '''
     
     before = client.execute("""
         mutation {{

@@ -18,13 +18,14 @@ class Portfolio(EmbeddedDocument):
 class UserMetrics(EmbeddedDocument):
     works_visited = IntField(default=0)
     works_found = IntField(default=0)
+    works_created = IntField(default=0)
     cities_visited = IntField(default=0)
-    locations_created = IntField(default=0) # not entirely sure what this represents, might wanna change it to works_created
 
 class User(Document):
     meta = {"collection": "user"}
     name = StringField(required=True)
     bio = StringField()
+    email = StringField(primary_key=True, required=True)
     profile_pic = StringField()
     date_joined = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("UserMetrics", dbref=True)
@@ -35,7 +36,7 @@ class User(Document):
 
 class Achievement(Document):
     meta = {"collection" : "achievement"}
-    title = StringField(required=True)
+    title = StringField(primary_key=True, required=True)
     description = StringField(required=True)
     points = IntField(required=True)
     # might wanna have metrics that have to be met to obtain
@@ -53,11 +54,11 @@ class Artwork(Document):
         "collection": "artwork",
         #"indexes": [("location", "2dsphere")]
     }
-    title = StringField(required=True)
+    title = StringField(required=True, primary_key=True)    # Making this primary key for now despite it not being unique
     artist = StringField(required=False)
     description = StringField(required=True)
     found_by = ReferenceField("User")
-    location = PointField()
+    location = PointField(required=True)
     metrics = EmbeddedDocumentField("ArtworkMetrics", default=ArtworkMetrics)
     rating = FloatField(min_value=0, max_value=100)
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
@@ -65,7 +66,7 @@ class Artwork(Document):
 
 class Group(Document):
     meta = {"collection": "group"}
-    name = StringField(required=True)
+    name = StringField(primary_key=True, required=True)     # Making this primary key for now despite it not being unique
     bio = StringField()
     members = ListField(ReferenceField("User"), default=list)
     group_portfolio = EmbeddedDocumentField("Portfolio")

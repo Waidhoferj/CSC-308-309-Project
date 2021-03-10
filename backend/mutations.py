@@ -108,11 +108,13 @@ class UserMetricsInput(graphene.InputObjectType):
     cities_visited = graphene.Int()
     posts_written = graphene.Int()
 
+
 class UserInput(graphene.InputObjectType):
     # since this class is generalized for all updating and creating, won't make any attributes required
     id = graphene.String()
     name = graphene.String()
     bio = graphene.String()
+    email = graphene.String()
     profile_pic = graphene.String()   # NOTE: will assume base64 encoded string
     metrics = graphene.InputField(UserMetricsInput)
     achievement = graphene.String()     # achievement id to add to user's achievements
@@ -139,6 +141,7 @@ class CreateUserMutation(graphene.Mutation):
             # Need to eventually add username (if that's not the 'name') and password
             name = user_data.name,
             bio = user_data.bio,    # not required by model, will assume frontend filters input
+            email = user_data.email,
             profile_pic = user_data.profile_pic,
             metrics = metrics,
             achievements = [], # will likely want to add a hard coded initial achievement
@@ -150,7 +153,8 @@ class CreateUserMutation(graphene.Mutation):
 
         return CreateUserMutation(user=user, id=user.id)
 
-
+# Querying by id as an "id" argument should be by encoded string
+# id within user_input will be the primary key (email right now)
 class UpdateUserMutation(graphene.Mutation):
     user = graphene.Field(UserType)
 
@@ -163,6 +167,8 @@ class UpdateUserMutation(graphene.Mutation):
             user.name = user_data.name
         if user_data.bio:
             user.bio = user_data.bio
+        if user_data.email: # don't think I want this while primary key is email
+            user.email = user_data.email
         if user_data.metrics:
             user.metrics = UserMetrics(
                 works_visited = user_data.metrics.works_visited,
@@ -336,7 +342,7 @@ mutation {
         worksVisited,
         worksFound,
         citiesVisited,
-        postsWritten
+        worksCreated
       }
       achievements {
         edges {
@@ -404,7 +410,7 @@ mutation {
         worksVisited,
         worksFound,
         citiesVisited,
-        postsWritten
+        worksCreated
       }
       achievements {
         edges {
