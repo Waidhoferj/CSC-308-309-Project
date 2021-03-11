@@ -11,12 +11,10 @@ import {
 import exampleArt from "../../assets/example-art.jpg";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
+import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import { useParams, useHistory } from "react-router-dom";
 import { gql, useQuery } from '@apollo/client';
 
-const metrics = [{ value: 17, unit: "People Visited" },
-            { value: 12, unit: "Related Pieces"},
-            { value: 53, unit: "Comments"}];
 const rating = 3.2;
 
 export default function Artwork() {
@@ -30,6 +28,9 @@ export default function Artwork() {
             title
             description
             tags
+            metrics {
+              totalVisits
+            }
           }
         }
       }
@@ -39,17 +40,13 @@ export default function Artwork() {
   const { loading, error, data } = useQuery(query);
 
   if (loading) return (<h1>Loading...</h1>);
-  if (error) return (
-        <div className="error-message">
-          <AlertCircle size={35} />
-          <p>Error: {error.message}</p>
-          <button onClick={goBack}>Go Back</button>
-        </div>
-        );
+  if (error) return (<ConnectionErrorMessage>Error: {error.message}</ConnectionErrorMessage>);
 
   const artwork = data.artwork.edges[0]?.node;
 
-  if (artwork == undefined) return (<h1>Error: Artwork does not exist</h1>);
+  if (artwork == undefined) return (<ConnectionErrorMessage>Error: Artwork does not exist</ConnectionErrorMessage>);
+
+  const metrics = [{ value: artwork.metrics.totalVisits, unit: "Total Visits" },];
 
   return (
     <article className="Artwork">
