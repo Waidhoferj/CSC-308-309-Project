@@ -37,9 +37,9 @@ export default function ArtMap() {
     queries.getArtworks
   );
 
-  const [mapLocation] = useState([-120.666132, 35.311089]);
+  const [mapLocation, setMapLocation] = useState([-120.666132, 35.311089]);
   const [userLocation, setUserLocation] = useState(null);
-  const [zoom] = useState([11]);
+  const [zoom, setZoom] = useState([11]);
   const [selectedCluster, setSelectedCluster] = useState([]);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const artDistance =
@@ -51,6 +51,14 @@ export default function ArtMap() {
   const viewingArtwork = useRouteMatch({ path: "/map/:artwork", exact: true });
   const navigating = useRouteMatch("/map/:artwork/track");
   const cardOpen = (viewingArtwork || selectedCluster.length) && !navigating;
+  const cardScreenAnimation = {
+    className: "absolute",
+    key: !!selectedArtwork,
+    transition: { duration: 0.4, type: "tween" },
+    initial: { x: !!selectedArtwork ? 300 : -300, opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { scale: 0.7, opacity: 0 },
+  };
 
   // Reformats the fetched data into a more manageable structure.
   const artworkData = useMemo(() => {
@@ -103,8 +111,7 @@ export default function ArtMap() {
    */
   function chooseArtworkMarker(artwork) {
     setSelectedCluster([]);
-    setSelectedArtwork(artwork);
-    goTo("/map/" + artwork.id);
+    chooseArtwork(artwork);
   }
 
   /**
@@ -114,6 +121,8 @@ export default function ArtMap() {
   function chooseArtwork(artwork) {
     setSelectedArtwork(artwork);
     goTo("/map/" + artwork.id);
+    setZoom([15]);
+    setMapLocation([...artwork.coordinates]);
   }
 
   /**
@@ -178,7 +187,12 @@ export default function ArtMap() {
         renderChildrenInPortal={true}
       >
         {rawArtData && (
-          <Cluster ClusterMarkerFactory={ClusterMarker}>
+          <Cluster
+            ClusterMarkerFactory={ClusterMarker}
+            zoomOnClick={true}
+            zoomOnClickPadding={200}
+            radius={55}
+          >
             {artworkData.map((artwork, key) => (
               <Marker
                 coordinates={artwork.coordinates}
@@ -213,21 +227,29 @@ export default function ArtMap() {
                 />
               </button>
             </nav>
-            <Switch>
-              <Route exact path="/map/:artwork">
-                <ArtInfo
-                  {...selectedArtwork}
-                  distance={artDistance}
-                  onConfirm={startDirecting}
-                />
-              </Route>
-              <Route exact path="*">
-                <ArtChoices
-                  artworks={selectedCluster}
-                  onArtworkSelected={chooseArtwork}
-                />
-              </Route>
-            </Switch>
+            <AnimatePresence>
+              <div className="content">
+                <Switch>
+                  <Route exact path="/map/:artwork">
+                    <motion.div {...cardScreenAnimation}>
+                      <ArtInfo
+                        {...selectedArtwork}
+                        distance={artDistance}
+                        onConfirm={startDirecting}
+                      />
+                    </motion.div>
+                  </Route>
+                  <Route exact path="*">
+                    <motion.div {...cardScreenAnimation}>
+                      <ArtChoices
+                        artworks={selectedCluster}
+                        onArtworkSelected={chooseArtwork}
+                      />
+                    </motion.div>
+                  </Route>
+                </Switch>
+              </div>
+            </AnimatePresence>
           </motion.aside>
         )}
       </AnimatePresence>
