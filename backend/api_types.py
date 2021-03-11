@@ -31,8 +31,6 @@ class ArtworkType(MongoengineObjectType):
     class Meta:
         model = Artwork
         interfaces = (Node,)
-    def resolve_tags(self, info):
-        print("tags")
 
 class ArtworkMetricsType(MongoengineObjectType):
     class Meta:

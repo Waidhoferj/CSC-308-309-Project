@@ -17,10 +17,11 @@ def testing_boot_up():
 def mock_db_setup(client):
     ''' Will create a mock database with all relational objects
         Currently, just users and artworks are created and related '''
-    users_with_ids = create_users(client) # creates users
+    users_with_ids = create_users(client)
     artworks_with_ids = create_artworks(client, users_with_ids) # creates artworks, each with a user that "created" it
     assign_artworks(client, users_with_ids, artworks_with_ids)  # makes sure each user's portfolio contains the artwork they created
     return users_with_ids, artworks_with_ids
+    #return users_with_ids, []
 
 
 def run_tests(client, users_with_ids, artworks_with_ids):
@@ -46,13 +47,13 @@ def create_users(client):
                     email: "{2}"
   	            }}
 	        ) {{
-                id
                 user {{
-                  name
+                    id
+                    name
                 }}
             }}
         }}""".format(user_input[0], user_input[1], user_input[2]))
-        users_with_ids.append((user_input[0], executed["data"]["createUser"]["id"]))
+        users_with_ids.append((executed["data"]["createUser"]["user"]["name"], executed["data"]["createUser"]["user"]["id"]))
         # append (user's name, user id)
     return(users_with_ids)
     
@@ -63,7 +64,7 @@ def create_artworks(client, users_with_ids):
         ("Hidden Subway Mural", "Far side of the subway station has a double walled mural.", users_with_ids[0][1], "[-120.677494, 35.292708]", "55.0", "[\"sick\", \"rad\"]"),
         ("Blue Bridge", "Neon blue tentacles of paint wind up the struts of the bridge", users_with_ids[1][1], "[-121.677494, 32.292708]", "75.0", "[\"sick\", \"blue\"]"),
         ("Artistic Underpass", "Bridge ceiling covered in art", users_with_ids[2][1], "[-120.777494, 34.292708]", "99.0", "[\"overwhelming\", \"scary\"]"),
-        ("Fire Wall", "Tongues of flame comemorate the historic fire of this district", users_with_ids[3][1], "[-122.677494, 35.282708]", "32.0", "[\"unsafe\", \"exciting\"]")
+        ("Fire Wall", "Tongues of flame comemorate the historic fire of this district", users_with_ids[3][1], "[-122.677494, 35.282708]", "32.0", "[]")
     ]   # Might wanna change location data for more testable locations (like within radius of me)
 
     artworks_with_ids = []
@@ -78,14 +79,14 @@ def create_artworks(client, users_with_ids):
                 rating: {4},
                 tags: {5}
             }}) {{
-                id
                 artwork {{
-                  title
+                    id
+                    title
+                    tags
                 }}
-                tags
             }}
         }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4], artwork[5]))
-        artworks_with_ids.append((artwork[0], executed["data"]["createArtwork"]["id"]))
+        artworks_with_ids.append((executed["data"]["createArtwork"]["artwork"]["title"], executed["data"]["createArtwork"]["artwork"]["id"]))
     return artworks_with_ids
 
 def assign_artworks(client, users_with_ids, artworks_with_ids):

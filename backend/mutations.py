@@ -3,6 +3,7 @@ from bson import ObjectId
 from models import User, UserMetrics, Portfolio, Settings, Achievement, Group, Artwork, ArtworkMetrics
 from api_types import UserType, UserMetricsType, PortfolioType, SettingsType, AchievementType, GroupType
 from api_types import ArtworkType, CommentType
+import base64
 
 '''
 Need to research more into mutation arguments, but I think how I have them right now is how it should be
@@ -23,6 +24,13 @@ List of possible mutations to make:
 # NOTE: Collection methods - Remove deletes everything in the list, pop removes by index
 # Idea, might wanna store the graphql id in mongodb or vise versa somehow
 
+def decodeId(id):
+    decoded = base64.b64decode(id)    # ex: b'UserType:braden@n.com'
+    type_and_id = str(decoded)[2:-1].split(":")
+    return type_and_id[1]
+    
+# Option: have all ids handled as graphlQL Ids, 
+
 class CommentInput(graphene.InputObjectType):
     author = graphene.String()   # User Object id
     content = graphene.String()
@@ -40,7 +48,7 @@ class GroupInput(graphene.InputObjectType):
 class CreateGroupMutation(graphene.Mutation): # none of this tested yet
     # Need a user id, name, as input
     group = graphene.Field(GroupType)
-    id = graphene.ID()
+    #id = graphene.ID()
 
     class Arguments:
         group_data = GroupInput(required=True)
@@ -52,13 +60,13 @@ class CreateGroupMutation(graphene.Mutation): # none of this tested yet
         group = Group(
             name = group_data.name,
             bio = group_data.bio,    # not required by model, will assume frontend filters input
-            members = [User.objects.get(pk=group_data.member_to_add)],
+            members = [UpdateUserMutation.getUser(group_data.member_to_add)],
             group_portfolio = group_portfolio,
             chat = chat
         )
         group.save()
 
-        return CreateGroupMutation(group=group, id=group.id)
+        return CreateGroupMutation(group=group)
 
 class UpdateGroupMutation(graphene.Mutation): # none of this tested yet
     group = graphene.Field(GroupType)
@@ -66,17 +74,21 @@ class UpdateGroupMutation(graphene.Mutation): # none of this tested yet
     class Arguments:
         group_data = GroupInput(required=True)
 
+    @staticmethod
+    def getGroup(id, decode=True):   # can also check for none here
+        return Group.objects.get(pk=decodeId(id))
+    
     def mutate(self, info, user_data=None):
-        group = Group.objects.get(pk=group_data.id)
+        group = UpdateGroupMutation.getGroup(group_data.id)
         if group_data.name:
             group.name = group_data.name
         if group_data.bio:
             group.bio = group_data.bio
         if group_data.art_to_add:
-            artToAdd = Artwork.objects.get(pk=group_data.art_to_add)
+            artToAdd = UpdateArtworkMutation.getArtwork(group_data.art_to_add)
             group.group_portfolio.artworks.append(artToAdd)
         if group_data.art_to_remove:
-            artworkToRemove = Artwork.objects.get(pk=group_data.art_to_remove)
+            artworkToRemove = UpdateArtworkMutation.getArtwork(group_data.art_to_remove)
             index = group.group_portfolio.artworks.index(artworkToRemove)
             if index == -1:
                 print(f"Art ({artToRemove.id}) is not in Group's portfolio")
@@ -84,12 +96,12 @@ class UpdateGroupMutation(graphene.Mutation): # none of this tested yet
                 group.group_portfolio.artworks.pop(index)
         if group_data.comment_to_add:
             commentToAdd = Comment(
-                author = User.objects.get(pk=group_data.comment_to_add.author),
+                author = UpdateUserMutation.getUser(group_data.comment_to_add.author),
                 content = group_data.comment_to_add.content
             )
             group.chat.append(commentToAdd)
         if group_data.comment_to_remove:
-            commentToRemove = Comment.objects.get(pk=group_data.comment_to_remove)
+            commentToRemove = Comment.objects.get(pk=decodeId(group_data.comment_to_remove))
             index = group.chat.index(commentToRemove)
             if index == -1:
                 print(f"Comment ({artToRemove.id}) is not in Group's chat")
@@ -161,8 +173,12 @@ class UpdateUserMutation(graphene.Mutation):
     class Arguments:
         user_data = UserInput(required=True)
 
+    @staticmethod
+    def getUser(id):   # can also check for none here
+        return User.objects.get(pk=decodeId(id))
+
     def mutate(self, info, user_data=None):
-        user = User.objects.get(pk=user_data.id)
+        user = UpdateUserMutation.getUser(user_data.id)
         if user_data.name:
             user.name = user_data.name
         if user_data.bio:
@@ -177,20 +193,20 @@ class UpdateUserMutation(graphene.Mutation):
                 posts_written = user_data.metrics.posts_written
             )
         if user_data.achievement:
-            user.achievements.append(Achievement.objects.get(pk=user_data.achievement)) 
+            user.achievements.append(Achievement.objects.get(pk=decodeId(user_data.achievement))) 
         if user_data.art_to_add:
-            artToAdd = Artwork.objects.get(pk=user_data.art_to_add)
+            artToAdd = UpdateArtworkMutation.getArtwork(user_data.art_to_add)
             # Check if none
             user.personal_portfolio.artworks.append(artToAdd)
         if user_data.art_to_remove:
-            artToRemove = Artwork.objects.get(pk=user_data.art_to_remove)
+            artToRemove = UpdateArtworkMutation.getArtwork(user_data.art_to_remove)
             index = user.personal_portfolio.artworks.index(artToRemove)
             if index == -1:
                 print(f"Art ({artToRemove.id}) is not in User's portfolio")
             else:
                 user.personal_portfolio.artworks.pop(index)
         if user_data.group: # to be tested
-            user.groups.append(Group.objects.get(pk=user_data.group))
+            user.groups.append(UpdateGroupMutation.getGroup(user_data.group))
         if user_data.settings: # to be tested but I imagine works
             user.settings = Settings(
                 autoAddToGroupPortfolio = settings.autoAddToGroupPortfolio
@@ -208,7 +224,7 @@ class DeleteUserMutation(graphene.Mutation):
 
     def mutate(self, info, id):
         try:
-            User.objects.get(pk=id).delete()
+            UpdateUserMutation.getUser(id).delete()
             success = True
         except:
             print("could not find object")
@@ -234,8 +250,6 @@ class ArtworkInput(graphene.InputObjectType):
 
 class CreateArtworkMutation(graphene.Mutation):
     artwork = graphene.Field(ArtworkType)
-    id = graphene.ID()
-    tags = graphene.List(graphene.String)
 
     class Arguments:
         artwork_data = ArtworkInput(required=True)
@@ -246,7 +260,7 @@ class CreateArtworkMutation(graphene.Mutation):
             title = artwork_data.title,
             artist = artwork_data.artist,
             description = artwork_data.description,
-            found_by = User.objects.get(pk=artwork_data.found_by),
+            found_by = decodeId(artwork_data.found_by),
             location = {
                 "type": "Point",
                 "coordinates": [artwork_data.location[0], artwork_data.location[1]]
@@ -257,8 +271,7 @@ class CreateArtworkMutation(graphene.Mutation):
             tags = artwork_data.tags
         )
         artwork.save()
-
-        return CreateArtworkMutation(artwork=artwork, id=artwork.id, tags=artwork.tags)
+        return CreateArtworkMutation(artwork=artwork)
 
 class UpdateArtworkMutation(graphene.Mutation):
     artwork = graphene.Field(ArtworkType)
@@ -266,8 +279,12 @@ class UpdateArtworkMutation(graphene.Mutation):
     class Arguments:
         artwork_data = ArtworkInput(required=True)
 
+    @staticmethod
+    def getArtwork(id):   # can also check for none here
+        return Artwork.objects.get(pk=decodeId(id))
+
     def mutate(self, info, artwork_data=None):
-        artwork = Artwork.objects.get(pk=artwork_data.id)
+        artwork = UpdateArtworkMutation.getArtwork(artwork_data.id)
         if artwork_data.title:
             artwork.title = artwork_data.title
         if artwork_data.artist:
@@ -275,7 +292,7 @@ class UpdateArtworkMutation(graphene.Mutation):
         if artwork_data.description:
             artwork.description = artwork_data.description
         if artwork_data.found_by:   # not tested
-            artwork.found_by = artwork_data.found_by
+            artwork.found_by = decodeId(artwork_data.found_by)
         if artwork_data.location: # not tested
             artwork.location = {
                 "type": "Point",
@@ -303,7 +320,7 @@ class DeleteArtworkMutation(graphene.Mutation):
 
     def mutate(self, info, id):
         try:
-            Artwork.objects.get(pk=id).delete()
+            UpdateArtworkMutation.getArtwork(id).delete()
             success = True
         except:
             print("could not find object")
