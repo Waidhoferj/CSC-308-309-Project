@@ -11,7 +11,7 @@ import {
 import exampleArt from "../../assets/example-art.jpg";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { gql, useQuery } from '@apollo/client';
 
 const metrics = [{ value: 17, unit: "People Visited" },
@@ -20,6 +20,7 @@ const metrics = [{ value: 17, unit: "People Visited" },
 const rating = 3.2;
 
 export default function Artwork() {
+  const { goBack } = useHistory();
   const { id } = useParams();
   const query = gql`
     query {
@@ -38,7 +39,13 @@ export default function Artwork() {
   const { loading, error, data } = useQuery(query);
 
   if (loading) return (<h1>Loading...</h1>);
-  if (error) return (<h1>Error: {error.message}</h1>);
+  if (error) return (
+        <div className="error-message">
+          <AlertCircle size={35} />
+          <p>Error: {error.message}</p>
+          <button onClick={goBack}>Go Back</button>
+        </div>
+        );
 
   const artwork = data.artwork.edges[0]?.node;
 
