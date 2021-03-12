@@ -7,10 +7,8 @@ from graphene_mongo import MongoengineConnectionField
 from models import Artwork
 
 
-
-
 class Query(graphene.ObjectType):
-    node = Node.Field()
+    #node = Node.Field()
     users = MongoengineConnectionField(UserType)
     groups = MongoengineConnectionField(GroupType)
     artwork = MongoengineConnectionField(ArtworkType)
