@@ -3,6 +3,7 @@ import { useQuery, gql } from "@apollo/client";
 import { MoreHorizontal, AlertCircle } from "react-feather";
 import { useHistory } from "react-router-dom";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
+import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import exampleProfile from "../../assets/example-profile.jpg";
 
 const GET_USER_QUERY = gql`
@@ -22,8 +23,9 @@ const GET_USER_QUERY = gql`
     }
   }
 `;
+
 export default function Profile() {
-  const { data, loading, error } = useQuery(GET_USER_QUERY);
+  const { loading, error, data } = useQuery(GET_USER_QUERY);
 
   const { goBack } = useHistory();
   const user = data?.users.edges[1].node;
@@ -31,11 +33,7 @@ export default function Profile() {
   return (
     <article className="Profile">
       {error ? (
-        <div className="error-message">
-          <AlertCircle size={35} />
-          <p>Couldn't find user info</p>
-          <button onClick={goBack}>Go Back</button>
-        </div>
+        <ConnectionErrorMessage>Error: Couldn't find user info</ConnectionErrorMessage>
       ) : (
         <>
           <header>
