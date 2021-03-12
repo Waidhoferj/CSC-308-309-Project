@@ -1,7 +1,7 @@
 import graphene
 from graphene.relay import Node
 from mutations import UpdateUserMutation, CreateUserMutation, DeleteUserMutation, CreateArtworkMutation, UpdateArtworkMutation
-from mutations import DeleteArtworkMutation
+from mutations import DeleteArtworkMutation, CreateGroupMutation, UpdateGroupMutation, CreateAchievementMutation
 from api_types import UserType, PortfolioType, ArtworkType, AchievementType, GroupType
 from graphene_mongo import MongoengineConnectionField
 from models import Artwork
@@ -27,6 +27,9 @@ class Mutations(graphene.ObjectType):
     create_artwork = CreateArtworkMutation.Field()
     update_artwork = UpdateArtworkMutation.Field()
     delete_artwork = DeleteArtworkMutation.Field()
+    create_group = CreateGroupMutation.Field()
+    update_group = UpdateGroupMutation.Field()
+    create_achievement = CreateAchievementMutation.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutations)
 # Not sure why types was here

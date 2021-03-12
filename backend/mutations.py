@@ -2,22 +2,17 @@ import graphene
 from bson import ObjectId
 from models import User, UserMetrics, Portfolio, Settings, Achievement, Group, Artwork, ArtworkMetrics
 from api_types import UserType, UserMetricsType, PortfolioType, SettingsType, AchievementType, GroupType
-from api_types import ArtworkType, CommentType
+from api_types import ArtworkType, CommentType, AchievementType
 import base64
 
 '''
 Need to research more into mutation arguments, but I think how I have them right now is how it should be
 List of possible mutations to make:
 
-    create_group - todo
-    update_group - todo
-    delete_group - todo
+    add_to_portfolio - todo
 
-    create_achievement - todo
-    update_achievement - todo
-    remove_achievement - todo
-
-    incrementing metrics mutations (users and artworks) - todo    
+    incrementing metrics mutations (users and artworks) - todo 
+      Can call "checkAchievements" from these mutations instead of main ones   
 '''
 
 # NOTE: reference fields need ObjectId-typed input
@@ -28,14 +23,69 @@ def decodeId(id):
     decoded = base64.b64decode(id)    # ex: b'UserType:braden@n.com'
     type_and_id = str(decoded)[2:-1].split(":")
     return type_and_id[1]
-    
-# Option: have all ids handled as graphlQL Ids, 
+
+def checkAchievements(user):
+    achievements = Achievement.objects
+    achievements_to_add = []
+    for achievement in achievements:
+        if achievement in user.achievements:
+            continue
+        if compareUserMetrics(user.metrics, achievement.threshold):
+            achievements_to_add.append(achievement)
+    for achievement_to_add in achievements_to_add:
+        user.achievements.append(achievement_to_add)
+    return achievements_to_add
+
+def compareUserMetrics(user_metrics, achievement_threshold):
+    if user_metrics.works_visited < achievement_threshold.works_visited:
+        return False
+    elif user_metrics.works_found < achievement_threshold.works_found:
+        return False
+    elif user_metrics.works_created < achievement_threshold.works_created:
+        return False
+    return True
+
+class UserMetricsInput(graphene.InputObjectType):
+    works_visited = graphene.Int()
+    works_found = graphene.Int()
+    works_created = graphene.Int()
+
+class AchievementInput(graphene.InputObjectType):
+    title = graphene.String() 
+    description = graphene.String()
+    points = graphene.Int()
+    threshold = graphene.InputField(UserMetricsInput)
+
+class CreateAchievementMutation(graphene.Mutation):
+    # NOTE: only creating achievements because I'm assuming they are made by us and static
+    achievement = graphene.Field(AchievementType)
+
+    class Arguments:
+        achievement_data = AchievementInput(required=True)
+
+    def mutate(self, info, achievement_data=None):
+        threshold = UserMetrics(
+            works_visited=achievement_data.threshold.works_visited,
+            works_found=achievement_data.threshold.works_found,
+            works_created=achievement_data.threshold.works_created,
+        )
+
+        achievement = Achievement(
+            title = achievement_data.title,
+            description = achievement_data.description,
+            points = achievement_data.points,
+            threshold = threshold
+        )
+        achievement.save()
+
+        return CreateAchievementMutation(achievement=achievement)
 
 class CommentInput(graphene.InputObjectType):
     author = graphene.String()   # User Object id
     content = graphene.String()
 
 class GroupInput(graphene.InputObjectType):
+    id = graphene.String()
     name = graphene.String()
     bio = graphene.String()
     member_to_add = graphene.String()      # User Object id
@@ -45,30 +95,28 @@ class GroupInput(graphene.InputObjectType):
     comment_to_add = graphene.InputField(CommentInput)      # Actual comment data
     comment_to_remove = graphene.String()  # Comment object id (could also do index here)
 
-class CreateGroupMutation(graphene.Mutation): # none of this tested yet
-    # Need a user id, name, as input
+class CreateGroupMutation(graphene.Mutation):
+    # Need a user id with input (member_to_add)
     group = graphene.Field(GroupType)
-    #id = graphene.ID()
 
     class Arguments:
         group_data = GroupInput(required=True)
 
-    def mutate(self, info, user_data=None):
+    def mutate(self, info, group_data=None):
         group_portfolio = Portfolio()
-        chat = graphene.List(CommentType)
         
         group = Group(
             name = group_data.name,
             bio = group_data.bio,    # not required by model, will assume frontend filters input
             members = [UpdateUserMutation.getUser(group_data.member_to_add)],
-            group_portfolio = group_portfolio,
-            chat = chat
+            group_portfolio = group_portfolio,  # not changed at all yet
+            chat = []
         )
         group.save()
 
         return CreateGroupMutation(group=group)
 
-class UpdateGroupMutation(graphene.Mutation): # none of this tested yet
+class UpdateGroupMutation(graphene.Mutation):
     group = graphene.Field(GroupType)
 
     class Arguments:
@@ -78,29 +126,41 @@ class UpdateGroupMutation(graphene.Mutation): # none of this tested yet
     def getGroup(id, decode=True):   # can also check for none here
         return Group.objects.get(pk=decodeId(id))
     
-    def mutate(self, info, user_data=None):
+    def mutate(self, info, group_data=None):
         group = UpdateGroupMutation.getGroup(group_data.id)
         if group_data.name:
             group.name = group_data.name
         if group_data.bio:
             group.bio = group_data.bio
-        if group_data.art_to_add:
+        if group_data.member_to_add:
+            memberToAdd = UpdateUserMutation.getUser(group_data.member_to_add)
+            group.members.append(memberToAdd)
+        if group_data.member_to_kick:
+            memberToKick = UpdateUserMutation.getUser(group_data.member_to_kick)
+            index = group.members.index(memberToKick)
+            if index == -1:
+                print(f"Member ({memberToKick.id}) is not a member of {group.name}")
+            else:
+                group.members.pop(index)
+            if len(group.members) == 0: # not tested
+                return DeleteGroupMutation(id=group.id)
+        if group_data.art_to_add:   # not tested
             artToAdd = UpdateArtworkMutation.getArtwork(group_data.art_to_add)
             group.group_portfolio.artworks.append(artToAdd)
-        if group_data.art_to_remove:
+        if group_data.art_to_remove:    # not tested
             artworkToRemove = UpdateArtworkMutation.getArtwork(group_data.art_to_remove)
             index = group.group_portfolio.artworks.index(artworkToRemove)
             if index == -1:
                 print(f"Art ({artToRemove.id}) is not in Group's portfolio")
             else:
                 group.group_portfolio.artworks.pop(index)
-        if group_data.comment_to_add:
+        if group_data.comment_to_add:   # not tested
             commentToAdd = Comment(
                 author = UpdateUserMutation.getUser(group_data.comment_to_add.author),
                 content = group_data.comment_to_add.content
             )
             group.chat.append(commentToAdd)
-        if group_data.comment_to_remove:
+        if group_data.comment_to_remove:    # not tested
             commentToRemove = Comment.objects.get(pk=decodeId(group_data.comment_to_remove))
             index = group.chat.index(commentToRemove)
             if index == -1:
@@ -111,14 +171,26 @@ class UpdateGroupMutation(graphene.Mutation): # none of this tested yet
 
         return UpdateGroupMutation(group=group)
 
+class DeleteGroupMutation(graphene.Mutation): # assume works but haven't tried
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    success = graphene.Boolean()
+
+    def mutate(self, info, id):
+        try:
+            UpdateGroupMutation.getGroup(id).delete()
+            success = True
+        except:
+            print("could not find object")
+            return
+
+        return DeleteGroupMutation(success=success)
+
 class UserSettingsInput(graphene.InputObjectType):
     autoAddToGroupPortfolio = graphene.Boolean()
 
-class UserMetricsInput(graphene.InputObjectType):
-    works_visited = graphene.Int()
-    works_found = graphene.Int()
-    cities_visited = graphene.Int()
-    posts_written = graphene.Int()
+
 
 
 class UserInput(graphene.InputObjectType):
@@ -139,7 +211,6 @@ class UserInput(graphene.InputObjectType):
 class CreateUserMutation(graphene.Mutation):
     # possible output types to show with return query
     user = graphene.Field(UserType)
-    id = graphene.ID()
 
     class Arguments:
         user_data = UserInput(required=True)
@@ -161,9 +232,10 @@ class CreateUserMutation(graphene.Mutation):
             groups = [],
             settings = settings
         )
+        checkAchievements(user)
         user.save()
 
-        return CreateUserMutation(user=user, id=user.id)
+        return CreateUserMutation(user=user)
 
 # Querying by id as an "id" argument should be by encoded string
 # id within user_input will be the primary key (email right now)
@@ -189,8 +261,7 @@ class UpdateUserMutation(graphene.Mutation):
             user.metrics = UserMetrics(
                 works_visited = user_data.metrics.works_visited,
                 works_found = user_data.metrics.works_found,
-                cities_visited = user_data.metrics.cities_visited,
-                posts_written = user_data.metrics.posts_written
+                works_created = user_data.metrics.works_created
             )
         if user_data.achievement:
             user.achievements.append(Achievement.objects.get(pk=decodeId(user_data.achievement))) 
@@ -212,6 +283,7 @@ class UpdateUserMutation(graphene.Mutation):
                 autoAddToGroupPortfolio = settings.autoAddToGroupPortfolio
             )
         # Need to add success/failure responses
+        checkAchievements(user)
         user.save()
 
         return UpdateUserMutation(user=user)
@@ -240,6 +312,7 @@ class ArtworkInput(graphene.InputObjectType):
     title = graphene.String()
     artist = graphene.String()
     description = graphene.String()
+    picture_to_add = graphene.String()    # NOTE: removing pic will be from index from frontend
     found_by = graphene.String()  # will be user id
     location = graphene.List(graphene.Float)    # (longitude, latitude)
     metrics = graphene.InputField(ArtworkMetricsInput)
@@ -260,6 +333,7 @@ class CreateArtworkMutation(graphene.Mutation):
             title = artwork_data.title,
             artist = artwork_data.artist,
             description = artwork_data.description,
+            pictures = [artwork_data.picture_to_add] if artwork_data.picture_to_add else [],
             found_by = decodeId(artwork_data.found_by),
             location = {
                 "type": "Point",
@@ -291,6 +365,8 @@ class UpdateArtworkMutation(graphene.Mutation):
             artwork.artist = artwork_data.artist
         if artwork_data.description:
             artwork.description = artwork_data.description
+        if artwork_data.picture_to_add:
+            artwork.pictures.append(artwork_data.picture_to_add)
         if artwork_data.found_by:   # not tested
             artwork.found_by = decodeId(artwork_data.found_by)
         if artwork_data.location: # not tested
@@ -358,7 +434,6 @@ mutation {
       metrics {
         worksVisited,
         worksFound,
-        citiesVisited,
         worksCreated
       }
       achievements {
@@ -426,7 +501,6 @@ mutation {
       metrics {
         worksVisited,
         worksFound,
-        citiesVisited,
         worksCreated
       }
       achievements {
@@ -501,4 +575,50 @@ mutation {
     success
   }
 }
+
+create group mutation ex:
+
+mutation {
+  createGroup(groupData: {
+    name: "GeoArtBoys",
+    bio: "Geography lovers who take pics",
+    memberToAdd: "braden@gmail.com"
+    }) {
+    group {
+      id
+      name
+      bio
+      members {
+        edges {
+          node {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+update group mutation ex (Adding new member): 
+
+mutation {
+  updateGroup(groupData: {{
+    id: "{0}",
+    memberToAdd: "{1}"
+  }}) {{
+      group {{
+          id
+          name
+          bio
+          members {{
+              edges {{
+                  node {{
+                      name
+                  }}
+              }}
+          }}
+      }}
+  }}
+}}"""
+
 '''
