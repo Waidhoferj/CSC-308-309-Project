@@ -15,8 +15,6 @@ import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/Conn
 import { useParams, useHistory } from "react-router-dom";
 import { gql, useQuery } from '@apollo/client';
 
-const rating = 3.2;
-
 export default function Artwork() {
   const { goBack } = useHistory();
   const { id } = useParams();
@@ -31,6 +29,7 @@ export default function Artwork() {
             metrics {
               totalVisits
             }
+            rating
           }
         }
       }
@@ -46,7 +45,8 @@ export default function Artwork() {
 
   if (artwork == undefined) return (<ConnectionErrorMessage>Error: Artwork does not exist</ConnectionErrorMessage>);
 
-  const metrics = [{ value: artwork.metrics.totalVisits, unit: "Total Visits" },];
+  const metrics = [{ value: artwork.metrics.totalVisits, unit: "Total Visits" },
+                   { value: artwork.rating, unit: "Stars" }];
 
   return (
     <article className="Artwork">
