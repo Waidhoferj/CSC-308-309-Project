@@ -6,7 +6,7 @@ export default function ConnectionErrorMessage({ children }) {
   const { goBack } = useHistory();
 
   return (
-    <div className="error-message">
+    <div className="ConnectionErrorMessage">
       <AlertCircle size={35} />
       <p>{children}</p>
       <button onClick={goBack}>Go Back</button>
