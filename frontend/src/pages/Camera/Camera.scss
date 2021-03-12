@@ -1,3 +1,20 @@
+.Camera {
+  button {
+    background: #00000044;
+    padding: 15px;
+    margin: 0;
+    border-radius: 50%;
+    backdrop-filter: blur(20px);
+
+    svg {
+      color: white;
+      width: 30px;
+      height: 30px;
+      margin-bottom: -4px;
+    }
+  }
+}
+
 .CameraCapture {
   video {
     position: absolute;
@@ -8,15 +25,6 @@
     object-fit: cover;
   }
 
-  button {
-    background: transparent;
-
-    svg {
-      color: white;
-      width: 40px;
-      height: 40px;
-    }
-  }
   .camera-nav {
     position: absolute;
     top: 0;
@@ -28,8 +36,8 @@
 
     svg {
       color: white;
-      width: 40px;
-      height: 40px;
+      width: 30px;
+      height: 30px;
       cursor: pointer;
     }
   }
@@ -51,6 +59,7 @@
       background: white;
       border-radius: 50%;
       margin: 0 50px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.26);
 
       svg {
         color: var(--c-primary);

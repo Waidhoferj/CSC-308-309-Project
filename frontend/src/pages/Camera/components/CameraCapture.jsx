@@ -2,7 +2,7 @@ import Webcam from "react-webcam";
 import { useCallback, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import {
-  Aperture,
+  Image,
   Camera as CamIcon,
   ArrowRightCircle,
   Upload,
@@ -51,20 +51,22 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
         videoConstraints={videoConstraints}
       />
       <nav className="camera-nav">
-        <label>
-          <Upload />
-          <input
-            type="file"
-            accept="image"
-            style={{ display: "none" }}
-            onChange={getInputtedFiles}
-          />
-        </label>
+        <button className="wrapper">
+          <label>
+            <Upload />
+            <input
+              type="file"
+              accept="image"
+              style={{ display: "none" }}
+              onChange={getInputtedFiles}
+            />
+          </label>
+        </button>
       </nav>
       <ul className="action-tray">
         <li>
           <button className="wrapper" onClick={onShowPhotos}>
-            <Aperture />
+            <Image />
           </button>
         </li>
         <li>

@@ -6,7 +6,11 @@ export default function ArtChoices({ artworks, onArtworkSelected }) {
       <hr />
       <ul>
         {artworks.map((work) => (
-          <ArtChoice {...work} onClick={() => onArtworkSelected(work)} />
+          <ArtChoice
+            key={work.title}
+            {...work}
+            onClick={() => onArtworkSelected(work)}
+          />
         ))}
       </ul>
     </div>
