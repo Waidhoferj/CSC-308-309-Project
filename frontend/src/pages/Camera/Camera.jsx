@@ -4,22 +4,20 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import CameraCapture from "./components/CameraCapture";
 import PhotoGallery from "./components/PhotoGallery";
-import { useState } from "react";
+import { Route, useHistory } from "react-router-dom";
+import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 
 export default function Camera() {
-  const [images, setImages] = useState([]);
-  const [showPhotos, setShowPhotos] = useState(false);
-  function addPhoto(image) {
-    setImages((images) => [...images, image]);
-  }
+  const { addImage } = usePhotoLibrary();
+  const history = useHistory();
   return (
     <section className="Camera">
       <CameraCapture
-        onImageCapture={addPhoto}
-        onShowPhotos={() => setShowPhotos(true)}
+        onImageCapture={addImage}
+        onShowPhotos={() => history.push("/camera/library")}
       />
-      <AnimatePresence initial={false}>
-        {showPhotos && (
+      <AnimatePresence>
+        <Route path="/camera/library">
           <motion.div
             key="PhotoGallery"
             initial={{ opacity: 0, transform: "translateY(100vh)" }}
@@ -27,9 +25,9 @@ export default function Camera() {
             exit={{ opacity: 0, transform: "translateY(100vh)" }}
             transition={{ ease: ["easeInOut"], duration: 0.4 }}
           >
-            <PhotoGallery photos={images} onHide={() => setShowPhotos(false)} />
+            <PhotoGallery onHide={() => history.push("/camera")} />
           </motion.div>
-        )}
+        </Route>
       </AnimatePresence>
     </section>
   );
