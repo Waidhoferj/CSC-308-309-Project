@@ -35,6 +35,10 @@
             display: inline-block;
             margin: 0 15px;
             padding:0;
+            transition: transform 0.2s;
+            &:active {
+                    transform: scale(0.95);
+                }
 
         }
     }

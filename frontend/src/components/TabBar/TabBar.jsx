@@ -14,7 +14,7 @@ export default function TabBar() {
     <nav className="TabBar">
       <ul>
         {routes.map(({ to, Icon }) => (
-          <li>
+          <li key={to}>
             <Link to={to}>
               <Icon />
             </Link>
