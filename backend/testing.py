@@ -3,30 +3,72 @@ from mongoengine import connect
 from secrets import DB_ACTUAL_URI, DB_TESTING_URI
 from schema import schema
 from graphene.test import Client
+import base64
 
 
 def testing_boot_up():
     # NOTE: Must use camel-case in graphql calls, can change this if wanted
+    # IDEA: Have a metrics threshold for each achievement that a user has to meet
+    # Number of users: 4
     client = Client(schema)
-    users_with_ids, artworks_with_ids = mock_db_setup(client)
+    users_with_ids, artworks_with_ids, groups_with_ids, achievements_with_ids = mock_db_setup(client)
     # print(users_with_ids)
     # print(artworks_with_ids)
-    run_tests(client, users_with_ids, artworks_with_ids)
+    run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids)
 
 
 def mock_db_setup(client):
     ''' Will create a mock database with all relational objects
         Currently, just users and artworks are created and related '''
+    achievements_with_ids = create_achievements(client)
     users_with_ids = create_users(client)
     artworks_with_ids = create_artworks(client, users_with_ids) # creates artworks, each with a user that "created" it
     assign_artworks(client, users_with_ids, artworks_with_ids)  # makes sure each user's portfolio contains the artwork they created
-    return users_with_ids, artworks_with_ids
-    #return users_with_ids, []
+    group_creators_with_members = [ # group_creator: other members
+        [users_with_ids[0], users_with_ids[1:3]],
+        [users_with_ids[3], users_with_ids[:3]]
+    ]
+    groups_with_ids = create_groups(client, group_creators_with_members)
+    return users_with_ids, artworks_with_ids, groups_with_ids, achievements_with_ids
 
 
-def run_tests(client, users_with_ids, artworks_with_ids):
+def run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
     test_consistent_ids(client)
+
+def create_achievements(client):
+    create_achievement_inputs = [
+        ["Explored 10 Art Locations", "You have officially discovered 10 art locations. Keep it up!", 10, UserMetrics(works_visited=0, works_found=10, works_created=0)],
+        ["Noob", "You signed up for the service!", 10, UserMetrics()]
+    ]
+    achievements_with_ids = []
+    for achievement_input in create_achievement_inputs:
+        executed = client.execute("""
+        mutation {{
+            createAchievement(
+  	            achievementData: {{
+    	            title: "{0}"
+    	            description: "{1}"
+                    points: {2}
+                    threshold: {{
+                        worksVisited: {3},
+                        worksFound: {4},
+                        worksCreated: {5}
+                    }}
+  	            }}
+	        ) {{
+                achievement {{
+                    title
+                    id
+                }}
+            }}
+        }}""".format(
+            achievement_input[0], achievement_input[1],
+            achievement_input[2], achievement_input[3]["works_visited"],
+            achievement_input[3]["works_found"], achievement_input[3]["works_created"]))
+        achievements_with_ids.append((executed["data"]["createAchievement"]["achievement"]["title"], executed["data"]["createAchievement"]["achievement"]["id"]))
+        # append (user's name, user id)
+    return(achievements_with_ids)
 
 
 def create_users(client):
@@ -45,6 +87,7 @@ def create_users(client):
     	            name: "{0}"
     	            bio: "{1}"
                     email: "{2}"
+                    profilePic: "{3}"
   	            }}
 	        ) {{
                 user {{
@@ -52,7 +95,7 @@ def create_users(client):
                     name
                 }}
             }}
-        }}""".format(user_input[0], user_input[1], user_input[2]))
+        }}""".format(user_input[0], user_input[1], user_input[2], get_sample_encoded_profile_image()))
         users_with_ids.append((executed["data"]["createUser"]["user"]["name"], executed["data"]["createUser"]["user"]["id"]))
         # append (user's name, user id)
     return(users_with_ids)
@@ -77,7 +120,8 @@ def create_artworks(client, users_with_ids):
                 foundBy: "{2}",
                 location: {3},
                 rating: {4},
-                tags: {5}
+                tags: {5},
+                pictureToAdd: "{6}"
             }}) {{
                 artwork {{
                     id
@@ -85,7 +129,7 @@ def create_artworks(client, users_with_ids):
                     tags
                 }}
             }}
-        }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4], artwork[5]))
+        }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4], artwork[5], get_sample_encoded_art_image()))
         artworks_with_ids.append((executed["data"]["createArtwork"]["artwork"]["title"], executed["data"]["createArtwork"]["artwork"]["id"]))
     return artworks_with_ids
 
@@ -113,11 +157,69 @@ def assign_artworks(client, users_with_ids, artworks_with_ids):
         }} }}
         """.format(user[1], artwork[1]))
 
+def create_groups(client, group_creators_with_members):
+    group_names_and_bios = [
+        ["GeoArtBoys", "Geography lovers who take pics"],
+        ["StatueLovers", "Show me a statue and I'll show you my camera"]
+    ]
+    groups_with_ids = []
+    for i, group_set in enumerate(group_creators_with_members):
+        executed = client.execute("""
+            mutation {{
+                createGroup(groupData: {{
+                    name: "{0}",
+                    bio: "{1}",
+                    memberToAdd: "{2}"
+                }}) {{
+                    group {{
+                        id
+                        name
+                        bio
+                        members {{
+                            edges {{
+                                node {{
+                                    name
+                                }}
+                            }}
+                        }}
+                    }}
+                }}
+            }}""".format(group_names_and_bios[i][0], group_names_and_bios[i][1], group_set[0][1]))
+        groups_with_ids.append(
+            (executed["data"]["createGroup"]["group"]["name"],  executed["data"]["createGroup"]["group"]["id"]))
+    
+    # Assuming same order as created for assigning group members
+    for i, group_set in enumerate(group_creators_with_members):
+        for new_member in group_set[1]:
+            executed = client.execute("""
+                mutation {{
+                    updateGroup(groupData: {{
+                        id: "{0}",
+                        memberToAdd: "{1}"
+                    }}) {{
+                        group {{
+                            id
+                            name
+                            bio
+                            members {{
+                                edges {{
+                                    node {{
+                                        name
+                                    }}
+                                }}
+                            }}
+                        }}
+                    }}
+                }}""".format(groups_with_ids[i][1], new_member[1]))
+
+
 def test_consistent_ids(client):
     ''' Tests whether or not hard coded ids have changed '''
-    test1 = client.execute("""
+    TEST_ID = "VXNlclR5cGU6YnJhZGVuQGdtYWlsLmNvbQ=="
+    TEST_NAME = "Braden"
+    test = client.execute("""
         query {{
-            users(id: "braden@gmail.com") {{
+            users(id: "{0}") {{
                 edges {{
                     node {{
                         name
@@ -125,7 +227,11 @@ def test_consistent_ids(client):
                 }}
             }}
         }}
-    """)
+    """.format(TEST_ID))
+    
+    expected_name = test['data']['users']['edges'][0]['node']['name']
+    if TEST_NAME != expected_name:
+        print("IDs are not consistent")
 
 
 def test_removing_artwork(client, userNameId, artworkNameId):
@@ -198,3 +304,15 @@ def test_removing_artwork(client, userNameId, artworkNameId):
         """.format(userNameId[1], artworkNameId[1]))
     if removed != before:
         print("Artwork Removal Failed")
+
+def get_sample_encoded_art_image():
+    with open("../frontend/src/assets/example-art.jpg", "rb") as image_file:
+        encoded_image = base64.b64encode(image_file.read())
+        return encoded_image
+
+def get_sample_encoded_profile_image():
+    with open("../frontend/src/assets/example-profile-pic.png", "rb") as image_file:
+        encoded_image = base64.b64encode(image_file.read())
+        return encoded_image
+
+    

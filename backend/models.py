@@ -17,9 +17,8 @@ class Portfolio(EmbeddedDocument):
 
 class UserMetrics(EmbeddedDocument):
     works_visited = IntField(default=0)
-    works_found = IntField(default=0)
+    works_found = IntField(default=0)       # found vs visited?
     works_created = IntField(default=0)
-    cities_visited = IntField(default=0)
 
 class User(Document):
     meta = {"collection": "user"}
@@ -39,6 +38,7 @@ class Achievement(Document):
     title = StringField(primary_key=True, required=True)
     description = StringField(required=True)
     points = IntField(required=True)
+    threshold = EmbeddedDocumentField("UserMetrics")
     # might wanna have metrics that have to be met to obtain
 
 class ArtworkMetrics(EmbeddedDocument):
@@ -57,8 +57,10 @@ class Artwork(Document):
     title = StringField(required=True, primary_key=True)    # Making this primary key for now despite it not being unique
     artist = StringField(required=False)
     description = StringField(required=True)
+    pictures = ListField(StringField(), default=list)
     found_by = ReferenceField("User")
     location = PointField(required=True)
+    date_created = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("ArtworkMetrics", default=ArtworkMetrics)
     rating = FloatField(min_value=0, max_value=100)
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
