@@ -9,7 +9,6 @@ import Profile from "./pages/Profile/Profile";
 import { client } from "./graphql-config";
 import { ApolloProvider } from "@apollo/client";
 import TabBar from "./components/TabBar/TabBar";
-import { MapPin } from "react-feather";
 
 function App() {
   return (
@@ -25,6 +24,7 @@ function App() {
               <Route path="/camera" component={Camera} />
               <Route path="/art-submission" component={ArtSubmission} />
               <Route path="/profile" component={Profile} />
+              <Route path="/portfolio" component={Portfolio} />
               <Route path="/style-guide" component={StyleGuide} />
               <Route path="*" component={ArtMap} />
             </Switch>
