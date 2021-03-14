@@ -14,7 +14,7 @@ def init_db():
         achievement.save()
 
     art = [
-        Artwork(title="Street Art", description="A true masterpiece", pictures=[get_sample_encoded_art_image()], location=[-120.71691615739553, 35.25274443264594], rating=25),
+        Artwork(title="Street Art", description="A true masterpiece", pictures=[get_sample_encoded_art_image()], location=[-120.664, 35.258], rating=25),
         Artwork(title="Hidden Subway Mural", description="Far side of the subway station has a double walled mural.", pictures=[get_sample_encoded_art_image()], location=[-120.67759172519696, 35.23446092387092], rating=89, metrics=ArtworkMetrics(total_visits=2000)),
         Artwork(title="Blue Bridge", description="Neon blue tentacles of paint wind up the struts of the bridge", pictures=[get_sample_encoded_art_image()], tags=["amazing"], location=[-120.70919388389524, 35.292870133451174], rating=90, metrics=ArtworkMetrics(total_visits=32)),
         Artwork(title="Artistic Underpass", description="Bridge ceiling covered in art", pictures=[get_sample_encoded_art_image()], tags=["surreal", "amazing"], location=[-120.69407509793804, 35.283794177611576], rating=97, metrics=ArtworkMetrics(total_visits=5127)),

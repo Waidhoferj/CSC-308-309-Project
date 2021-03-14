@@ -22,6 +22,15 @@ const queries = {
       }
     }
   `,
+  addArtworkToPortfolio: gql`
+    mutation addArtwork($userId: String!, $artId: String!) {
+      updateUser(userData: { id: $userId, artToAdd: $artId }) {
+        user {
+          id
+        }
+      }
+    }
+  `,
 };
 
 export default queries;
