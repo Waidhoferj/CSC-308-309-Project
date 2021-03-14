@@ -1,5 +1,8 @@
 import { useQuery, gql } from "@apollo/client";
+import { useEffect, useState } from "react";
 
+let uid = "";
+let listeners = [];
 const GET_USER_QUERY = gql`
   query fetchUser($id: ID!) {
     users(id: $id) {
@@ -7,6 +10,7 @@ const GET_USER_QUERY = gql`
         node {
           name
           bio
+          profilePic
           metrics {
             worksFound
             worksVisited
@@ -19,13 +23,24 @@ const GET_USER_QUERY = gql`
 
 /**
  *
- * @param {string} id User ID
- * @returns {{profile: {name : string, bio : string, metrics : {worksFound: number, worksVisited: number}}, error: object}} A user profile and any errors that may have occurred in fetching
+ * @returns {{profile: {name : string, bio : string, profilePic:string, metrics : {worksFound: number, worksVisited: number}}, error: object, setUser: function}} A user profile and any errors that may have occurred in fetching
  */
-export default function useProfileInfo(id) {
+export default function useProfileInfo() {
+  const listener = useState(Date.now())[1];
   const { data, error } = useQuery(GET_USER_QUERY, {
-    variables: { id },
+    variables: { id: uid },
   });
   const profile = data?.users.edges[0].node;
-  return { profile, error };
+
+  function setUser(id) {
+    uid = id;
+    listeners.forEach((l) => l(Date.now()));
+  }
+
+  useEffect(() => {
+    listeners.push(listener);
+    return () => (listeners = listeners.filter((l) => l !== listener));
+  }, [listener]);
+
+  return { profile, error, setUser };
 }
