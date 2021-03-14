@@ -3,16 +3,12 @@ import { MoreHorizontal, AlertCircle } from "react-feather";
 import { useHistory } from "react-router-dom";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
-import exampleProfile from "../../assets/example-profile.jpg";
 import useProfileInfo from "../../hooks/useProfileInfo";
 
 export default function Profile() {
-  const { profile: user, error } = useProfileInfo(
-    "VXNlclR5cGU6Z3JhbnRAZ3JhbnQuY29t"
-  );
+  const { profile: user, error } = useProfileInfo();
 
   const { goBack } = useHistory();
-
   return (
     <article className="Profile">
       {error ? (
@@ -23,7 +19,7 @@ export default function Profile() {
         <>
           <header>
             <div className="user">
-              <img src={exampleProfile} alt="Profile" />
+              <img src={user?.profilePic} alt="Profile" />
               <h1>{user?.name}</h1>
             </div>
             <div className="options">
