@@ -23,6 +23,7 @@ export default function Artwork() {
       artwork (id:"${id}") {
         edges {
           node {
+            pictures
             title
             description
             tags
@@ -55,13 +56,15 @@ export default function Artwork() {
 
   const metrics = [
     { value: artwork.metrics.totalVisits, unit: "Total Visits" },
-    { value: artwork.rating, unit: "Stars" },
+    { value: artwork.rating / 20, unit: "Stars" },
   ];
+
+  const pic_src = artwork.pictures[0];
 
   return (
     <article className="Artwork">
       <header>
-        <img src={exampleArt} alt="Art" />
+        <img src={pic_src} alt="Art" />
         <button className="wrapper back-button" onClick={goBack}>
           <ArrowLeft />
         </button>
