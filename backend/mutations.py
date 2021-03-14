@@ -41,14 +41,11 @@ def compareUserMetrics(user_metrics, achievement_threshold):
         return False
     elif user_metrics.works_found < achievement_threshold.works_found:
         return False
-    elif user_metrics.works_created < achievement_threshold.works_created:
-        return False
     return True
 
 class UserMetricsInput(graphene.InputObjectType):
     works_visited = graphene.Int()
     works_found = graphene.Int()
-    works_created = graphene.Int()
 
 class AchievementInput(graphene.InputObjectType):
     title = graphene.String() 
@@ -66,8 +63,7 @@ class CreateAchievementMutation(graphene.Mutation):
     def mutate(self, info, achievement_data=None):
         threshold = UserMetrics(
             works_visited=achievement_data.threshold.works_visited,
-            works_found=achievement_data.threshold.works_found,
-            works_created=achievement_data.threshold.works_created,
+            works_found=achievement_data.threshold.works_found
         )
 
         achievement = Achievement(
@@ -260,8 +256,7 @@ class UpdateUserMutation(graphene.Mutation):
         if user_data.metrics:
             user.metrics = UserMetrics(
                 works_visited = user_data.metrics.works_visited,
-                works_found = user_data.metrics.works_found,
-                works_created = user_data.metrics.works_created
+                works_found = user_data.metrics.works_found
             )
         if user_data.achievement:
             user.achievements.append(Achievement.objects.get(pk=decodeId(user_data.achievement))) 
@@ -433,8 +428,7 @@ mutation {
       dateJoined,
       metrics {
         worksVisited,
-        worksFound,
-        worksCreated
+        worksFound
       }
       achievements {
         edges {
@@ -500,8 +494,7 @@ mutation {
       dateJoined,
       metrics {
         worksVisited,
-        worksFound,
-        worksCreated
+        worksFound
       }
       achievements {
         edges {
