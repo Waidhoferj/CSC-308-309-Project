@@ -7,7 +7,7 @@ def init_db():
     """
 
     achievements = [
-        Achievement(title="Explored 10 Art Locations", description="You have officially discovered 10 art locations. Keep it up!", points=10, threshold=UserMetrics(works_visited=0, works_found=10, works_created=0)),
+        Achievement(title="Explored 10 Art Locations", description="You have officially discovered 10 art locations. Keep it up!", points=10, threshold=UserMetrics(works_visited=0, works_found=10)),
         Achievement(title="Noob", description="You signed up for the service!", points=10, threshold=UserMetrics())
     ]
     for achievement in achievements:

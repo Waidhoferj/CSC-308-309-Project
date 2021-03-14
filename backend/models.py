@@ -17,8 +17,7 @@ class Portfolio(EmbeddedDocument):
 
 class UserMetrics(EmbeddedDocument):
     works_visited = IntField(default=0)
-    works_found = IntField(default=0)       # found vs visited?
-    works_created = IntField(default=0)
+    works_found = IntField(default=0)
 
 class User(Document):
     meta = {"collection": "user"}

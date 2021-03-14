@@ -31,16 +31,12 @@ export default function Profile() {
           <div className="content">
             <div className="metrics">
               <MetricBadge
-                value={user?.metrics.worksVisited}
-                unit="Creations"
-              />
-              <MetricBadge
                 value={user?.metrics.worksFound}
                 unit="Works Found"
               />
               <MetricBadge
-                value={user?.metrics.postsWritten}
-                unit="Posts Written"
+                value={user?.metrics.worksVisited}
+                unit="Works Visited"
               />
             </div>
 
