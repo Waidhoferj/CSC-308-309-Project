@@ -4,6 +4,8 @@ from secrets import DB_ACTUAL_URI, DB_TESTING_URI
 from schema import schema
 from graphene.test import Client
 import base64
+import os
+import random
 
 
 def testing_boot_up():
@@ -305,14 +307,26 @@ def test_removing_artwork(client, userNameId, artworkNameId):
     if removed != before:
         print("Artwork Removal Failed")
 
-def get_sample_encoded_art_image():
-    with open("../frontend/src/assets/example-art.jpg", "rb") as image_file:
-        encoded_image = base64.b64encode(image_file.read())
-        return encoded_image
+def get_sample_encoded_art_image(filepath="") -> str:
+    if filepath == "":
+        # select random image if not supplied with a path
+        path = "./assets/sample-artworks"
+        image_paths = os.listdir(path)
+        filepath = os.path.join(path, random.choice(image_paths)) 
+    return b64_encode_image(filepath)
 
-def get_sample_encoded_profile_image():
-    with open("../frontend/src/assets/example-profile-pic.png", "rb") as image_file:
-        encoded_image = base64.b64encode(image_file.read())
-        return encoded_image
+def get_sample_encoded_profile_image() -> str:
+    return b64_encode_image("../frontend/src/assets/example-profile-pic.png")
+
+def b64_encode_image(filepath: str) -> str:
+    """
+    Base64 encodes image at filepath location. Returns base64 string.
+    """
+    suffix = filepath.split(".")[-1]
+    header = f"data:image/{suffix};base64,"
+    with open(filepath, "rb") as image_file:
+        encoded_image = base64.b64encode(image_file.read()).decode()
+        return header + encoded_image
+
 
     
