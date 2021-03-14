@@ -15,6 +15,20 @@
         margin:0;
     }
 
+    .message {
+        width: 100%;
+        max-width: 500px;
+        color: gray;
+        padding: 30px;
+        text-align: center;
+        margin: auto;
+        margin-top: 30px;
+        svg {
+            width: 40px;
+            height: 40px;
+        }
+    }
+
 
     .ArtworkCard {
         position: relative;
