@@ -55,12 +55,11 @@ export default function ArtMap() {
   const navigating = useRouteMatch("/map/:artwork/track");
   const cardOpen = (viewingArtwork || selectedCluster.length) && !navigating;
   const cardScreenAnimation = {
-    className: "absolute",
     key: !!selectedArtwork,
     transition: { duration: 0.4, type: "tween" },
     initial: { x: !!selectedArtwork ? 300 : -300, opacity: 0 },
     animate: { x: 0, opacity: 1 },
-    exit: { scale: 0.7, opacity: 0 },
+    exit: { scale: 0.7, opacity: 0, className: "absolute" },
   };
 
   // Reformats the fetched data into a more manageable structure.
