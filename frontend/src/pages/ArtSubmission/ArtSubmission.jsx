@@ -1,5 +1,6 @@
 import "./ArtSubmission.scss";
  
+import { useMutation, gql } from "@apollo/client";
 import Rating from "react-rating-stars-component"
 import { useState, useRef } from "react";
 import {ArrowLeft, Star} from "react-feather"
@@ -8,8 +9,26 @@ import {useForm, Controller, useController} from "react-hook-form"
  
 import Tag from "../../components/Tag/Tag";
  
+
  
- 
+
+const CREATE_ARTWORK_MUTATION = gql`
+mutation {
+  createArtwork(artworkData: {
+    title: "{{title}}",
+    description: "{description}"
+    foundBy: "{userId}",
+    location: [-120.677494, 35.292708],
+    rating: 55.0,
+    tags: ["beautiful", "colorful"]
+    }) {
+    id
+    artwork {
+      title
+    }
+  }
+}
+`;
  
 export default function ArtSubmission() {
   /* Give a ref to each input field that we got from useForm hook.

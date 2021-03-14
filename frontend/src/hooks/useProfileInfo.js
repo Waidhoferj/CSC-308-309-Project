@@ -8,6 +8,7 @@ const GET_USER_QUERY = gql`
     users(id: $id) {
       edges {
         node {
+          id
           name
           bio
           profilePic
