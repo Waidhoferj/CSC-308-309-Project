@@ -13,7 +13,7 @@ import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import { useParams, useHistory } from "react-router-dom";
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 
 export default function Artwork() {
   const { goBack } = useHistory();
@@ -38,21 +38,31 @@ export default function Artwork() {
 
   const { loading, error, data } = useQuery(query);
 
-  if (loading) return (<h1>Loading...</h1>);
-  if (error) return (<ConnectionErrorMessage>Error: {error.message}</ConnectionErrorMessage>);
+  if (loading) return <h1>Loading...</h1>;
+  if (error)
+    return (
+      <ConnectionErrorMessage>Error: {error.message}</ConnectionErrorMessage>
+    );
 
   const artwork = data.artwork.edges[0]?.node;
 
-  if (artwork == undefined) return (<ConnectionErrorMessage>Error: Artwork does not exist</ConnectionErrorMessage>);
+  if (artwork == undefined)
+    return (
+      <ConnectionErrorMessage>
+        Error: Artwork does not exist
+      </ConnectionErrorMessage>
+    );
 
-  const metrics = [{ value: artwork.metrics.totalVisits, unit: "Total Visits" },
-                   { value: artwork.rating, unit: "Stars" }];
+  const metrics = [
+    { value: artwork.metrics.totalVisits, unit: "Total Visits" },
+    { value: artwork.rating, unit: "Stars" },
+  ];
 
   return (
     <article className="Artwork">
       <header>
         <img src={exampleArt} alt="Art" />
-        <button className="wrapper back-button">
+        <button className="wrapper back-button" onClick={goBack}>
           <ArrowLeft />
         </button>
         <h1>{artwork.title}</h1>
@@ -68,7 +78,7 @@ export default function Artwork() {
 
       <div className="content">
         <p className="description">{artwork.description}</p>
-        
+
         <ul className="tags">
           {artwork.tags?.map((tag) => (
             <li>

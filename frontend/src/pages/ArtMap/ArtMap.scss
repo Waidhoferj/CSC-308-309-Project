@@ -91,6 +91,13 @@
       transform: rotate(315deg) translateX(-50%);
     }
   }
+
+  .claim-button {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform:translate(-50%, 0);
+  }
 }
 
 .ArtChoices {

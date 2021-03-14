@@ -17,12 +17,14 @@ import { ArrowLeft, Star } from "react-feather";
 import { motion, AnimatePresence } from "framer-motion";
 import { GeolocateControl } from "mapbox-gl";
 import ReactMapboxGl, { ScaleControl, Cluster, Marker } from "react-mapbox-gl";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 
 const Map = ReactMapboxGl({
   accessToken:
     "pk.eyJ1Ijoid2FpZGhvZmVyaiIsImEiOiJja2wwMGNtOHQyMTFqMndqdW9zZ2V3eDB3In0.Ptj-ozNnxV_X6mx5J4DIBA",
 });
+
+const claimableDistance = 0.15; // miles
 
 const mapStyles = {
   width: "100%",
@@ -47,6 +49,7 @@ export default function ArtMap() {
       ? getGeoDistance(userLocation, selectedArtwork.coordinates)
       : null;
 
+  const [addArtworkToPortfolio] = useMutation(queries.addArtworkToPortfolio);
   const { push: goTo, goBack } = useHistory();
   const viewingArtwork = useRouteMatch({ path: "/map/:artwork", exact: true });
   const navigating = useRouteMatch("/map/:artwork/track");
@@ -62,21 +65,19 @@ export default function ArtMap() {
 
   // Reformats the fetched data into a more manageable structure.
   const artworkData = useMemo(() => {
-    return navigating
-      ? [{ ...selectedArtwork }]
-      : rawArtData?.artwork.edges.map(
-          ({
-            node: { title, id, description, rating, metrics, tags, location },
-          }) => ({
-            id,
-            title,
-            description,
-            coordinates: [...location.coordinates],
-            rating: (Math.round(rating) / 100) * 5,
-            metrics,
-            tags,
-          })
-        );
+    return rawArtData?.artwork.edges.map(
+      ({
+        node: { title, id, description, rating, metrics, tags, location },
+      }) => ({
+        id,
+        title,
+        description,
+        coordinates: [...location.coordinates],
+        rating: (Math.round(rating) / 100) * 5,
+        metrics,
+        tags,
+      })
+    );
   }, [loadingArt, navigating]);
 
   useEffect(
@@ -154,6 +155,18 @@ export default function ArtMap() {
       geolocateControl?.click();
     }
     goTo(`/map/${artId}/track`);
+  }
+  /**
+   * Adds selected artwork to user portfolio. Only should be called when within claim distance.
+   */
+  function claimArtwork() {
+    addArtworkToPortfolio({
+      variables: {
+        userId: "VXNlclR5cGU6am9obkBqb2huLmNvbQ==",
+        artId: selectedArtwork?.id,
+      },
+    });
+    goTo("/artwork/" + selectedArtwork.id);
   }
 
   /**
@@ -253,15 +266,33 @@ export default function ArtMap() {
           </motion.aside>
         )}
       </AnimatePresence>
-      <Route exact path="/map/:artwork/track">
-        {selectedArtwork && (
-          <DirectionsCard
-            {...selectedArtwork}
-            distance={artDistance}
-            onCancel={goBack}
-          />
-        )}
-      </Route>
+      <AnimatePresence>
+        <Route exact path="/map/:artwork/track">
+          {selectedArtwork && (
+            <DirectionsCard
+              {...selectedArtwork}
+              distance={artDistance}
+              onCancel={goBack}
+            />
+          )}
+
+          {artDistance && artDistance < claimableDistance && (
+            <motion.button
+              className="claim-button"
+              onClick={claimArtwork}
+              variants={{
+                active: { transform: "translate(-50%, 0)", opacity: 1 },
+                inactive: { transform: "translate(-50%, 120px", opacity: 0 },
+              }}
+              animate="active"
+              initial="inactive"
+              exit="inactive"
+            >
+              Add to Portfolio
+            </motion.button>
+          )}
+        </Route>
+      </AnimatePresence>
     </article>
   );
 }
