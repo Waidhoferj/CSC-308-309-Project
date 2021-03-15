@@ -8,6 +8,7 @@ const GET_USER_QUERY = gql`
     users(id: $id) {
       edges {
         node {
+          id
           name
           bio
           profilePic
@@ -23,7 +24,7 @@ const GET_USER_QUERY = gql`
 
 /**
  *
- * @returns {{profile: {name : string, bio : string, profilePic:string, metrics : {worksFound: number, worksVisited: number}}, error: object, setUser: function}} A user profile and any errors that may have occurred in fetching
+ * @returns {{profile: {name : string, id: string, bio : string, profilePic:string, metrics : {worksFound: number, worksVisited: number}}, error: object, setUser: function}} A user profile and any errors that may have occurred in fetching
  */
 export default function useProfileInfo() {
   const listener = useState(Date.now())[1];

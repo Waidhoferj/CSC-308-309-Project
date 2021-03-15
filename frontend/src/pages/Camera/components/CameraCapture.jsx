@@ -1,6 +1,7 @@
 import Webcam from "react-webcam";
 import { useCallback, useRef } from "react";
 import { useHistory } from "react-router-dom";
+import usePhotoLibrary from "../../../hooks/usePhotoLibrary";
 import {
   Image,
   Camera as CamIcon,
@@ -16,6 +17,7 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
   const cameraRef = useRef(null);
   const flashRef = useRef(null);
   const history = useHistory();
+  const { images } = usePhotoLibrary();
 
   const takePhoto = useCallback(() => {
     if (!cameraRef.current) return;
@@ -76,7 +78,11 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
           </button>
         </li>
         <li>
-          <button className="wrapper" onClick={submitPhotos}>
+          <button
+            className="wrapper"
+            onClick={submitPhotos}
+            disabled={images.length < 1}
+          >
             <ArrowRightCircle />
           </button>
         </li>

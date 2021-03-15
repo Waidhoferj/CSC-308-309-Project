@@ -308,6 +308,7 @@ class ArtworkInput(graphene.InputObjectType):
     artist = graphene.String()
     description = graphene.String()
     picture_to_add = graphene.String()    # NOTE: removing pic will be from index from frontend
+    pictures = graphene.List(graphene.String)
     found_by = graphene.String()  # will be user id
     location = graphene.List(graphene.Float)    # (longitude, latitude)
     metrics = graphene.InputField(ArtworkMetricsInput)
@@ -328,7 +329,7 @@ class CreateArtworkMutation(graphene.Mutation):
             title = artwork_data.title,
             artist = artwork_data.artist,
             description = artwork_data.description,
-            pictures = [artwork_data.picture_to_add] if artwork_data.picture_to_add else [],
+            pictures = artwork_data.pictures if artwork_data.pictures else [],
             found_by = decodeId(artwork_data.found_by),
             location = {
                 "type": "Point",
@@ -340,6 +341,11 @@ class CreateArtworkMutation(graphene.Mutation):
             tags = artwork_data.tags
         )
         artwork.save()
+        # Add artwork to user portfolio
+        user = UpdateUserMutation.getUser(artwork_data.found_by)
+        user.personal_portfolio.artworks.append(artwork)
+        user.save()
+
         return CreateArtworkMutation(artwork=artwork)
 
 class UpdateArtworkMutation(graphene.Mutation):
