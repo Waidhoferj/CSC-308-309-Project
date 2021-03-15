@@ -4,6 +4,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import { AlertCircle, Search } from "react-feather";
+import useProfileInfo from "../../hooks/useProfileInfo";
 
 const GET_PORTFOLIO = gql`
   query getPortfolio($id: ID!) {
@@ -28,7 +29,8 @@ const GET_PORTFOLIO = gql`
 `;
 
 export default function Portfolio() {
-  const artworks = usePortfolio("VXNlclR5cGU6Z3JhbnRAZ3JhbnQuY29t");
+  const { profile } = useProfileInfo();
+  const artworks = usePortfolio(profile.id);
   const history = useHistory();
   return (
     <article className="Portfolio">
