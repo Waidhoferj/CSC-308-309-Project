@@ -84,17 +84,16 @@ export default function ArtSubmission() {
     <section className="ArtSubmission">
       <header>
         <nav>
-          <button onClick={history.goBack}>
+          <button className="wrapper" onClick={history.goBack}>
             <ArrowLeft />
           </button>
         </nav>
+        <img src={images[0]} alt="Art Image" />
         <h1>New Artwork</h1>
       </header>
-      {/* prevents reaching out to server */}
-      {/* handleSubmit handles form submission, sends data to onSubmit func. which gets logged to console */}
       <form onSubmit={handleSubmit(onSubmit)}>
         <label>
-          <p>Artwork Title</p>
+          <p className="field-label">Artwork Title</p>
           <input
             name="title"
             type="text"
@@ -108,26 +107,27 @@ export default function ArtSubmission() {
             Artwork Title is required.
           </p>
         )}
+        <label>
+          <p className="field-label">Rating</p>
+          <Controller
+            control={control}
+            name="rating"
+            render={({ onChange }) => (
+              <Rating
+                count={5}
+                onChange={onChange}
+                size={24}
+                isHalf={false}
+                activeColor="#ffd700"
+                rules={{ required: true }}
+              />
+            )}
+          />
+        </label>
 
-        <p>Rating</p>
-        {/* Render prop calls func. that returns React elmt instead of implementing its own render logic */}
-        <Controller
-          control={control}
-          name="rating"
-          render={({ onChange }) => (
-            <Rating
-              count={5}
-              onChange={onChange}
-              size={24}
-              isHalf={false}
-              activeColor="#ffd700"
-              rules={{ required: true }}
-            />
-          )}
-        />
-
-        <section className="art-tags">
+        <label className="art-tags">
           {/* Note: "Add Tag" moves around when adding tags, even if position is set to "fixed" or "absolute" */}
+          <p className="field-label">Tags</p>
           <input
             value={tagInputVal}
             onChange={(e) => setTagInputVal(e.target.value)}
@@ -143,10 +143,10 @@ export default function ArtSubmission() {
               <Tag key={tag}>{tag}</Tag>
             ))}
           </div>
-        </section>
+        </label>
 
         <label>
-          <p>Description</p>
+          <p className="field-label">Description</p>
           <textarea
             cols="30"
             rows="8"
