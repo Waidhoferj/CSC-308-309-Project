@@ -17,12 +17,15 @@ export default function ArtChoices({ artworks, onArtworkSelected }) {
   );
 }
 
-function ArtChoice({ onClick, rating, title }) {
+function ArtChoice({ onClick, rating, title, visited }) {
   return (
     <li onClick={onClick} className="ArtChoice">
       <h3 className="title">{title}</h3>
       <p className="rating">
-        {rating} <Star />
+        {rating}{" "}
+        <Star
+          style={{ color: visited ? "var(--c-accent)" : "var(--c-primary)" }}
+        />
       </p>
     </li>
   );

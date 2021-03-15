@@ -30,7 +30,7 @@ const GET_PORTFOLIO = gql`
 
 export default function Portfolio() {
   const { profile } = useProfileInfo();
-  const artworks = usePortfolio(profile.id);
+  const artworks = usePortfolio(profile?.id);
   const history = useHistory();
   return (
     <article className="Portfolio">

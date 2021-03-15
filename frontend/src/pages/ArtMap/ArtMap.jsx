@@ -5,6 +5,7 @@ import ArtInfo from "./components/ArtInfo";
 import ArtChoices from "./components/ArtChoices";
 import DirectionsCard from "./components/DirectionsCard";
 import queries from "./queries";
+import useProfileInfo from "../../hooks/useProfileInfo";
 
 import {
   useRouteMatch,
@@ -34,10 +35,14 @@ const mapStyles = {
 };
 
 export default function ArtMap() {
+  const { profile } = useProfileInfo();
   const { artwork: artId } = useParams();
   const { loading: loadingArt, data: rawArtData } = useQuery(
     queries.getArtworks
   );
+  const { data: rawSeenArt } = useQuery(queries.getSeenArtworkIds, {
+    variables: { id: profile?.id },
+  });
 
   const [mapLocation, setMapLocation] = useState([-120.666132, 35.311089]);
   const [userLocation, setUserLocation] = useState(null);
@@ -64,6 +69,11 @@ export default function ArtMap() {
 
   // Reformats the fetched data into a more manageable structure.
   const artworkData = useMemo(() => {
+    const seenSet = new Set(
+      rawSeenArt?.users.edges[0].node.personalPortfolio.artworks.edges.map(
+        (edge) => edge.node.id
+      )
+    );
     return rawArtData?.artwork.edges.map(
       ({
         node: { title, id, description, rating, metrics, tags, location },
@@ -75,9 +85,10 @@ export default function ArtMap() {
         rating: (Math.round(rating) / 100) * 5,
         metrics,
         tags,
+        visited: seenSet.has(id),
       })
     );
-  }, [loadingArt, navigating]);
+  }, [rawSeenArt, rawArtData]);
 
   useEffect(
     function handleDirectNavigation() {
@@ -212,7 +223,9 @@ export default function ArtMap() {
                 onClick={() => chooseArtworkMarker(artwork)}
                 artwork={artwork}
               >
-                <div className="art-marker">
+                <div
+                  className={`art-marker${artwork.visited ? " visited" : ""}`}
+                >
                   <p>{artwork.rating}</p> <Star />
                 </div>
               </Marker>

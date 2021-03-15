@@ -1,5 +1,6 @@
 import MetricBadge from "../../../components/MetricBadge/MetricBadge";
 import Tag from "../../../components/Tag/Tag";
+import { useHistory } from "react-router-dom";
 
 export default function ArtInfo({
   description,
@@ -9,8 +10,10 @@ export default function ArtInfo({
   metrics,
   distance,
   onConfirm,
+  visited,
   id,
 }) {
+  const history = useHistory();
   return (
     <div className="ArtInfo">
       <h2>{title}</h2>
@@ -30,7 +33,13 @@ export default function ArtInfo({
           ))}
         </ul>
       ) : null}
-      <button onClick={onConfirm}>Let's Go</button>
+      {visited ? (
+        <button onClick={() => history.push("/artwork/" + id)}>
+          View In Portfolio
+        </button>
+      ) : (
+        <button onClick={onConfirm}>Let's Go</button>
+      )}
     </div>
   );
 }
