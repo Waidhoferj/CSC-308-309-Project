@@ -7,7 +7,6 @@ export default function PhotoGallery({ onHide }) {
   const { goBack } = useHistory();
   const { images, removeImage } = usePhotoLibrary();
   const sideScrollRef = useRef();
-  console.log(images.length);
   function deletePhoto() {
     const photos = sideScrollRef.current;
     const i = Math.floor(
