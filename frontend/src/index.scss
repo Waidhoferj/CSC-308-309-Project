@@ -83,6 +83,13 @@ input[type="submit"] {
 
   &:active {
     transform: scale(0.97);
+    &:disabled {
+      transform: scale(1);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.7;
   }
 }
 
