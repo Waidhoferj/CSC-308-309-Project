@@ -54,7 +54,7 @@ export default function ArtSubmission() {
   const [tagInputVal, setTagInputVal] = useState("");
   const history = useHistory();
   const [uploadArt] = useMutation(CREATE_ARTWORK_MUTATION);
-  const { images } = usePhotoLibrary();
+  const { images, clearLibrary } = usePhotoLibrary();
   const { profile } = useProfileInfo();
 
   //onSubmit function is passed to handleSubmit function
@@ -64,10 +64,12 @@ export default function ArtSubmission() {
       location: [-120.664, 35.258], // For demo purposes. We'll attach geolocation to usePhotoLibrary later.
       foundBy: profile.id,
       ...data,
+      rating: data.rating * 20,
     };
-    uploadArt({ variables: payload }).then((res) =>
-      history.push("/artwork/" + res.data.createArtwork.artwork.id)
-    );
+    uploadArt({ variables: payload }).then((res) => {
+      clearLibrary();
+      history.push("/artwork/" + res.data.createArtwork.artwork.id);
+    });
   }
 
   function handleTagSubmit(e) {
