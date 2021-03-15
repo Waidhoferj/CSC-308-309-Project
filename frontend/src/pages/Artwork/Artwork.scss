@@ -17,12 +17,17 @@
       left: $abs-pad;
       color: white;
       margin: 0;
+      filter: var(--text-shadow)
     }
 
     .back-button {
       position: absolute;
       top: $abs-pad;
       left: $abs-pad;
+
+      svg {
+        filter: var(--text-shadow)
+      }
     }
 
     .options {

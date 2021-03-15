@@ -2,8 +2,8 @@ import "./ArtSubmission.scss";
 
 import { useMutation, gql } from "@apollo/client";
 import Rating from "react-rating-stars-component";
-import { useState, useRef } from "react";
-import { ArrowLeft, Star } from "react-feather";
+import { useState } from "react";
+import { ArrowLeft } from "react-feather";
 import { useHistory } from "react-router-dom";
 import { useForm, Controller, useController } from "react-hook-form";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
@@ -90,7 +90,7 @@ export default function ArtSubmission() {
             <ArrowLeft />
           </button>
         </nav>
-        <img src={images[0]} alt="Art Image" />
+        <img src={images[0]} alt="Art" />
         <h1>New Artwork</h1>
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>

@@ -31,6 +31,25 @@ const queries = {
       }
     }
   `,
+  getSeenArtworkIds: gql`
+    query getSeenArt($id: ID!) {
+      users(id: $id) {
+        edges {
+          node {
+            personalPortfolio {
+              artworks {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `,
 };
 
 export default queries;

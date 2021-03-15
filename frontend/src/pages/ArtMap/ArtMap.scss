@@ -99,6 +99,10 @@
       height: $size;
       transform: rotate(315deg) translateX(-50%);
     }
+
+    &.visited {
+      --c-primary: var(--c-accent);
+    }
   }
 
   .claim-button {
@@ -121,6 +125,7 @@
     list-style: none;
     padding: 0;
     max-height: 50vh;
+    overflow-y: scroll;
   }
   .ArtChoice {
     display: flex;
