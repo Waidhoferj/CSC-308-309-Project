@@ -46,6 +46,7 @@ class ArtworkMetrics(EmbeddedDocument):
 class Comment(EmbeddedDocument):
     content = StringField(required=True)
     author = ReferenceField("User", required=True)
+    date_posted = DateTimeField(default=datetime.now)
     # could add int attribute for likes, would have to associate it with the user though
 
 class Artwork(Document):
@@ -61,7 +62,8 @@ class Artwork(Document):
     location = PointField(required=True)
     date_created = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("ArtworkMetrics", default=ArtworkMetrics)
-    rating = FloatField(min_value=0, max_value=100)
+    num_ratings = IntField(default=1)
+    rating = FloatField(min_value=0, max_value=100, default=0)
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
     tags = ListField(StringField(), default=list)
 

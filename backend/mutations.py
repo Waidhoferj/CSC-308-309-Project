@@ -1,6 +1,6 @@
 import graphene
 from bson import ObjectId
-from models import User, UserMetrics, Portfolio, Settings, Achievement, Group, Artwork, ArtworkMetrics
+from models import User, UserMetrics, Portfolio, Settings, Achievement, Group, Artwork, ArtworkMetrics, Comment
 from api_types import UserType, UserMetricsType, PortfolioType, SettingsType, AchievementType, GroupType
 from api_types import ArtworkType, CommentType, AchievementType
 import base64
@@ -10,6 +10,7 @@ Need to research more into mutation arguments, but I think how I have them right
 List of possible mutations to make:
 
     add_to_portfolio - todo
+    update_settings
 
     incrementing metrics mutations (users and artworks) - todo 
       Can call "checkAchievements" from these mutations instead of main ones   
@@ -187,8 +188,6 @@ class UserSettingsInput(graphene.InputObjectType):
     autoAddToGroupPortfolio = graphene.Boolean()
 
 
-
-
 class UserInput(graphene.InputObjectType):
     # since this class is generalized for all updating and creating, won't make any attributes required
     id = graphene.String()
@@ -308,10 +307,10 @@ class ArtworkInput(graphene.InputObjectType):
     artist = graphene.String()
     description = graphene.String()
     picture_to_add = graphene.String()    # NOTE: removing pic will be from index from frontend
-    pictures = graphene.List(graphene.String)
     found_by = graphene.String()  # will be user id
     location = graphene.List(graphene.Float)    # (longitude, latitude)
     metrics = graphene.InputField(ArtworkMetricsInput)
+    num_ratings = graphene.Int()
     rating = graphene.Float()    # assuming 1-100 at the moment
     comment = graphene.InputField(CommentInput)
     tags = graphene.List(graphene.String)    
@@ -329,24 +328,21 @@ class CreateArtworkMutation(graphene.Mutation):
             title = artwork_data.title,
             artist = artwork_data.artist,
             description = artwork_data.description,
-            pictures = artwork_data.pictures if artwork_data.pictures else [],
-            found_by = decodeId(artwork_data.found_by),
+            pictures = [artwork_data.picture_to_add] if artwork_data.picture_to_add else [],
+            found_by = decodeId(artwork_data.found_by),   # might wanna error check
             location = {
                 "type": "Point",
                 "coordinates": [artwork_data.location[0], artwork_data.location[1]]
             },
             metrics = metrics,
+            num_ratings = artwork_data.num_ratings,
             rating = artwork_data.rating,
             comments = [],
             tags = artwork_data.tags
         )
         artwork.save()
-        # Add artwork to user portfolio
-        user = UpdateUserMutation.getUser(artwork_data.found_by)
-        user.personal_portfolio.artworks.append(artwork)
-        user.save()
-
         return CreateArtworkMutation(artwork=artwork)
+
 
 class UpdateArtworkMutation(graphene.Mutation):
     artwork = graphene.Field(ArtworkType)
@@ -368,9 +364,9 @@ class UpdateArtworkMutation(graphene.Mutation):
             artwork.description = artwork_data.description
         if artwork_data.picture_to_add:
             artwork.pictures.append(artwork_data.picture_to_add)
-        if artwork_data.found_by:   # not tested
+        if artwork_data.found_by:   # not tested, but this also shouldn't change after artwork creation
             artwork.found_by = decodeId(artwork_data.found_by)
-        if artwork_data.location: # not tested
+        if artwork_data.location: # not tested, but this also shouldn't change after artwork creation
             artwork.location = {
                 "type": "Point",
                 "coordinates": [artwork_data.location[0], artwork_data.location[1]]
@@ -379,7 +375,9 @@ class UpdateArtworkMutation(graphene.Mutation):
             artwork.metrics = ArtworkMetrics(
                 total_visits = artwork_data.metrics.total_visits
             )
-        if artwork_data.rating:
+        if artwork_data.num_ratings:
+            artwork.num_ratings = artwork_data.num_ratings
+        if artwork_data.rating:     # Might get rid of because changing breaks dependency with num_ratings
             artwork.rating = artwork_data.rating
         if artwork_data.comment:    # not tested and probably need to add more logic to control comments
             artwork.comments.append(artwork_data.comment)
@@ -405,6 +403,47 @@ class DeleteArtworkMutation(graphene.Mutation):
 
         return DeleteArtworkMutation(success=success)
 
+
+class ArtworkReviewInput(graphene.InputObjectType):
+    artwork_id = graphene.ID(required=True)
+    comment = graphene.InputField(CommentInput)
+    rating = graphene.Float() # 1-100
+    tags = graphene.List(graphene.String)
+
+class AddArtworkReviewMutation(graphene.Mutation):
+    # Need to either split up ratings/tags with comment or create a new comment class
+    # For now I decided to split up ratings/tags with comment
+    # Don't want users just adding endless tags and reviews, no check yet
+    # Could leave comments open to add "endlessly" though
+    artwork = graphene.Field(ArtworkType)
+    class Arguments:
+        review_data = ArtworkReviewInput(required=True)
+  
+    def mutate(self, info, review_data=None):
+
+        def addArtworkRating(old_rating, rating_to_add, new_count):
+            ''' Updates the moving rating average, only works with one new rating at a time '''
+            return ( ( old_rating * (new_count - 1) ) + rating_to_add ) / new_count
+
+        artwork = UpdateArtworkMutation.getArtwork(review_data.artwork_id)
+        if artwork is None:
+            print("Could not find artwork")
+            return
+        if review_data.comment: # to test
+            artwork.comments.append(Comment(
+              author = decodeId(review_data.comment.author),
+              content = review_data.comment.content))
+        if review_data.rating:  # to test
+            artwork.num_ratings += 1    # NOTE: incrementing num_ratings BEFORE updating average
+            artwork.rating = addArtworkRating(artwork.rating, review_data.rating, artwork.num_ratings)
+        if review_data.tags:  # to test
+            for tag in review_data.tags:
+                artwork.tags.append(tag)
+        artwork.save()
+
+        return AddArtworkReviewMutation(artwork=artwork)
+
+
 ''' 
 Geospatial Indexing Links:
     https://docs.mongodb.com/manual/geospatial-queries/
@@ -424,10 +463,9 @@ Creates user and returns most relevant information about them:
 mutation {
   createUser(userData: {
     name: "Tony Richard",
-    bio: "Very Happy Boi",
-    profilePic: "ijf092ct890t423m98rym230948yrm32409r8y23m490asf"
+    bio: "Likes to take long walks in the valley",
+    email: "tony@richard.com"
   }) {
-    id
     user {
       name,
       bio,
@@ -546,8 +584,8 @@ mutation {
     rating: 55.0,
     tags: ["beautiful", "colorful"]
     }) {
-    id
     artwork {
+      id
       title
     }
   }
@@ -573,6 +611,27 @@ mutation {
   deleteArtwork(id:"6039777712563c35fb0d6bc0") {
     success
   }
+}
+
+add artwork review mutation ex:
+
+mutation {
+  addArtworkReview(reviewData: {
+    artworkId: "QXJ0d29ya1R5cGU6SGlkZGVuIFNzZGZnc2Rnc3VyYQ==",
+    comment: {
+      author: "VXNlclR5cGU6YnJhZGVuQGdtYWlsLmNvbQ=="
+      content: "I love this art!",
+    }
+    rating: 80,
+    tags: ["Added_Tag"]
+  }) {
+    artwork {
+      id
+      title
+      rating
+      numRatings
+    }
+  }    
 }
 
 create group mutation ex:
