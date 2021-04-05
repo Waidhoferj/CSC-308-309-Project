@@ -11,6 +11,7 @@ import GroupsList from "./pages/Groups/GroupsList/GroupsList";
 import ReportArtwork from "./pages/ReportArtwork/ReportArtwork";
 import TabBar from "./components/TabBar/TabBar";
 import useProfileInfo from "./hooks/useProfileInfo";
+import NewAccount from "./pages/NewAccount/NewAccount";
 import { useEffect } from "react";
 
 const userId = "VXNlclR5cGU6am9obkBqb2huLmNvbQ==";
@@ -42,6 +43,7 @@ function App() {
             <Route path="/portfolio" component={Portfolio} />
             <Route path="/groups" component={GroupsList} />
             <Route path="/style-guide" component={StyleGuide} />
+            <Route path="/new-account" component={NewAccount} />
             <Route path="*" component={ArtMap} />
           </Switch>
         </div>
