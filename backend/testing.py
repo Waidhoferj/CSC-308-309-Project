@@ -10,8 +10,9 @@ import random
 
 def testing_boot_up():
     # NOTE: Must use camel-case in graphql calls, can change this if wanted
-    # IDEA: Have a metrics threshold for each achievement that a user has to meet
     # Number of users: 4
+    # Number of artworks: 4
+    # Number of groups: 2
     client = Client(schema)
     users_with_ids, artworks_with_ids, groups_with_ids, achievements_with_ids = mock_db_setup(client)
     # print(users_with_ids)
@@ -37,10 +38,13 @@ def mock_db_setup(client):
 def run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
     test_consistent_ids(client)
+    test_add_artwork_review(client, users_with_ids[1], artworks_with_ids[0])
+    print("--- Tests Successful ---")
+
 
 def create_achievements(client):
     create_achievement_inputs = [
-        ["Explored 10 Art Locations", "You have officially discovered 10 art locations. Keep it up!", 10, UserMetrics(works_visited=0, works_found=10, works_created=0)],
+        ["Explored 10 Art Locations", "You have officially visited 10 art locations. Keep it up!", 10, UserMetrics(works_visited=10, works_found=0)],
         ["Noob", "You signed up for the service!", 10, UserMetrics()]
     ]
     achievements_with_ids = []
@@ -54,8 +58,7 @@ def create_achievements(client):
                     points: {2}
                     threshold: {{
                         worksVisited: {3},
-                        worksFound: {4},
-                        worksCreated: {5}
+                        worksFound: {4}
                     }}
   	            }}
 	        ) {{
@@ -67,7 +70,7 @@ def create_achievements(client):
         }}""".format(
             achievement_input[0], achievement_input[1],
             achievement_input[2], achievement_input[3]["works_visited"],
-            achievement_input[3]["works_found"], achievement_input[3]["works_created"]))
+            achievement_input[3]["works_found"]))
         achievements_with_ids.append((executed["data"]["createAchievement"]["achievement"]["title"], executed["data"]["createAchievement"]["achievement"]["id"]))
         # append (user's name, user id)
     return(achievements_with_ids)
@@ -306,6 +309,80 @@ def test_removing_artwork(client, userNameId, artworkNameId):
         """.format(userNameId[1], artworkNameId[1]))
     if removed != before:
         print("Artwork Removal Failed")
+
+def test_add_artwork_review(client, user, artwork):
+    ''' Tests the addArtworkReview mutation, simply adding fields to artwork '''
+    artwork_id = artwork[1]
+    user_id = user[1]
+    content = "I love this ART!"
+    rating = 82
+    tags = ["Magnificent"]
+    formatted_tags = "[\"Magnificent\"]"
+
+    old_artwork = client.execute("""
+        query {{
+            artwork(id: "{0}") {{
+                edges {{
+                    node {{
+                        rating
+                        numRatings
+                    }}
+                }}
+            }}
+        }}""".format(artwork_id))
+    old_rating = old_artwork["data"]["artwork"]["edges"][0]["node"]["rating"]
+    old_num_ratings = old_artwork["data"]["artwork"]["edges"][0]["node"]["numRatings"]
+
+
+    updated_artwork = client.execute("""
+        mutation {{
+            addArtworkReview(reviewData: {{
+                artworkId: "{0}",
+                comment: {{
+                    author: "{1}",
+                    content: "{2}"
+                }},
+                rating: {3},
+                tags: {4}
+            }}) {{
+                artwork {{
+                    id
+                    title
+                    rating
+                    numRatings
+                    comments {{
+                        edges {{
+                            node {{
+                                author {{
+                                    id
+                                }}
+                                content
+                            }}
+                        }}
+                    }}
+                    tags
+                }}
+            }}
+        }}
+        """.format(artwork_id, user_id, content, rating, formatted_tags))
+
+    updated_rating = updated_artwork["data"]["addArtworkReview"]["artwork"]["rating"]
+    updated_num_ratings = updated_artwork["data"]["addArtworkReview"]["artwork"]["numRatings"]
+    updated_comments = updated_artwork["data"]["addArtworkReview"]["artwork"]["comments"]["edges"]
+    updated_tags = updated_artwork["data"]["addArtworkReview"]["artwork"]["tags"]
+
+    assert updated_num_ratings == old_num_ratings + 1
+    assert updated_rating == ((old_rating * old_num_ratings) + rating) / updated_num_ratings
+    
+    comment_added = False
+    for comment_node in updated_comments:
+        if comment_node["node"]["author"]["id"] == user_id:
+            if comment_node["node"]["content"] == content:
+                comment_added = True
+    assert comment_added
+    for tag in tags:
+        assert tag in updated_tags
+    
 
 def get_sample_encoded_art_image(filepath="") -> str:
     if filepath == "":
