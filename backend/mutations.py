@@ -328,7 +328,7 @@ class CreateArtworkMutation(graphene.Mutation):
             title = artwork_data.title,
             artist = artwork_data.artist,
             description = artwork_data.description,
-            pictures = [artwork_data.picture_to_add] if artwork_data.picture_to_add else [],
+            pictures = artwork_data.pictures if artwork_data.pictures else [],
             found_by = decodeId(artwork_data.found_by),   # might wanna error check
             location = {
                 "type": "Point",
