@@ -1,5 +1,5 @@
 import "./TabBar.scss";
-import { User, Camera, BookOpen, Map } from "react-feather";
+import { User, Camera, BookOpen, Map, Users } from "react-feather";
 import { Link } from "react-router-dom";
 
 const routes = [
@@ -7,6 +7,7 @@ const routes = [
   { to: "/portfolio", Icon: BookOpen },
   { to: "/camera", Icon: Camera },
   { to: "/profile", Icon: User },
+  { to: "/groups", Icon: Users },
 ];
 
 export default function TabBar() {

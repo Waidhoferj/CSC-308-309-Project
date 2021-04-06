@@ -65,6 +65,10 @@ class Artwork(Document):
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
     tags = ListField(StringField(), default=list)
 
+class GroupMetrics(EmbeddedDocument):
+    artwork_count = IntField(default=0)
+    member_count = IntField(default=0)
+    
 class Group(Document):
     meta = {"collection": "group"}
     name = StringField(primary_key=True, required=True)     # Making this primary key for now despite it not being unique
@@ -72,4 +76,5 @@ class Group(Document):
     members = ListField(ReferenceField("User"), default=list)
     group_portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
+    metrics = EmbeddedDocumentField("GroupMetrics", dbref=True)
 

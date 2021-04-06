@@ -1,5 +1,5 @@
 from graphene.relay import Node
-from models import Settings, User, UserMetrics, Achievement, Artwork, ArtworkMetrics
+from models import Settings, User, UserMetrics, Achievement, Artwork, ArtworkMetrics, GroupMetrics
 from models import Comment, Portfolio, Group
 from graphene_mongo import MongoengineObjectType
 import graphene
@@ -21,6 +21,10 @@ class UserType(MongoengineObjectType):
 class UserMetricsType(MongoengineObjectType):
     class Meta:
         model = UserMetrics
+
+class GroupMetricsType(MongoengineObjectType):
+    class Meta:
+        model = GroupMetrics
 
 class AchievementType(MongoengineObjectType):
     class Meta:

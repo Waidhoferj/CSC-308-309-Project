@@ -6,6 +6,7 @@ import StyleGuide from "./components/StyleGuide";
 import ArtSubmission from "./pages/ArtSubmission/ArtSubmission";
 import Portfolio from "./pages/Portfolio/Portfolio";
 import Profile from "./pages/Profile/Profile";
+import GroupsList from "./pages/Groups/GroupsList/GroupsList";
 import TabBar from "./components/TabBar/TabBar";
 import useProfileInfo from "./hooks/useProfileInfo";
 import { useEffect } from "react";
@@ -31,6 +32,7 @@ function App() {
             <Route path="/art-submission" component={ArtSubmission} />
             <Route path="/profile" component={Profile} />
             <Route path="/portfolio" component={Portfolio} />
+            <Route path="/groups" component={GroupsList} />
             <Route path="/style-guide" component={StyleGuide} />
             <Route path="*" component={ArtMap} />
           </Switch>
