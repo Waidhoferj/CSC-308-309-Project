@@ -6,7 +6,10 @@ import StyleGuide from "./components/StyleGuide";
 import ArtSubmission from "./pages/ArtSubmission/ArtSubmission";
 import Portfolio from "./pages/Portfolio/Portfolio";
 import Profile from "./pages/Profile/Profile";
+<<<<<<< HEAD
 import GroupsList from "./pages/Groups/GroupsList/GroupsList";
+=======
+>>>>>>> b87794f (Added initial report page)
 import ReportArtwork from "./pages/ReportArtwork/ReportArtwork";
 import TabBar from "./components/TabBar/TabBar";
 import useProfileInfo from "./hooks/useProfileInfo";
