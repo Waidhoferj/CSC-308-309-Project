@@ -2,7 +2,9 @@ import "./GroupsList.scss";
 import { useQuery, gql } from "@apollo/client";
 import useProfileInfo from "../../../hooks/useProfileInfo";
 import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/ConnectionErrorMessage";
+import Spinner from "../../../components/Spinner/Spinner";
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 
 const GROUP_LIST_QUERY = gql`
   query getGroups($id: ID!) {
@@ -36,7 +38,7 @@ const GROUP_LIST_QUERY = gql`
 `;
 
 export default function GroupsList() {
-  let groups = useGroupList();
+  let { loading, groups } = useGroupList();
   if (groups.length) {
     groups = new Array(20).fill(groups[0]);
   }
@@ -45,7 +47,11 @@ export default function GroupsList() {
       <header>
         <h1>Groups</h1>
       </header>
-      {groups.length ? (
+      {loading ? (
+        <div className="spinner">
+          <Spinner />
+        </div>
+      ) : groups.length ? (
         <ul className="groups">
           {groups.map((group, key) => (
             <GroupCard key={key} {...group} />
@@ -65,15 +71,18 @@ function useGroupList() {
   const { loading, data } = useQuery(GROUP_LIST_QUERY, {
     variables: { id: profile?.id },
   });
-  return (
-    data?.users.edges?.[0].node.groups.edges.map(({ node: group }) => ({
-      name: group.name,
-      metrics: group.metrics,
-      pictures: group.groupPortfolio.artworks.edges.flatMap(
-        ({ node: work }) => work.pictures
-      ),
-    })) || []
+  const groups = useMemo(
+    () =>
+      data?.users.edges?.[0].node.groups.edges.map(({ node: group }) => ({
+        name: group.name,
+        metrics: group.metrics,
+        pictures: group.groupPortfolio.artworks.edges.flatMap(
+          ({ node: work }) => work.pictures
+        ),
+      })) || [],
+    [data]
   );
+  return { loading, groups };
 }
 
 function GroupCard({ name, pictures, metrics }) {
