@@ -341,6 +341,11 @@ class CreateArtworkMutation(graphene.Mutation):
             tags = artwork_data.tags
         )
         artwork.save()
+        # Add artwork to user portfolio
+        user = UpdateUserMutation.getUser(artwork_data.found_by)
+        user.personal_portfolio.artworks.append(artwork)
+        user.save()
+
         return CreateArtworkMutation(artwork=artwork)
 
 
