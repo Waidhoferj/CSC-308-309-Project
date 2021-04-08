@@ -1,3 +1,5 @@
+@use "./styles/utils.scss" as theme;
+
 * {
   box-sizing: border-box;
 }
@@ -120,5 +122,9 @@ code {
     position: relative;
     height: 100%;
     width: 100%;
+
+    @include theme.viewport(medium) {
+      height: calc(100% - 70px);
+    }
   }
 }

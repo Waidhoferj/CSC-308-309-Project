@@ -1,4 +1,4 @@
-from models import User, Artwork, Portfolio, Achievement, UserMetrics, ArtworkMetrics
+from models import User, Artwork, Portfolio, Achievement, UserMetrics, ArtworkMetrics, Group, GroupMetrics
 from testing import get_sample_encoded_art_image, get_sample_encoded_profile_image
 
 def init_db():
@@ -32,12 +32,26 @@ def init_db():
         Portfolio(artworks=[art[3], art[5]]),
     ]
 
+    
+
     users = [
         User(name="Grant", personal_portfolio=portfolios[0], bio="Love me some AI and maybe web dev.", profile_pic=get_sample_encoded_profile_image(), email="grant@grant.com", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
         User(name="Braden", personal_portfolio=portfolios[1], bio="Spending some time on CSC 400.", profile_pic=get_sample_encoded_profile_image(), email="braden@braden.com", metrics=UserMetrics(), achievements=[achievements[1]]),
         User(name="Kyle", personal_portfolio=portfolios[2], bio="Fitness, meditation and good books.", profile_pic=get_sample_encoded_profile_image(), email="kyle@kyle.com", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
         User(name="John", personal_portfolio=portfolios[3], bio="Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", profile_pic=get_sample_encoded_profile_image(), email="john@john.com", metrics=UserMetrics(), achievements=[achievements[1]])
     ]
-    
+
+    groups = [
+        Group(name="West Coast Art", bio="Looking for sick art in West Coast cities. Group founders are based in SF and we love our style!", members=[users[0], users[1]], group_portfolio=portfolios[0], metrics=GroupMetrics(artwork_count=2, member_count=2)),
+        Group(name="All Art Welcome", bio="We're here for the community, not the categories. Lets see how much art we can collect together!", members=[users[2], users[3]], group_portfolio=portfolios[1], metrics=GroupMetrics(artwork_count=2, member_count=2))
+    ]
+
+    for group in groups:
+        group.save()
+
+    users[0].groups = [groups[0]]
+    users[1].groups = [groups[0]]
+    users[2].groups = [groups[1]]
+    users[3].groups = [groups[1]]
     for user in users:
         user.save()
