@@ -39,9 +39,6 @@ const GROUP_LIST_QUERY = gql`
 
 export default function GroupsList() {
   let { loading, groups } = useGroupList();
-  if (groups.length) {
-    groups = new Array(20).fill(groups[0]);
-  }
   return (
     <article className="GroupsList">
       <header>
