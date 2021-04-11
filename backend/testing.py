@@ -39,7 +39,7 @@ def run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
     test_consistent_ids(client)
     test_add_artwork_review(client, users_with_ids[1], artworks_with_ids[0])
-    #test_submit_artwork_review(client, users_with_ids[0], artworks_with_ids[0])
+    test_submit_artwork_review(client, users_with_ids[0], artworks_with_ids[0])
     print("--- Tests Successful ---")
 
 
@@ -420,10 +420,11 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
     report = client.execute("""
         mutation {{
             createReport(reportData: {{
-                reportedIdType: "{0}",
-    	        reportedId: "{1}",
-    	        userId: "{2}",
+                reportedIdType: "{0}"
+    	        reportedId: "{1}"
+    	        userId: "{2}"
     	        reason: "{3}"
+                description: "{4}"
             }}) {{
                 report {{
                     reportedIdType
@@ -431,10 +432,15 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
                     userId
                     reason
                     description
-                    }}
                 }}
             }}
         }}
         """.format(reported_id_type, reported_id, user_id, reason, description))
     
-    print(report)
+
+    report_data = report["data"]["createReport"]["report"]
+    assert report_data['reportedIdType'] == reported_id_type
+    assert report_data['reportedId'] == reported_id
+    assert report_data['userId'] == user_id
+    assert report_data['reason'] == reason
+    assert report_data['description'] == description

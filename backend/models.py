@@ -83,7 +83,8 @@ class Group(Document):
 
 class Report(Document):
     # want to make sure there is an ordered list by time
-    meta = {"collection": "group"}
+    # Seems to initialize a report object with group data
+    meta = {"collection": "report"}
     reported_id_type = StringField(required=True)   # just "artwork" for now
     reported_id = StringField(required=True)
     user_id = StringField(required=True)
