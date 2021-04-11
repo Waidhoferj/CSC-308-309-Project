@@ -59,3 +59,4 @@ class ReportType(MongoengineObjectType):
     class Meta:
         model = Report
         interfaces = (Node,)
+        

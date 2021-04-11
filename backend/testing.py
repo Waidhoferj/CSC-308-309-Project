@@ -444,3 +444,5 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
     assert report_data['userId'] == user_id
     assert report_data['reason'] == reason
     assert report_data['description'] == description
+
+    
