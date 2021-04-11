@@ -78,8 +78,7 @@ class Group(Document):
     members = ListField(ReferenceField("User"), default=list)
     group_portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
-    #metrics = EmbeddedDocumentField("GroupMetrics", dbref=True)
-    # date created can be the primary key
+    # date created can be the primary key!!!!!
 
 class Report(Document):
     # want to make sure there is an ordered list by time
