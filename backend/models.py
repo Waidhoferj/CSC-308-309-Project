@@ -79,11 +79,10 @@ class Group(Document):
     group_portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
     metrics = EmbeddedDocumentField("GroupMetrics", dbref=True)
-    # date created can be the primary key
+    # date created can be the primary key, this comes with its own problems though
 
 class Report(Document):
     # want to make sure there is an ordered list by time
-    # Seems to initialize a report object with group data
     meta = {"collection": "report"}
     reported_id_type = StringField(required=True)   # just "artwork" for now
     reported_id = StringField(required=True)
