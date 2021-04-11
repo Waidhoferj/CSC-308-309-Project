@@ -98,13 +98,13 @@ export default function Artwork() {
         </div>
 
         <div className="actions">
-          <button onClick={() => push("/artwork/" + id + "/report")}>
+          <button>
             <Star />
           </button>
           <button>
             <MessageSquare />
           </button>
-          <button>
+          <button onClick={() => push("/artwork/" + id + "/report")}>
             <AlertCircle />
           </button>
           <button>
