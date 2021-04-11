@@ -39,6 +39,7 @@ def run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
     test_consistent_ids(client)
     test_add_artwork_review(client, users_with_ids[1], artworks_with_ids[0])
+    #test_submit_artwork_review(client, users_with_ids[0], artworks_with_ids[0])
     print("--- Tests Successful ---")
 
 
@@ -126,7 +127,7 @@ def create_artworks(client, users_with_ids):
                 location: {3},
                 rating: {4},
                 tags: {5},
-                pictureToAdd: "{6}"
+                pictures: "[{6}]"
             }}) {{
                 artwork {{
                     id
@@ -135,6 +136,7 @@ def create_artworks(client, users_with_ids):
                 }}
             }}
         }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4], artwork[5], get_sample_encoded_art_image()))
+        #print(executed)
         artworks_with_ids.append((executed["data"]["createArtwork"]["artwork"]["title"], executed["data"]["createArtwork"]["artwork"]["id"]))
     return artworks_with_ids
 
@@ -406,4 +408,33 @@ def b64_encode_image(filepath: str) -> str:
         return header + encoded_image
 
 
+def test_submit_artwork_review(client, user, artwork): #[name, id]
+    reported_id_type = "artwork"
+    reported_id = artwork[1]
+    user_id = user[1]
+    reason = "inappropriate"
+    description = "This is a selfie, come on"
+
+
+
+    report = client.execute("""
+        mutation {{
+            createReport(reportData: {{
+                reportedIdType: "{0}",
+    	        reportedId: "{1}",
+    	        userId: "{2}",
+    	        reason: "{3}"
+            }}) {{
+                report {{
+                    reportedIdType
+                    reportedId
+                    userId
+                    reason
+                    description
+                    }}
+                }}
+            }}
+        }}
+        """.format(reported_id_type, reported_id, user_id, reason, description))
     
+    print(report)

@@ -79,4 +79,15 @@ class Group(Document):
     group_portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
     metrics = EmbeddedDocumentField("GroupMetrics", dbref=True)
+    # date created can be the primary key
+
+class Report(Document):
+    # want to make sure there is an ordered list by time
+    meta = {"collection": "group"}
+    reported_id_type = StringField(required=True)   # just "artwork" for now
+    reported_id = StringField(required=True)
+    user_id = StringField(required=True)
+    reason = StringField(required=True)
+    description = StringField()
+    date_submitted = DateTimeField(default=datetime.now) 
 
