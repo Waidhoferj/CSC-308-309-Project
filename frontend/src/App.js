@@ -7,9 +7,12 @@ import ArtSubmission from "./pages/ArtSubmission/ArtSubmission";
 import Portfolio from "./pages/Portfolio/Portfolio";
 import Profile from "./pages/Profile/Profile";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import GroupsList from "./pages/Groups/GroupsList/GroupsList";
 =======
 >>>>>>> b87794f (Added initial report page)
+=======
+>>>>>>> ecfd257f7e2a2e440162c28a245cd541672dc6ff
 import ReportArtwork from "./pages/ReportArtwork/ReportArtwork";
 import TabBar from "./components/TabBar/TabBar";
 import useProfileInfo from "./hooks/useProfileInfo";

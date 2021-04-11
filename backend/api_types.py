@@ -1,5 +1,5 @@
 from graphene.relay import Node
-from models import Settings, User, UserMetrics, Achievement, Artwork, ArtworkMetrics, GroupMetrics
+from models import Settings, User, UserMetrics, Achievement, Artwork, ArtworkMetrics
 from models import Comment, Portfolio, Group, Report
 from graphene_mongo import MongoengineObjectType
 import graphene
