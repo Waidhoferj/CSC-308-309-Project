@@ -78,7 +78,7 @@ class Group(Document):
     members = ListField(ReferenceField("User"), default=list)
     group_portfolio = EmbeddedDocumentField("Portfolio")
     chat = ListField(EmbeddedDocumentField("Comment"), default=list)
-    metrics = EmbeddedDocumentField("GroupMetrics", dbref=True)
+    #metrics = EmbeddedDocumentField("GroupMetrics", dbref=True)
     # date created can be the primary key
 
 class Report(Document):
