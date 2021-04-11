@@ -1,161 +1,99 @@
 import "./ReportArtwork.scss";
 // still have all the work to do
 import { useMutation, gql } from "@apollo/client";
-import Rating from "react-rating-stars-component";
-import { useState } from "react";
+// import { useState } from "react";
 import { ArrowLeft } from "react-feather";
-import { useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useForm, Controller, useController } from "react-hook-form";
-import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
 
-import Tag from "../../components/Tag/Tag";
-
-// Proof that my branch is working
-
-const CREATE_ARTWORK_MUTATION = gql`
-  mutation addArtwork(
-    $title: String!
-    $description: String!
-    $foundBy: String!
-    $location: [Float]
-    $rating: Float
-    $pictures: [String]
-    $tags: [String]
-  ) {
-    createArtwork(
-      artworkData: {
-        title: $title
+const CREATE_REPORT_MUTATION = gql`
+  mutation addReport(
+      $reportedIdType: String!
+      $reportedId: String!
+      $userId: String!
+      $reason: String!
+      $description: String!
+    )  {
+    createReport(
+      reportData: {
+        reportedIdType: $reportedIdType
+        reportedId: $reportedId
+        userId: $userId
+        reason: $reason
         description: $description
-        foundBy: $foundBy
-        location: $location
-        rating: $rating
-        tags: $tags
-        pictures: $pictures
       }
     ) {
-      artwork {
-        id
+      report {
+        reportedIdType
+        reportedId
+        userId
+        reason
+        description
       }
-    }
+    }  
   }
 `;
+
+// $name has to match payload name
 
 export default function ArtSubmission() {
   /* Give a ref to each input field that we got from useForm hook.
    */
   const { register, handleSubmit, control, errors } = useForm();
-  const {
-    field: { onChange: updateTagsForm, value: tags },
-  } = useController({
-    name: "tags",
-    control,
-    rules: { required: true },
-    defaultValue: [],
-  });
-  const [tagInputVal, setTagInputVal] = useState("");
   const history = useHistory();
-  const [uploadArt] = useMutation(CREATE_ARTWORK_MUTATION);
-  const { images, clearLibrary } = usePhotoLibrary();
+  const [submitReport] = useMutation(CREATE_REPORT_MUTATION);
   const { profile } = useProfileInfo();
+  const { id } = useParams();
 
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
     const payload = {
-      pictures: images,
-      location: [-120.664, 35.258], // For demo purposes. We'll attach geolocation to usePhotoLibrary later.
-      foundBy: profile.id,
-      // ...data, ask John what this is doing
-      rating: data.rating * 20,
+      reportedIdType: "report",
+      reportedId: id,
+      userId: profile?.id,
+      reason: data.reason,
+      description: data.description
     };
-    uploadArt({ variables: payload }).then((res) => {
-      clearLibrary();
-      history.push("/artwork/" + res.data.createArtwork.artwork.id);
+    
+    //debugger
+    //console.log(payload)
+    submitReport({ variables: payload }).then((res) => {
+      history.push("/artwork/" + id);
     });
   }
 
-  function handleTagSubmit(e) {
-    e.preventDefault();
-
-    if (tags.length > 4 || tagInputVal.length === 0) return;
-
-    setTagInputVal("");
-    const newTags = [...tags, tagInputVal];
-    updateTagsForm(newTags);
-  }
-
   return (
-    <section className="ArtSubmission">
+    <section className="ReportArtwork">
       <header>
         <nav>
           <button className="wrapper" onClick={history.goBack}>
             <ArrowLeft />
           </button>
         </nav>
-        <img src={images[0]} alt="Art" />
-        <h1>New Artwork</h1>
+        <h1>Report Artwork</h1>
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>
+
         <label>
-          <p className="field-label">Artwork Title</p>
-          <input
-            name="title"
-            type="text"
-            placeholder="Title"
-            ref={register({ required: true })}
-          />
+          <p className="field-label">Reason</p>
+          <select id="reason" name="reason" ref={register({
+            required: true
+          })}>
+            <option value="duplicate">Duplicate</option>
+            <option value="inappropriate">Inappropriate</option>
+            <option value="not art">Not Art</option>
+          </select>
         </label>
-
-        {errors.title && errors.title.type === "required" && (
-          <p className="errorMsg" style={{ color: "Red" }}>
-            Artwork Title is required.
-          </p>
-        )}
-        <label>
-          <p className="field-label">Rating</p>
-          <Controller
-            control={control}
-            name="rating"
-            render={({ onChange }) => (
-              <Rating
-                count={5}
-                onChange={onChange}
-                size={24}
-                isHalf={false}
-                activeColor="#ffd700"
-                rules={{ required: true }}
-              />
-            )}
-          />
-        </label>
-
-        <label className="art-tags">
-          {/* Note: "Add Tag" moves around when adding tags, even if position is set to "fixed" or "absolute" */}
-          <p className="field-label">Tags</p>
-          <input
-            value={tagInputVal}
-            onChange={(e) => setTagInputVal(e.target.value)}
-            type="text"
-            placeholder="Tag"
-            style={{ clear: "both" }}
-          />
-          <button onClick={handleTagSubmit} style={{ clear: "both" }}>
-            Add Tag
-          </button>
-          <div className="tags">
-            {tags.map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
-          </div>
-        </label>
-
+        
+        
         <label>
           <p className="field-label">Description</p>
           <textarea
             cols="30"
             rows="8"
             name="description"
-            placeholder="Tell us about the art"
+            placeholder="Tell us what happened"
             ref={register({
               required: true,
               minLength: 10,
@@ -175,8 +113,7 @@ export default function ArtSubmission() {
           </p>
         )}
 
-        {/* give an id since there's multiple input tags */}
-        <input type="submit" value="Post Art" id="postArt" />
+        <input type="submit" value="Submit Report" id="submitReport" />
       </form>
     </section>
   );

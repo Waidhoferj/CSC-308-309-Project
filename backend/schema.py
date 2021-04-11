@@ -1,9 +1,9 @@
 import graphene
 from graphene.relay import Node
 from mutations import UpdateUserMutation, CreateUserMutation, DeleteUserMutation, CreateArtworkMutation, UpdateArtworkMutation
-from mutations import DeleteArtworkMutation, CreateGroupMutation, UpdateGroupMutation, CreateAchievementMutation
+from mutations import DeleteArtworkMutation, CreateGroupMutation, UpdateGroupMutation, CreateAchievementMutation, CreateReportMutation
 from mutations import AddArtworkReviewMutation
-from api_types import UserType, PortfolioType, ArtworkType, AchievementType, GroupType
+from api_types import UserType, PortfolioType, ArtworkType, AchievementType, GroupType, ReportType
 from graphene_mongo import MongoengineConnectionField
 from models import Artwork
 
@@ -15,6 +15,7 @@ class Query(graphene.ObjectType):
     artwork = MongoengineConnectionField(ArtworkType)
     portfolios = MongoengineConnectionField(PortfolioType)
     achievements = MongoengineConnectionField(AchievementType)
+    reports = MongoengineConnectionField(ReportType)
     # location = graphene.List(graphene.Float)
 
     # def resolve_near_artworks(root, info, location):
@@ -35,6 +36,8 @@ class Mutations(graphene.ObjectType):
     update_group = UpdateGroupMutation.Field()
 
     create_achievement = CreateAchievementMutation.Field() 
+
+    create_report = CreateReportMutation.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutations)
 # Not sure why types was here

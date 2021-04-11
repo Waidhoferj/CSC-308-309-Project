@@ -1,6 +1,6 @@
 from graphene.relay import Node
 from models import Settings, User, UserMetrics, Achievement, Artwork, ArtworkMetrics
-from models import Comment, Portfolio, Group
+from models import Comment, Portfolio, Group, Report
 from graphene_mongo import MongoengineObjectType
 import graphene
 
@@ -49,4 +49,9 @@ class PortfolioType(MongoengineObjectType):
 class GroupType(MongoengineObjectType):
     class Meta:
         model = Group
+        interfaces = (Node,)
+
+class ReportType(MongoengineObjectType):
+    class Meta:
+        model = Report
         interfaces = (Node,)
