@@ -1,4 +1,4 @@
-from models import User, Artwork, Portfolio, Achievement, UserMetrics
+from models import User, Artwork, Portfolio, Achievement, UserMetrics, Comment
 from mongoengine import connect
 from secrets import DB_ACTUAL_URI, DB_TESTING_URI
 from schema import schema
@@ -6,6 +6,7 @@ from graphene.test import Client
 import base64
 import os
 import random
+from typing import List
 
 
 def testing_boot_up():
@@ -406,6 +407,23 @@ def b64_encode_image(filepath: str) -> str:
     with open(filepath, "rb") as image_file:
         encoded_image = base64.b64encode(image_file.read()).decode()
         return header + encoded_image
+def get_comments(num_comments:int, users: List[User]) -> List[Comment]:
+    content_lib = [
+        "While drawing I discover what I really want to say.",
+        "If people only knew how hard I work to gain my mastery. It wouldn't seem so wonderful at all.",
+        "Inspiration is for amateurs. The rest of us just show up and get the work done. If you wait around for the clouds to part and a bolt of lightning to strike you in the brain, you're not going to make an awful lot of work",
+        "In drawing, one must look for or suspect that there is more than is casually seen.",
+        "Art is never finished, only abandoned.",
+        "If you as a designer don’t believe in your design and don’t see it beyond the context of the film but as a real creature in a real world then how can you expect the audience to believe it?",
+        "I started painting as a hobby when I was little. I didn’t know I had any talent. I believe talent is just a pursued interest. Anybody can do what I do."
+    ]
+
+
+    comments = [Comment(author=random.choice(user_lib), content=random.choice(content_lib)) for x in range(num_comments)]
+    return comments
+
+
+
 
 
 def test_submit_artwork_review(client, user, artwork): #[name, id]
