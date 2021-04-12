@@ -16,7 +16,7 @@ import { useParams, useHistory } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 
 export default function Artwork() {
-  const { goBack } = useHistory();
+  const { goBack, push } = useHistory();
   const { id } = useParams();
   const query = gql`
     query {
@@ -104,7 +104,7 @@ export default function Artwork() {
           <button>
             <MessageSquare />
           </button>
-          <button>
+          <button onClick={() => push("/artwork/" + id + "/report")}>
             <AlertCircle />
           </button>
           <button>

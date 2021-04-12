@@ -1,0 +1,74 @@
+
+ 
+.ReportArtwork {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+     header {
+         position: relative;
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between; // might wanna do space-around?
+         align-items: flex-start;
+         width: 100%;
+         padding: 20px;
+
+         nav {
+             padding:0;
+
+             svg {
+                color: var(--c-primary);
+             }
+         }
+         h1 {
+             margin: auto
+         }
+     }
+     
+     form {
+         max-width: 900px;
+         margin: auto;
+         padding:60px 30px;
+        height: 100%;
+        
+        .field-label {
+            margin: 0;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0;
+        }
+
+        select {
+            display: block;
+            width: 100%;
+            line-height: 20px;
+            font-size: 20px;
+        }
+
+        textarea {
+            font-family: inherit;
+            font-size: 17px;
+            display: block;
+            width: 100%;
+            padding: 20px 20px;
+            border: none;
+            border-radius: 11px;
+            background: #f3f5fa;
+            grid-column: 1 / span 2;
+            resize: vertical;
+            max-height: 400px;
+            margin-top: 10px;
+        }
+
+        #submitReport {
+            display: block;
+            width: 200px;
+            margin: auto;
+            margin-top: 20px;
+        }
+     }
+    }
+    

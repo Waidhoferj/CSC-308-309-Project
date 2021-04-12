@@ -7,6 +7,7 @@ import ArtSubmission from "./pages/ArtSubmission/ArtSubmission";
 import Portfolio from "./pages/Portfolio/Portfolio";
 import Profile from "./pages/Profile/Profile";
 import GroupsList from "./pages/Groups/GroupsList/GroupsList";
+import ReportArtwork from "./pages/ReportArtwork/ReportArtwork";
 import TabBar from "./components/TabBar/TabBar";
 import useProfileInfo from "./hooks/useProfileInfo";
 import { useEffect } from "react";
@@ -27,6 +28,7 @@ function App() {
             <Route exact path="/map" component={ArtMap} />
             <Route exact path="/map/:artwork" component={ArtMap} />
             <Route exact path="/map/:artwork/track" component={ArtMap} />
+            <Route path="/artwork/:id/report" component={ReportArtwork} />
             <Route path="/artwork/:id" component={Artwork} />
             <Route path="/camera" component={Camera} />
             <Route path="/art-submission" component={ArtSubmission} />

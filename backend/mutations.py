@@ -1,8 +1,9 @@
 import graphene
 from bson import ObjectId
 from models import User, UserMetrics, Portfolio, Settings, Achievement, Group, Artwork, ArtworkMetrics, Comment
+from models import Report
 from api_types import UserType, UserMetricsType, PortfolioType, SettingsType, AchievementType, GroupType
-from api_types import ArtworkType, CommentType, AchievementType
+from api_types import ArtworkType, CommentType, AchievementType, ReportType
 import base64
 
 '''
@@ -306,7 +307,7 @@ class ArtworkInput(graphene.InputObjectType):
     title = graphene.String()
     artist = graphene.String()
     description = graphene.String()
-    picture_to_add = graphene.String()    # NOTE: removing pic will be from index from frontend
+    pictures = graphene.List(graphene.String)     # NOTE: removing pic will be from index from frontend
     found_by = graphene.String()  # will be user id
     location = graphene.List(graphene.Float)    # (longitude, latitude)
     metrics = graphene.InputField(ArtworkMetricsInput)
@@ -341,6 +342,11 @@ class CreateArtworkMutation(graphene.Mutation):
             tags = artwork_data.tags
         )
         artwork.save()
+        # Add artwork to user portfolio
+        user = UpdateUserMutation.getUser(artwork_data.found_by)
+        user.personal_portfolio.artworks.append(artwork)
+        user.save()
+
         return CreateArtworkMutation(artwork=artwork)
 
 
@@ -442,6 +448,34 @@ class AddArtworkReviewMutation(graphene.Mutation):
         artwork.save()
 
         return AddArtworkReviewMutation(artwork=artwork)
+
+
+class ReportInput(graphene.InputObjectType):
+    reported_id_type = graphene.String()   # just "artwork" for now
+    reported_id = graphene.String()
+    user_id = graphene.String()
+    reason = graphene.String()
+    description = graphene.String()
+
+class CreateReportMutation(graphene.Mutation):
+    # NOTE: only creating achievements because I'm assuming they are made by us and static
+    report = graphene.Field(ReportType)
+
+    class Arguments:
+        report_data = ReportInput(required=True)
+
+    def mutate(self, info, report_data=None):
+        report = Report(
+            reported_id_type = report_data.reported_id_type,
+            reported_id = report_data.reported_id,
+            user_id = report_data.user_id,
+            reason = report_data.reason,
+            description = report_data.description
+        )
+        report.save()
+
+        return CreateReportMutation(report=report)
+
 
 
 ''' 
@@ -679,4 +713,29 @@ mutation {
   }}
 }}"""
 
+create report ex:
+
+mutation {
+  createReport(
+  	reportData: {
+    	reportedIdType: "report"
+    	reportedId: "sadjfoisdj"
+    	userId: "sdifjosdaij"
+    	reason: "innapropriate"
+    	description: "It is some man's forhead"
+  	}
+	) {
+    report {
+      reportedIdType
+      reportedId
+      userId
+      reason
+      description
+    }
+  }  
+}
+
+
 '''
+
+
