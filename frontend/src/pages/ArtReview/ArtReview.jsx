@@ -8,6 +8,7 @@ import { useHistory } from "react-router-dom";
 import { useForm, Controller, useController } from "react-hook-form";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
+//import PropTypes from 'prop-types';
 
 import Tag from "../../components/Tag/Tag";
 
@@ -91,18 +92,9 @@ export default function ArtReview() {
           </button>
         </nav>
         <img src={images[0]} alt="Art" />
-        <h1>New Artwork</h1>
+        <h1>Review</h1>
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label>
-          <p className="field-label">Artwork Title</p>
-          <input
-            name="title"
-            type="text"
-            placeholder="Title"
-            ref={register({ required: true })}
-          />
-        </label>
 
         {errors.title && errors.title.type === "required" && (
           <p className="errorMsg" style={{ color: "Red" }}>
@@ -110,7 +102,7 @@ export default function ArtReview() {
           </p>
         )}
         <label>
-          <p className="field-label">Rating</p>
+          <p className="rating">Rating</p>
           <Controller
             control={control}
             name="rating"
@@ -179,3 +171,10 @@ export default function ArtReview() {
     </section>
   );
 }
+
+/*
+ArtReview.propTypes.shape = {
+  rating: PropTypes.object.isRequired
+}
+*/
+
