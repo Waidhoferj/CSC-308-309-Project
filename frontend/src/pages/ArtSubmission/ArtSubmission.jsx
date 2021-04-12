@@ -114,6 +114,7 @@ export default function ArtSubmission() {
           <Controller
             control={control}
             name="rating"
+            rules={{ required: true }}
             render={({ onChange }) => (
               <Rating
                 count={5}
@@ -121,7 +122,6 @@ export default function ArtSubmission() {
                 size={24}
                 isHalf={false}
                 activeColor="#ffd700"
-                rules={{ required: true }}
               />
             )}
           />
