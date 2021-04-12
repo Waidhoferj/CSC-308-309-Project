@@ -1,6 +1,29 @@
 import "./NewAccount.scss";
 
+import { useMutation, gql } from "@apollo/client";
+
 export default function NewAccount() {
+
+  function createAccount() {
+
+    const NEW_ACCOUNT_MUTATION = gql`
+    mutation {
+      createUser(
+        userData: {
+          name: "Branden"
+          bio: "Sweet Hater of Science"
+        }
+      ) 
+      {
+        id
+        user {
+          name
+        }
+      }  
+    }
+    `;
+  }
+
   return (
     <article className="NewAccount">
       <header>
@@ -36,8 +59,9 @@ export default function NewAccount() {
         </div>
 
         <input
-          type="submit"
-          name="Sign Up"
+          type="button"
+          value="Submit"
+          onclick="createAccount()"
         />
       </form>
     </article>
