@@ -419,7 +419,7 @@ def get_comments(num_comments:int, users: List[User]) -> List[Comment]:
     ]
 
 
-    comments = [Comment(author=random.choice(user_lib), content=random.choice(content_lib)) for x in range(num_comments)]
+    comments = [Comment(author=random.choice(users), content=random.choice(content_lib)) for x in range(num_comments)]
     return comments
 
 
