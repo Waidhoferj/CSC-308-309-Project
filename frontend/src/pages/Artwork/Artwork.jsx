@@ -19,8 +19,8 @@ export default function Artwork() {
   const { goBack, push } = useHistory();
   const { id } = useParams();
   const query = gql`
-    query {
-      artwork (id:"${id}") {
+    query getArtwork($id: ID!) {
+      artwork(id: $id) {
         edges {
           node {
             pictures
@@ -37,7 +37,7 @@ export default function Artwork() {
     }
   `;
 
-  const { loading, error, data } = useQuery(query);
+  const { loading, error, data } = useQuery(query, { variables: { id } });
 
   if (loading) return <h1>Loading...</h1>;
   if (error)
@@ -101,7 +101,7 @@ export default function Artwork() {
           <button>
             <Star />
           </button>
-          <button>
+          <button onClick={() => push("/artwork/" + id + "/discussion")}>
             <MessageSquare />
           </button>
           <button onClick={() => push("/artwork/" + id + "/report")}>
