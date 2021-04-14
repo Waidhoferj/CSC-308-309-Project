@@ -80,10 +80,10 @@ def create_achievements(client):
 
 def create_users(client):
     create_user_inputs = [
-        ("Braden", "Spending some time on CSC 400.", "braden@gmail.com"),
-        ("Grant", "Love me some AI and maybe web dev.", "grant@gmail.com"),
-        ("Kyle", "Fitness, meditation and good books.", "kyle@gmail.com"),
-        ("John", "Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", "john@gmail.com")]
+        ("Braden", "Spending some time on CSC 400.", "braden@gmail.com", "bradeniscool"),
+        ("Grant", "Love me some AI and maybe web dev.", "grant@gmail.com", "grantiscool"),
+        ("Kyle", "Fitness, meditation and good books.", "kyle@gmail.com", "kyleiscool"),
+        ("John", "Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", "john@gmail.com", "johniscool")]
     
     users_with_ids = [] # user names with db ids
     for user_input in create_user_inputs:
@@ -91,10 +91,11 @@ def create_users(client):
         mutation {{
             createUser(
   	            userData: {{
-    	            name: "{0}"
-    	            bio: "{1}"
+                    name: "{0}"
+                    bio: "{1}"
                     email: "{2}"
-                    profilePic: "{3}"
+                    password: "{3}"
+                    profilePic: "{4}"
   	            }}
 	        ) {{
                 user {{
@@ -102,7 +103,7 @@ def create_users(client):
                     name
                 }}
             }}
-        }}""".format(user_input[0], user_input[1], user_input[2], get_sample_encoded_profile_image()))
+        }}""".format(user_input[0], user_input[1], user_input[2], user_input[3], get_sample_encoded_profile_image()))
         users_with_ids.append((executed["data"]["createUser"]["user"]["name"], executed["data"]["createUser"]["user"]["id"]))
         # append (user's name, user id)
     return(users_with_ids)

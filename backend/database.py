@@ -35,10 +35,10 @@ def init_db():
     
 
     users = [
-        User(name="Grant", personal_portfolio=portfolios[0], bio="Love me some AI and maybe web dev.", profile_pic=get_sample_encoded_profile_image(), email="grant@grant.com", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
-        User(name="Braden", personal_portfolio=portfolios[1], bio="Spending some time on CSC 400.", profile_pic=get_sample_encoded_profile_image(), email="braden@braden.com", metrics=UserMetrics(), achievements=[achievements[1]]),
-        User(name="Kyle", personal_portfolio=portfolios[2], bio="Fitness, meditation and good books.", profile_pic=get_sample_encoded_profile_image(), email="kyle@kyle.com", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
-        User(name="John", personal_portfolio=portfolios[3], bio="Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", profile_pic=get_sample_encoded_profile_image(), email="john@john.com", metrics=UserMetrics(), achievements=[achievements[1]])
+        User(name="Grant", personal_portfolio=portfolios[0], bio="Love me some AI and maybe web dev.", profile_pic=get_sample_encoded_profile_image(), email="grant@grant.com", password="grantiscool", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
+        User(name="Braden", personal_portfolio=portfolios[1], bio="Spending some time on CSC 400.", profile_pic=get_sample_encoded_profile_image(), email="braden@braden.com", password="bradeniscool", metrics=UserMetrics(), achievements=[achievements[1]]),
+        User(name="Kyle", personal_portfolio=portfolios[2], bio="Fitness, meditation and good books.", profile_pic=get_sample_encoded_profile_image(), email="kyle@kyle.com", password="kyleiscool", metrics=UserMetrics(), achievements=[achievements[1], achievements[0]]),
+        User(name="John", personal_portfolio=portfolios[3], bio="Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", profile_pic=get_sample_encoded_profile_image(), email="john@john.com", password="johniscool", metrics=UserMetrics(), achievements=[achievements[1]])
     ]
 
     groups = [

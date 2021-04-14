@@ -24,6 +24,7 @@ class User(Document):
     name = StringField(required=True)
     bio = StringField()
     email = StringField(primary_key=True, required=True)
+    password = StringField(required=True)
     profile_pic = StringField()
     date_joined = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("UserMetrics", dbref=True)
