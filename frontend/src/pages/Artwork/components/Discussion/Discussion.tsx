@@ -1,11 +1,13 @@
 import "./Discussion.scss"
-import {useQuery, gql} from "@apollo/client"
-import { useMemo } from "react"
+import {useQuery, useMutation, gql} from "@apollo/client"
+import React, { useMemo, useRef, useEffect } from "react"
 import {useParams, useHistory} from "react-router-dom"
 
 import {
     ArrowLeft,
+    Send
   } from "react-feather";
+import useProfileInfo from "../../../../hooks/useProfileInfo";
 
 const GET_DISCUSSION = gql`
 query getDiscussion($id: ID!) {
@@ -30,10 +32,36 @@ query getDiscussion($id: ID!) {
 }
 `
 
+const POST_MESSAGE = gql`
+  mutation postMessage($id : ID!, $content: String!, $author: ID!) {
+    addArtworkComment(artworkId: $id, comment: {
+    content: $content
+    author: $author
+  }) {
+    comment {
+      content
+    }
+  }
+  }
+`
+
 export default function Discussion() {
     const {comments, picture} = useComments()
+    const {profile} = useProfileInfo()
+    const [sendMessage] = useMutation(POST_MESSAGE)
     const {goBack} = useHistory()
-    console.log({comments, picture})
+    const {id:artworkId} = useParams<{id:string}>()
+    const contentRef = useRef<HTMLUListElement | null>(null)
+
+  function postMessage(message: string) {
+    if(!profile) return;
+    sendMessage({variables: {id: artworkId, content: message, author: profile.id}})
+    // Scroll to bottom after submitting.
+    setTimeout(() => {
+      contentRef.current?.scrollTo(0, contentRef.current.scrollHeight)
+    }, 700)
+  }
+
     return <article className="Discussion">
         <header>
         <img src={picture} alt="Art" />
@@ -42,8 +70,9 @@ export default function Discussion() {
         </button>
         <h1>Discussion</h1>
       </header>
-      <ul className="content">
-            {comments.map(data => <Comment {...data}/>)}
+      <ul className="content" ref={contentRef}>
+            {comments.map((data, i) => <Comment key={i} {...data}/>)}
+        <MessageComposer onSend={postMessage}/>
       </ul>
     </article>
 
@@ -82,12 +111,59 @@ type GqlCommentData = {
  */
 function useComments() : {picture: string, comments: CommentProps[]} {
     const {id} = useParams<{id:string}>()
-    const {loading, data, error} = useQuery(GET_DISCUSSION, {variables: {id}});
+    const {loading, data, error} = useQuery(GET_DISCUSSION, {variables: {id}, pollInterval: 500});
     const hasNoData = loading || error
     const comments: CommentProps[] = hasNoData ? [] : data.artwork.edges?.[0]
     .node.comments.edges.map(({node}:{node : GqlCommentData}) => 
     ({content: node.content, author: node.author.name, datePosted: new Date(node.datePosted)}))
-    console.log({data, error})
     const picture = hasNoData ? "" : data.artwork.edges?.[0].node.pictures[0]
     return {comments, picture}
+}
+
+
+function MessageComposer({ onSend }: {onSend : (text: string) => void}) {
+
+  let textFieldRef = useRef<HTMLDivElement | null>(null);
+
+  // Takes the message from the content editable field and sends it out
+  function sendMessage() {
+    const emptyField = /^\s*$/g;
+    if (
+      !textFieldRef.current ||
+      emptyField.test(textFieldRef.current.innerText)
+    )
+      return;
+    let message = textFieldRef.current.innerText.trim();
+    textFieldRef.current.innerText = "";
+    onSend(message);
+  }
+
+  // Send Message on Enter Pressed
+  useEffect(() => {
+    const textField = textFieldRef.current;
+    if (!textField) return;
+    const onEnter = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+      }
+    };
+    textField.addEventListener("keypress", onEnter);
+    return () => textField.removeEventListener("keypress", onEnter);
+  });
+
+  return (
+    <div className="MessageComposer">
+        <div
+        role="input"
+          className="text-field"
+          ref={textFieldRef}
+          contentEditable="true"
+        ></div>
+        <button className="send-button" onClick={() => sendMessage()}>
+          <Send size={20} />
+          <p className="button-text">Send</p>
+        </button>
+    </div>
+  );
 }
