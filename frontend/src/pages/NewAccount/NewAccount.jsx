@@ -2,34 +2,7 @@ import "./NewAccount.scss";
 
 import { useMutation, gql } from "@apollo/client";
 import { useForm, Controller, useController } from "react-hook-form";
-
-const CREATE_REPORT_MUTATION = gql`
-  mutation addReport(
-      $reportedIdType: String!
-      $reportedId: String!
-      $userId: String!
-      $reason: String!
-      $description: String!
-    )  {
-    createReport(
-      reportData: {
-        reportedIdType: $reportedIdType
-        reportedId: $reportedId
-        userId: $userId
-        reason: $reason
-        description: $description
-      }
-    ) {
-      report {
-        reportedIdType
-        reportedId
-        userId
-        reason
-        description
-      }
-    }  
-  }
-`;
+import useProfileInfo from "../../hooks/useProfileInfo";
 
 const NEW_ACCOUNT_MUTATION = gql`
   mutation addUser (
@@ -48,18 +21,18 @@ const NEW_ACCOUNT_MUTATION = gql`
     {
       user {
         id
-        name
       }
     }  
   }
 `;
 
 export default function NewAccount() {
-  const [submitReport] = useMutation(NEW_ACCOUNT_MUTATION);
+  const [submitUser] = useMutation(NEW_ACCOUNT_MUTATION);
+  const { profile, setUser } = useProfileInfo();
  
   const { register, handleSubmit, control, errors } = useForm();
 
-  function onSubmit(data) {
+  async function onSubmit(data) {
     const payload = {
       email: data.email,
       name: data.name,
@@ -70,7 +43,10 @@ export default function NewAccount() {
     console.log(data.email);
     console.log(data.name);
 
-    submitReport({ variables: payload })
+    let resp = await submitUser({ variables: payload });
+    console.log(resp.data.createUser.user);
+    setUser(resp.data.createUser.user.id);
+    console.log(profile);
   }
 
   return (
