@@ -443,7 +443,6 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
     assert report_data['reason'] == reason
     assert report_data['description'] == description
 
-
 def test_discover_art(client, user, artwork):
     
     old_works_visited = client.execute("""
@@ -498,3 +497,4 @@ def test_discover_art(client, user, artwork):
 if __name__ == "__main__" :
     connect(host="mongomock://localhost")
     testing_boot_up()
+    
