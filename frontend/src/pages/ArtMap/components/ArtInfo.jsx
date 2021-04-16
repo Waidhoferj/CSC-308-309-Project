@@ -20,6 +20,9 @@ export default function ArtInfo({
       <p>{description}</p>
       <div className="metrics">
         {rating ? <MetricBadge value={rating} unit="star rating" /> : null}
+        {metrics?.totalRatings ? (
+          <MetricBadge value={metrics.totalRatings} unit="ratings" />
+        ) : null} 
         {metrics?.totalVisits ? (
           <MetricBadge value={metrics.totalVisits} unit="visitors" />
         ) : null}
