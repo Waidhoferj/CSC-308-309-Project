@@ -15,7 +15,7 @@ A web app for public art creators and admirers. Features include:
     Usage:
         
         Installation: Run "pipenv install" then "pipenv shell" in backend folder
-        Run "pycodestyle file.py" with no errors for each file added to git before commiting
+        Run: "pycodestyle file.py" with no errors for each file added to git before commiting
 
 [Javascript Files](https://prettier.io/docs/en/index.html)
     
