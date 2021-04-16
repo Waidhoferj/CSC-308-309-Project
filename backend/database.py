@@ -1,5 +1,5 @@
 from models import User, Artwork, Portfolio, Achievement, UserMetrics, ArtworkMetrics, Group, GroupMetrics
-from testing import get_sample_encoded_art_image, get_sample_encoded_profile_image
+from testing import get_sample_encoded_art_image, get_sample_encoded_profile_image, get_comments
 
 def init_db():
     """
@@ -55,3 +55,8 @@ def init_db():
     users[3].groups = [groups[1]]
     for user in users:
         user.save()
+
+    for work in art:
+        work.comments = get_comments(10, users=users)
+        work.save()
+

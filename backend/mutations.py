@@ -1,5 +1,6 @@
 import graphene
 from bson import ObjectId
+from graphene.types.scalars import ID
 from models import User, UserMetrics, Portfolio, Settings, Achievement, Group, Artwork, ArtworkMetrics, Comment
 from models import Report
 from api_types import UserType, UserMetricsType, PortfolioType, SettingsType, AchievementType, GroupType
@@ -79,8 +80,8 @@ class CreateAchievementMutation(graphene.Mutation):
         return CreateAchievementMutation(achievement=achievement)
 
 class CommentInput(graphene.InputObjectType):
-    author = graphene.String()   # User Object id
-    content = graphene.String()
+    author = graphene.ID(required=True)   # User Object id
+    content = graphene.String(required=True)
 
 class GroupInput(graphene.InputObjectType):
     id = graphene.String()
@@ -348,6 +349,28 @@ class CreateArtworkMutation(graphene.Mutation):
         user.save()
 
         return CreateArtworkMutation(artwork=artwork)
+
+
+class DiscussionCommentMutation(graphene.Mutation):
+  """
+  Adds a comment to the discussion page of an artwork.
+  """
+  class Arguments:
+      artwork_id = graphene.ID(required=True)
+      comment = CommentInput(required=True)
+  
+  comment = graphene.Field(CommentType)
+
+  def mutate(self, info, artwork_id=None, comment=None ):
+    # Find the user and the artwork and create a new comment.
+    
+    artwork: Artwork = Artwork.objects.get(pk=decodeId(artwork_id))
+    user : User = User.objects.get(pk=decodeId(comment.author))
+    c = Comment(author=user, content=comment.content)
+    artwork.comments.append(c)
+    artwork.save()
+    return DiscussionCommentMutation(comment=c)
+
 
 
 class UpdateArtworkMutation(graphene.Mutation):
