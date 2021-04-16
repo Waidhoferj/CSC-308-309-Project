@@ -106,6 +106,7 @@ export default function ArtReview() {
           <Controller
             control={control}
             name="rating"
+            rules={{ required: true }}
             render={({ onChange }) => (
               <Rating
                 count={5}
@@ -113,7 +114,6 @@ export default function ArtReview() {
                 size={24}
                 isHalf={false}
                 activeColor="#ffd700"
-                rules={{ required: true }}
               />
             )}
           />
