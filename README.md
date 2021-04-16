@@ -21,4 +21,4 @@ A web app for public art creators and admirers. Features include:
     
     Usage:
         
-        Installation and Run: https://prettier.io/docs/en/install.html
+        [Installation and Run](https://prettier.io/docs/en/install.html)
