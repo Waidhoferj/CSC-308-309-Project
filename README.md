@@ -11,4 +11,5 @@ A web app for public art creators and admirers. Features include:
 
 # Style Used
 [Python Files](https://pycodestyle.pycqa.org/en/latest/index.html)
+
 [Javascript Files](https://prettier.io/docs/en/index.html)
