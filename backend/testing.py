@@ -16,8 +16,6 @@ def testing_boot_up():
     # Number of groups: 2
     client = Client(schema)
     users_with_ids, artworks_with_ids, groups_with_ids, achievements_with_ids = mock_db_setup(client)
-    # print(users_with_ids)
-    # print(artworks_with_ids)
     run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids)
 
 
@@ -25,9 +23,10 @@ def mock_db_setup(client):
     ''' Will create a mock database with all relational objects
         Currently, just users and artworks are created and related '''
     achievements_with_ids = create_achievements(client)
-    users_with_ids = create_users(client)
+    users_with_ids = create_users(client)   # ([name, id], ...)
     artworks_with_ids = create_artworks(client, users_with_ids) # creates artworks, each with a user that "created" it
-    assign_artworks(client, users_with_ids, artworks_with_ids)  # makes sure each user's portfolio contains the artwork they created
+    # Can assign artworks when creating them.... might already be doing it too
+    #assign_artworks(client, users_with_ids, artworks_with_ids)  # makes sure each user's portfolio contains the artwork they created
     group_creators_with_members = [ # group_creator: other members
         [users_with_ids[0], users_with_ids[1:3]],
         [users_with_ids[3], users_with_ids[:3]]
@@ -39,6 +38,7 @@ def mock_db_setup(client):
 def run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
     test_consistent_ids(client)
+    test_discover_art(client, users_with_ids[1], artworks_with_ids[0])
     test_add_artwork_review(client, users_with_ids[1], artworks_with_ids[0])
     test_submit_artwork_review(client, users_with_ids[0], artworks_with_ids[0])
     print("--- Tests Successful ---")
@@ -137,33 +137,9 @@ def create_artworks(client, users_with_ids):
                 }}
             }}
         }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4], artwork[5], get_sample_encoded_art_image()))
-        #print(executed)
         artworks_with_ids.append((executed["data"]["createArtwork"]["artwork"]["title"], executed["data"]["createArtwork"]["artwork"]["id"]))
     return artworks_with_ids
 
-def assign_artworks(client, users_with_ids, artworks_with_ids):
-    for user, artwork in zip(users_with_ids, artworks_with_ids):
-        executed = client.execute("""
-        mutation {{
-            updateUser(userData: {{
-                id: "{0}",
-                artToAdd: "{1}"    
-            }}) {{
-                user {{
-                    name,
-                    personalPortfolio {{
-                        artworks {{
-                        edges {{
-                            node {{
-                                id,
-                                title
-                            }}
-                        }}
-                    }}
-                }}
-            }}
-        }} }}
-        """.format(user[1], artwork[1]))
 
 def create_groups(client, group_creators_with_members):
     group_names_and_bios = [
@@ -328,13 +304,15 @@ def test_add_artwork_review(client, user, artwork):
                 edges {{
                     node {{
                         rating
-                        numRatings
+                        metrics {{
+                            totalRatings
+                        }}
                     }}
                 }}
             }}
         }}""".format(artwork_id))
     old_rating = old_artwork["data"]["artwork"]["edges"][0]["node"]["rating"]
-    old_num_ratings = old_artwork["data"]["artwork"]["edges"][0]["node"]["numRatings"]
+    old_num_ratings = old_artwork["data"]["artwork"]["edges"][0]["node"]["metrics"]["totalRatings"]
 
 
     updated_artwork = client.execute("""
@@ -352,7 +330,9 @@ def test_add_artwork_review(client, user, artwork):
                     id
                     title
                     rating
-                    numRatings
+                    metrics {{
+                        totalRatings
+                    }}
                     comments {{
                         edges {{
                             node {{
@@ -370,7 +350,7 @@ def test_add_artwork_review(client, user, artwork):
         """.format(artwork_id, user_id, content, rating, formatted_tags))
 
     updated_rating = updated_artwork["data"]["addArtworkReview"]["artwork"]["rating"]
-    updated_num_ratings = updated_artwork["data"]["addArtworkReview"]["artwork"]["numRatings"]
+    updated_num_ratings = updated_artwork["data"]["addArtworkReview"]["artwork"]["metrics"]["totalRatings"]
     updated_comments = updated_artwork["data"]["addArtworkReview"]["artwork"]["comments"]["edges"]
     updated_tags = updated_artwork["data"]["addArtworkReview"]["artwork"]["tags"]
 
@@ -463,4 +443,55 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
     assert report_data['reason'] == reason
     assert report_data['description'] == description
 
+def test_discover_art(client, user, artwork):
     
+    old_works_visited = client.execute("""
+        {{
+            users(id: "{0}")
+            {{
+                edges {{
+                    node {{
+                        metrics {{
+                            worksVisited
+                        }}
+                    }}
+                }}
+            }}
+        }}
+    """.format(user[1]))["data"]["users"]["edges"][0]["node"]["metrics"]["worksVisited"]
+
+    old_total_visits = client.execute("""
+        {{
+            artwork(id: "{0}")
+            {{
+                edges {{
+                    node {{
+                        metrics {{
+                            totalVisits
+                        }}
+                    }}
+                }}
+            }}
+        }}
+    """.format(artwork[1]))["data"]["artwork"]["edges"][0]["node"]["metrics"]["totalVisits"]
+
+
+    resp = client.execute("""
+        mutation {{ 
+            discoverArtwork(
+                userId: "{0}",
+                artworkId: "{1}") 
+            {{
+                totalVisits
+                worksVisited
+            }}
+        }}
+    """.format(user[1], artwork[1]))
+
+    total_visits = resp["data"]["discoverArtwork"]["totalVisits"]
+    works_visited = resp["data"]["discoverArtwork"]["worksVisited"]
+    assert total_visits == old_total_visits + 1
+    assert works_visited == old_works_visited + 1
+
+
+

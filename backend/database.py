@@ -15,11 +15,11 @@ def init_db():
 
     art = [
         Artwork(title="Street Art", description="A true masterpiece", pictures=[get_sample_encoded_art_image()], location=[-120.664, 35.258], rating=25),
-        Artwork(title="Hidden Subway Mural", description="Far side of the subway station has a double walled mural.", pictures=[get_sample_encoded_art_image()], location=[-120.67759172519696, 35.23446092387092], rating=89, metrics=ArtworkMetrics(total_visits=2000)),
-        Artwork(title="Blue Bridge", description="Neon blue tentacles of paint wind up the struts of the bridge", pictures=[get_sample_encoded_art_image()], tags=["amazing"], location=[-120.70919388389524, 35.292870133451174], rating=90, metrics=ArtworkMetrics(total_visits=32)),
-        Artwork(title="Artistic Underpass", description="Bridge ceiling covered in art", pictures=[get_sample_encoded_art_image()], tags=["surreal", "amazing"], location=[-120.69407509793804, 35.283794177611576], rating=97, metrics=ArtworkMetrics(total_visits=5127)),
-        Artwork(title="Fire Wall", description="Tongues of flame comemorate the historic fire of this district", pictures=[get_sample_encoded_art_image()], tags=["sad", "historic", "amazing"], location=[-120.6354510797182, 35.28361728440618], rating=79, metrics=ArtworkMetrics(total_visits=7546)),
-        Artwork(title="Street Corner Fresco", description="This popular street has a decorative fresco spilling out of the alley behind a popular restaurant", pictures=[get_sample_encoded_art_image()], tags=["amazing", "unreal"], location=[-120.71145568864382, 35.23659325190852], rating=82, metrics=ArtworkMetrics(total_visits=5234))
+        Artwork(title="Hidden Subway Mural", description="Far side of the subway station has a double walled mural.", pictures=[get_sample_encoded_art_image()], location=[-120.67759172519696, 35.23446092387092], rating=89, metrics=ArtworkMetrics(total_visits=2000, total_ratings=1500)),
+        Artwork(title="Blue Bridge", description="Neon blue tentacles of paint wind up the struts of the bridge", pictures=[get_sample_encoded_art_image()], tags=["amazing"], location=[-120.70919388389524, 35.292870133451174], rating=90, metrics=ArtworkMetrics(total_visits=32, total_ratings=13)),
+        Artwork(title="Artistic Underpass", description="Bridge ceiling covered in art", pictures=[get_sample_encoded_art_image()], tags=["surreal", "amazing"], location=[-120.69407509793804, 35.283794177611576], rating=97, metrics=ArtworkMetrics(total_visits=5127, total_ratings=1320)),
+        Artwork(title="Fire Wall", description="Tongues of flame comemorate the historic fire of this district", pictures=[get_sample_encoded_art_image()], tags=["sad", "historic", "amazing"], location=[-120.6354510797182, 35.28361728440618], rating=79, metrics=ArtworkMetrics(total_visits=7546, total_ratings=3420)),
+        Artwork(title="Street Corner Fresco", description="This popular street has a decorative fresco spilling out of the alley behind a popular restaurant", pictures=[get_sample_encoded_art_image()], tags=["amazing", "unreal"], location=[-120.71145568864382, 35.23659325190852], rating=82, metrics=ArtworkMetrics(total_visits=5234, total_ratings=3333))
     ]
     # Haven't tested how to input location for art at the moment
     for a in art:
