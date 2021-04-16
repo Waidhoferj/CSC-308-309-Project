@@ -29,7 +29,10 @@ class Mutations(graphene.ObjectType):
     update_artwork = UpdateArtworkMutation.Field()
     delete_artwork = DeleteArtworkMutation.Field()
     add_artwork_review = AddArtworkReviewMutation.Field()
+<<<<<<< HEAD
     add_artwork_comment = DiscussionCommentMutation.Field()
+=======
+>>>>>>> c6004535cbe2d82710e6e64ec15688c1a8e708fc
     discover_artwork = DiscoverArtworkMutation.Field()
 
     create_group = CreateGroupMutation.Field()
