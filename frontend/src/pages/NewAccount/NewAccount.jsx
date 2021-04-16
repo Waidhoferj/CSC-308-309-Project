@@ -2,6 +2,7 @@ import "./NewAccount.scss";
 
 import { useMutation, gql } from "@apollo/client";
 import { useForm, Controller, useController } from "react-hook-form";
+import { useHistory } from "react-router-dom";
 import useProfileInfo from "../../hooks/useProfileInfo";
 
 const NEW_ACCOUNT_MUTATION = gql`
@@ -29,6 +30,7 @@ const NEW_ACCOUNT_MUTATION = gql`
 export default function NewAccount() {
   const [submitUser] = useMutation(NEW_ACCOUNT_MUTATION);
   const { profile, setUser } = useProfileInfo();
+  const { push } = useHistory();
  
   const { register, handleSubmit, control, errors } = useForm();
 
@@ -39,14 +41,9 @@ export default function NewAccount() {
       password: data.password,
     };
 
-    console.log("success");
-    console.log(data.email);
-    console.log(data.name);
-
     let resp = await submitUser({ variables: payload });
-    console.log(resp.data.createUser.user);
     setUser(resp.data.createUser.user.id);
-    console.log(profile);
+    push("/profile");
   }
 
   return (
