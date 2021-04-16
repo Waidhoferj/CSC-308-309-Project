@@ -41,7 +41,8 @@ class Achievement(Document):
     # might wanna have metrics that have to be met to obtain
 
 class ArtworkMetrics(EmbeddedDocument):
-    total_visits = IntField(default=0)
+    total_visits = IntField(default=1)
+    total_ratings = IntField(default=1)
 
 class Comment(EmbeddedDocument):
     content = StringField(required=True)
@@ -62,14 +63,13 @@ class Artwork(Document):
     location = PointField(required=True)
     date_created = DateTimeField(default=datetime.now)
     metrics = EmbeddedDocumentField("ArtworkMetrics", default=ArtworkMetrics)
-    num_ratings = IntField(default=1)
     rating = FloatField(min_value=0, max_value=100, default=0)
     comments = ListField(EmbeddedDocumentField("Comment"), default=list)
     tags = ListField(StringField(), default=list)
 
 class GroupMetrics(EmbeddedDocument):
     artwork_count = IntField(default=0)
-    member_count = IntField(default=0)
+    member_count = IntField(default=1)
     
 class Group(Document):
     meta = {"collection": "group"}
