@@ -98,7 +98,7 @@ export default function Artwork() {
         </div>
 
         <div className="actions">
-          <button>
+          <button onClick={() => push("/artwork/" + id + "/art-review")}>
             <Star />
           </button>
           <button onClick={() => push("/artwork/" + id + "/discussion")}>

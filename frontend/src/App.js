@@ -39,7 +39,7 @@ function App() {
             />
             <Route path="/camera" component={Camera} />
             <Route path="/art-submission" component={ArtSubmission} />
-            <Route path="/art-review" component={ArtReview} />
+            <Route path="/artwork/:id/art-review" component={ArtReview} />
             <Route path="/profile" component={Profile} />
             <Route path="/portfolio" component={Portfolio} />
             <Route path="/groups" component={GroupsList} />
