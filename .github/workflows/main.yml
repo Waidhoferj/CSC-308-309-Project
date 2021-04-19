@@ -20,7 +20,5 @@ jobs:
         run: cd backend
       - name: Install Packages
         run: pipenv install
-      - name: Start Virtual Environment
-        run: pipenv shell
-      - name: Test Backend
-        run: python testing.py
+      - name: Start Virtual Environment and Run Backend Tests
+        run: pipenv run python testing.py
