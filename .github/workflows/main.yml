@@ -19,6 +19,8 @@ jobs:
       - name: Enter backend folder
         run: cd backend
       - name: Install Packages
-        run: pipenv install
+        run: |
+          pipenv install
+          pwd
       - name: Start Virtual Environment and Run Backend Tests
         run: pipenv run python testing.py
