@@ -16,9 +16,11 @@ jobs:
           python-version: 3.8.9
       - name: Install pipenv
         run: pip install pipenv
-      - name: Enter backend folder and run tests
-        run: |
-          cd backend
-          pipenv install
-          pipenv shell
-          python testing.py
+      - name: Enter backend folder
+        run: cd backend
+      - name: Install Packages
+        run: pipenv install
+      - name: Start Virtual Environment
+        run: pipenv shell
+      - name: Test Backend
+        run: python testing.py
