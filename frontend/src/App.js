@@ -5,8 +5,9 @@ import Artwork from "./pages/Artwork/Artwork";
 import Discussion from "./pages/Artwork/components/Discussion/Discussion";
 import StyleGuide from "./components/StyleGuide";
 import ArtSubmission from "./pages/ArtSubmission/ArtSubmission";
-import Portfolio from "./pages/Portfolio/Portfolio";
+import { UserPortfolio } from "./pages/Portfolio/Portfolio";
 import Profile from "./pages/Profile/Profile";
+import GroupPage from "./pages/Groups/GroupPage/GroupPage";
 import GroupsList from "./pages/Groups/GroupsList/GroupsList";
 import ReportArtwork from "./pages/ReportArtwork/ReportArtwork";
 import TabBar from "./components/TabBar/TabBar";
@@ -39,8 +40,9 @@ function App() {
             <Route path="/camera" component={Camera} />
             <Route path="/art-submission" component={ArtSubmission} />
             <Route path="/profile" component={Profile} />
-            <Route path="/portfolio" component={Portfolio} />
+            <Route path="/portfolio" component={UserPortfolio} />
             <Route path="/groups" component={GroupsList} />
+            <Route path="/group/:id" component={GroupPage} />
             <Route path="/style-guide" component={StyleGuide} />
             <Route path="*" component={ArtMap} />
           </Switch>

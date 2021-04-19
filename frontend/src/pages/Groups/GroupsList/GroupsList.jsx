@@ -5,6 +5,7 @@ import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/C
 import Spinner from "../../../components/Spinner/Spinner";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
+import { useHistory } from "react-router";
 
 const GROUP_LIST_QUERY = gql`
   query getGroups($id: ID!) {
@@ -15,6 +16,7 @@ const GROUP_LIST_QUERY = gql`
             edges {
               node {
                 name
+                id
                 metrics {
                   artworkCount
                   memberCount
@@ -39,6 +41,11 @@ const GROUP_LIST_QUERY = gql`
 
 export default function GroupsList() {
   let { loading, groups } = useGroupList();
+  let history = useHistory();
+  function openGroup(id) {
+    history.push("group/" + id);
+  }
+
   return (
     <article className="GroupsList">
       <header>
@@ -51,7 +58,11 @@ export default function GroupsList() {
       ) : groups.length ? (
         <ul className="groups">
           {groups.map((group, key) => (
-            <GroupCard key={key} {...group} />
+            <GroupCard
+              key={key}
+              {...group}
+              onClick={() => openGroup(group.id)}
+            />
           ))}
         </ul>
       ) : (
@@ -73,6 +84,7 @@ function useGroupList() {
       data?.users.edges?.[0].node.groups.edges.map(({ node: group }) => ({
         name: group.name,
         metrics: group.metrics,
+        id: group.id,
         pictures: group.groupPortfolio.artworks.edges.flatMap(
           ({ node: work }) => work.pictures
         ),
@@ -82,9 +94,9 @@ function useGroupList() {
   return { loading, groups };
 }
 
-function GroupCard({ name, pictures, metrics }) {
+function GroupCard({ name, pictures, metrics, id, onClick }) {
   return (
-    <li className="GroupCard">
+    <li className="GroupCard" onClick={onClick}>
       <div className="images">
         {pictures.map((picture, key) => (
           <img key={key} src={picture} />

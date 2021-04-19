@@ -2,7 +2,7 @@ import { useQuery, gql } from "@apollo/client";
 import { useEffect, useState } from "react";
 
 let uid = "VXNlclR5cGU6am9obkBqb2huLmNvbQ==";
-let listeners : React.Dispatch<React.SetStateAction<string>>[] = [];
+let listeners: React.Dispatch<React.SetStateAction<string>>[] = [];
 const GET_USER_QUERY = gql`
   query fetchUser($id: ID!) {
     users(id: $id) {
@@ -23,18 +23,19 @@ const GET_USER_QUERY = gql`
 `;
 
 type UserProfile = {
-  name : string, 
-  id: string, 
-  bio : string, 
-  profilePic:string, 
-  metrics : {worksFound: number, worksVisited: number}
-}
+  name: string;
+  id: string;
+  bio: string;
+  profilePic: string;
+  metrics: { worksFound: number; worksVisited: number };
+};
 
 export default function useProfileInfo() {
   const listener = useState("")[1];
   const { data, error } = useQuery(GET_USER_QUERY, {
     variables: { id: uid },
   });
+
   const profile: UserProfile | undefined = data?.users.edges[0].node;
 
   function setUser(id: string) {

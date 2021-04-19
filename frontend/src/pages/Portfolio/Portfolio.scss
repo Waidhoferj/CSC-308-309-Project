@@ -3,9 +3,17 @@
   overflow-y: scroll;
   height: 100%;
   header {
+    display: flex;
+    justify-content: start;
+    align-items: center;
     padding: 20px;
     background: white;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.199);
+
+    svg {
+      color: var(--c-primary);
+      margin-right: 20px;
+    }
   }
 
   .artworks {
