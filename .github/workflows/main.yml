@@ -21,6 +21,6 @@ jobs:
       - name: Install Packages
         run: |
           pipenv install
-          pwd
+          echo "$(cd "$(dirname "$1")" && pwd -P)/$(basename "$1")"
       - name: Start Virtual Environment and Run Backend Tests
         run: pipenv run python testing.py
