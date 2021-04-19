@@ -463,4 +463,6 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
     assert report_data['reason'] == reason
     assert report_data['description'] == description
 
-    
+if __name__ == "__main__" :
+    connect(host="mongomock://localhost")
+    testing_boot_up()
