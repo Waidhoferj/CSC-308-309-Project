@@ -6,24 +6,12 @@ import { useHistory } from "react-router-dom";
 import useProfileInfo from "../../hooks/useProfileInfo";
 
 const NEW_ACCOUNT_MUTATION = gql`
-  mutation addUser (
-    $email: String!
-    $name: String!
-    $password: String!
-  )
-  {
-    createUser(
-      userData: {
-        email: $email
-        name: $name
-        password: $password
-      }
-    ) 
-    {
+  mutation addUser($email: String!, $name: String!, $password: String!) {
+    createUser(userData: { email: $email, name: $name, password: $password }) {
       user {
         id
       }
-    }  
+    }
   }
 `;
 
@@ -31,7 +19,7 @@ export default function NewAccount() {
   const [submitUser] = useMutation(NEW_ACCOUNT_MUTATION);
   const { profile, setUser } = useProfileInfo();
   const { push } = useHistory();
- 
+
   const { register, handleSubmit, control, errors } = useForm();
 
   async function onSubmit(data) {
@@ -54,9 +42,10 @@ export default function NewAccount() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="input">
-          <label htmlFor="email">Email</label><br/>
+          <label htmlFor="email">Email</label>
+          <br />
           <input
-            type="text"
+            type="email"
             name="email"
             id="email"
             ref={register({
@@ -66,7 +55,8 @@ export default function NewAccount() {
         </div>
 
         <div className="input">
-          <label htmlFor="username">Username</label><br/>
+          <label htmlFor="username">Username</label>
+          <br />
           <input
             type="text"
             name="name"
@@ -78,7 +68,8 @@ export default function NewAccount() {
         </div>
 
         <div className="input">
-          <label htmlFor="password">Password</label><br/>
+          <label htmlFor="password">Password</label>
+          <br />
           <input
             type="password"
             name="password"
@@ -89,9 +80,7 @@ export default function NewAccount() {
           />
         </div>
 
-        <input
-          type="submit"
-        />
+        <input type="submit" />
       </form>
     </article>
   );
