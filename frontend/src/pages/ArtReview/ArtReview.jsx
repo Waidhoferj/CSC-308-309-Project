@@ -4,7 +4,7 @@ import { useMutation, gql } from "@apollo/client";
 import Rating from "react-rating-stars-component";
 import { useState } from "react";
 import { ArrowLeft } from "react-feather";
-import { useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useForm, Controller, useController } from "react-hook-form";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
@@ -12,33 +12,53 @@ import useProfileInfo from "../../hooks/useProfileInfo";
 
 import Tag from "../../components/Tag/Tag";
 
-const CREATE_ARTWORK_MUTATION = gql`
-  mutation addArtwork(
-    $title: String!
-    $description: String!
-    $foundBy: String!
-    $location: [Float]
-    $rating: Float
-    $pictures: [String]
-    $tags: [String]
+const CREATE_ART_REVIEW_MUTATION = gql`
+mutation addArtworkReview(
+  $artworkId: ID!
+  $author: ID!
+  $content: String!
+  $rating: Float!
+  $tags: [String]
+) {
+  addArtworkReview(
+    reviewData: {
+      artworkId: $artworkId
+      comment: {
+        author: $author
+        content: $content
+      }
+      
+      rating: $rating
+      tags: $tags
+    }
   ) {
-    createArtwork(
-      artworkData: {
-        title: $title
-        description: $description
-        foundBy: $foundBy
-        location: $location
-        rating: $rating
-        tags: $tags
-        pictures: $pictures
-      }
-    ) {
-      artwork {
-        id
-      }
+    artwork {
+      id
     }
   }
+}
 `;
+
+/*
+mutation {
+  addArtworkReview(reviewData: {
+    artworkId: "QXJ0d29ya1R5cGU6SGlkZGVuIFNzZGZnc2Rnc3VyYQ==",
+    comment: {
+      author: "VXNlclR5cGU6YnJhZGVuQGdtYWlsLmNvbQ=="
+      content: "I love this art!",
+    }
+    rating: 80,
+    tags: ["Added_Tag"]
+  }) {
+    artwork {
+      id
+      title
+      rating
+      numRatings
+    }
+  }    
+}
+*/
 
 export default function ArtReview() {
   /* Give a ref to each input field that we got from useForm hook.
@@ -54,20 +74,22 @@ export default function ArtReview() {
   });
   const [tagInputVal, setTagInputVal] = useState("");
   const history = useHistory();
-  const [uploadArt] = useMutation(CREATE_ARTWORK_MUTATION);
+  const [uploadArtReview] = useMutation(CREATE_ART_REVIEW_MUTATION);
   const { images, clearLibrary } = usePhotoLibrary();
   const { profile } = useProfileInfo();
+  const { artwork } = useParams();
 
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
     const payload = {
-      pictures: images,
-      location: [-120.664, 35.258], // For demo purposes. We'll attach geolocation to usePhotoLibrary later.
-      foundBy: profile.id,
-      ...data,
+      artworkId: profile?.id, //Follow bradens ex from reportArtwork, grab from url
+      author: artwork, //Ask john how to grab this from user state
+      content: data.description,
       rating: data.rating * 20,
+      tags: data.tags
     };
-    uploadArt({ variables: payload }).then((res) => {
+    console.log(payload);
+    uploadArtReview({ variables: payload }).then((res) => {
       clearLibrary();
       history.push("/artwork/" + res.data.createArtwork.artwork.id);
     });
