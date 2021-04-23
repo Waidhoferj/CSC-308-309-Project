@@ -11,12 +11,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Set environmental variables
-        env:
-          super_secret: ${{ secrets.DB_USERNAME }}
-          super_secret: ${{ secrets.DB_PASSWORD }}
-          super_secret: ${{ secrets.DB_NAME }}
-          super_secret: ${{ secrets.DB_TESTING_NAME }}
       - name: Set up Python 3.8.9
         uses: actions/setup-python@v1
         with:
@@ -24,6 +18,11 @@ jobs:
       - name: Install pipenv
         run: pip install pipenv
       - name: Go into backend folder, create virtual environent, and run testing
+        env:
+          super_secret: ${{ secrets.DB_USERNAME }}
+          super_secret: ${{ secrets.DB_PASSWORD }}
+          super_secret: ${{ secrets.DB_NAME }}
+          super_secret: ${{ secrets.DB_TESTING_NAME }}
         run: |
           cd backend
           pipenv install
