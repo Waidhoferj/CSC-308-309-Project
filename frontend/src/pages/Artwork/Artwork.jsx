@@ -8,11 +8,14 @@ import {
   AlertCircle,
   Camera,
 } from "react-feather";
+
+import ArtReview from "../ArtReview/ArtReview";
+
 import exampleArt from "../../assets/example-art.jpg";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, Route, Switch } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 
 export default function Artwork() {
@@ -27,6 +30,7 @@ export default function Artwork() {
             title
             description
             tags
+            id
             metrics {
               totalVisits
             }
@@ -62,56 +66,63 @@ export default function Artwork() {
   const pic_src = artwork.pictures[0];
 
   return (
-    <article className="Artwork">
-      <header>
-        <img src={pic_src} alt="Art" />
-        <button className="wrapper back-button" onClick={goBack}>
-          <ArrowLeft />
-        </button>
-        <h1>{artwork.title}</h1>
-        <div className="options">
-          <button className="wrapper">
-            <Upload />
-          </button>
-          <button className="wrapper">
-            <Maximize2 />
-          </button>
-        </div>
-      </header>
+    <Switch>
+      <Route exact path="/artwork/:id">
+        <article className="Artwork">
+          <header>
+            <img src={pic_src} alt="Art" />
+            <button className="wrapper back-button" onClick={goBack}>
+              <ArrowLeft />
+            </button>
+            <h1>{artwork.title}</h1>
+            <div className="options">
+              <button className="wrapper">
+                <Upload />
+              </button>
+              <button className="wrapper">
+                <Maximize2 />
+              </button>
+            </div>
+          </header>
 
-      <div className="content">
-        <p className="description">{artwork.description}</p>
+          <div className="content">
+            <p className="description">{artwork.description}</p>
 
-        <ul className="tags">
-          {artwork.tags?.map((tag) => (
-            <li>
-              <Tag>{tag}</Tag>
-            </li>
-          ))}
-        </ul>
+            <ul className="tags">
+              {artwork.tags?.map((tag) => (
+                <li>
+                  <Tag key={tag}>{tag}</Tag>
+                </li>
+              ))}
+            </ul>
 
-        <h2>Stats</h2>
-        <div className="metric-badges">
-          {metrics.map((metric) => (
-            <MetricBadge {...metric} />
-          ))}
-        </div>
+            <h2>Stats</h2>
+            <div className="metric-badges">
+              {metrics.map((metric) => (
+                <MetricBadge {...metric} />
+              ))}
+            </div>
 
-        <div className="actions">
-          <button onClick={() => push("/artwork/" + id + "/art-review")}>
-            <Star />
-          </button>
-          <button onClick={() => push("/artwork/" + id + "/discussion")}>
-            <MessageSquare />
-          </button>
-          <button onClick={() => push("/artwork/" + id + "/report")}>
-            <AlertCircle />
-          </button>
-          <button>
-            <Camera />
-          </button>
-        </div>
-      </div>
-    </article>
+            <div className="actions">
+              <button onClick={() => push("/artwork/" + id + "/art-review")}>
+                <Star />
+              </button>
+              <button onClick={() => push("/artwork/" + id + "/discussion")}>
+                <MessageSquare />
+              </button>
+              <button onClick={() => push("/artwork/" + id + "/report")}>
+                <AlertCircle />
+              </button>
+              <button>
+                <Camera />
+              </button>
+            </div>
+          </div>
+        </article>
+      </Route>
+      <Route exact path="/artwork/:id/art-review">
+        <ArtReview artwork={artwork} />
+      </Route>
+    </Switch>
   );
 }

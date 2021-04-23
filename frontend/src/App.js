@@ -5,7 +5,6 @@ import Artwork from "./pages/Artwork/Artwork";
 import Discussion from "./pages/Artwork/components/Discussion/Discussion";
 import StyleGuide from "./components/StyleGuide";
 import ArtSubmission from "./pages/ArtSubmission/ArtSubmission";
-import ArtReview from "./pages/ArtReview/ArtReview";
 import Portfolio from "./pages/Portfolio/Portfolio";
 import Profile from "./pages/Profile/Profile";
 import GroupsList from "./pages/Groups/GroupsList/GroupsList";
@@ -31,7 +30,7 @@ function App() {
             <Route exact path="/map/:artwork" component={ArtMap} />
             <Route exact path="/map/:artwork/track" component={ArtMap} />
             <Route exact path="/artwork/:id/report" component={ReportArtwork} />
-            <Route exact path="/artwork/:id" component={Artwork} />
+            <Route path="/artwork/:id" component={Artwork} />
             <Route
               exact
               path="/artwork/:id/discussion"
@@ -39,7 +38,7 @@ function App() {
             />
             <Route path="/camera" component={Camera} />
             <Route path="/art-submission" component={ArtSubmission} />
-            <Route path="/artwork/:id/art-review" component={ArtReview} />
+
             <Route path="/profile" component={Profile} />
             <Route path="/portfolio" component={Portfolio} />
             <Route path="/groups" component={GroupsList} />

@@ -13,54 +13,29 @@ import useProfileInfo from "../../hooks/useProfileInfo";
 import Tag from "../../components/Tag/Tag";
 
 const CREATE_ART_REVIEW_MUTATION = gql`
-mutation addArtworkReview(
-  $artworkId: ID!
-  $author: ID!
-  $content: String!
-  $rating: Float!
-  $tags: [String]
-) {
-  addArtworkReview(
-    reviewData: {
-      artworkId: $artworkId
-      comment: {
-        author: $author
-        content: $content
-      }
-      
-      rating: $rating
-      tags: $tags
-    }
+  mutation addArtworkReview(
+    $artworkId: ID!
+    $author: ID!
+    $content: String!
+    $rating: Float!
+    $tags: [String]
   ) {
-    artwork {
-      id
+    addArtworkReview(
+      reviewData: {
+        artworkId: $artworkId
+        comment: { author: $author, content: $content }
+        rating: $rating
+        tags: $tags
+      }
+    ) {
+      artwork {
+        id
+      }
     }
   }
-}
 `;
 
-/*
-mutation {
-  addArtworkReview(reviewData: {
-    artworkId: "QXJ0d29ya1R5cGU6SGlkZGVuIFNzZGZnc2Rnc3VyYQ==",
-    comment: {
-      author: "VXNlclR5cGU6YnJhZGVuQGdtYWlsLmNvbQ=="
-      content: "I love this art!",
-    }
-    rating: 80,
-    tags: ["Added_Tag"]
-  }) {
-    artwork {
-      id
-      title
-      rating
-      numRatings
-    }
-  }    
-}
-*/
-
-export default function ArtReview() {
+export default function ArtReview({ artwork }) {
   /* Give a ref to each input field that we got from useForm hook.
    */
   const { register, handleSubmit, control, errors } = useForm();
@@ -75,24 +50,19 @@ export default function ArtReview() {
   const [tagInputVal, setTagInputVal] = useState("");
   const history = useHistory();
   const [uploadArtReview] = useMutation(CREATE_ART_REVIEW_MUTATION);
-  const { images, clearLibrary } = usePhotoLibrary();
   const { profile } = useProfileInfo();
-  const { artwork } = useParams();
 
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
     const payload = {
-      artworkId: profile?.id, //Follow bradens ex from reportArtwork, grab from url
-      author: artwork, //Ask john how to grab this from user state
+      artworkId: artwork.id, //Follow bradens ex from reportArtwork, grab from url
+      author: profile?.id, //Ask john how to grab this from user state
       content: data.description,
       rating: data.rating * 20,
-      tags: data.tags
+      tags: data.tags,
     };
-    console.log(payload);
-    uploadArtReview({ variables: payload }).then((res) => {
-      clearLibrary();
-      history.push("/artwork/" + res.data.createArtwork.artwork.id);
-    });
+    uploadArtReview({ variables: payload });
+    history.push("/artwork/" + artwork.id);
   }
 
   function handleTagSubmit(e) {
@@ -113,11 +83,10 @@ export default function ArtReview() {
             <ArrowLeft />
           </button>
         </nav>
-        <img src={images[0]} alt="Art" />
+        <img src={artwork.pictures[0]} alt="Art" />
         <h1>Review</h1>
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>
-
         {errors.title && errors.title.type === "required" && (
           <p className="errorMsg" style={{ color: "Red" }}>
             Artwork Title is required.
@@ -193,10 +162,3 @@ export default function ArtReview() {
     </section>
   );
 }
-
-/*
-ArtReview.propTypes.shape = {
-  rating: PropTypes.object.isRequired
-}
-*/
-

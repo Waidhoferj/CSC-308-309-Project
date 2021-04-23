@@ -108,6 +108,21 @@ input[type="number"] {
   background-color: #ebebeb;
 }
 
+textarea {
+  font-family: inherit;
+  font-size: 17px;
+  display: block;
+  width: 100%;
+  padding: 20px 20px;
+  border: none;
+  border-radius: 11px;
+  background: #f3f5fa;
+  grid-column: 1 / span 2;
+  resize: vertical;
+  max-height: 400px;
+  margin-top: 10px;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
