@@ -1,35 +1,31 @@
-import "./ArtSubmission.scss";
+import "./ArtReview.scss";
 
 import { useMutation, gql } from "@apollo/client";
 import Rating from "react-rating-stars-component";
 import { useState } from "react";
 import { ArrowLeft } from "react-feather";
-import { useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useForm, Controller, useController } from "react-hook-form";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
+//import PropTypes from 'prop-types';
 
 import Tag from "../../components/Tag/Tag";
 
-const CREATE_ARTWORK_MUTATION = gql`
-  mutation addArtwork(
-    $title: String!
-    $description: String!
-    $foundBy: String!
-    $location: [Float]
-    $rating: Float
-    $pictures: [String]
+const CREATE_ART_REVIEW_MUTATION = gql`
+  mutation addArtworkReview(
+    $artworkId: ID!
+    $author: ID!
+    $content: String!
+    $rating: Float!
     $tags: [String]
   ) {
-    createArtwork(
-      artworkData: {
-        title: $title
-        description: $description
-        foundBy: $foundBy
-        location: $location
+    addArtworkReview(
+      reviewData: {
+        artworkId: $artworkId
+        comment: { author: $author, content: $content }
         rating: $rating
         tags: $tags
-        pictures: $pictures
       }
     ) {
       artwork {
@@ -39,7 +35,7 @@ const CREATE_ARTWORK_MUTATION = gql`
   }
 `;
 
-export default function ArtSubmission() {
+export default function ArtReview({ artwork }) {
   /* Give a ref to each input field that we got from useForm hook.
    */
   const { register, handleSubmit, control, errors } = useForm();
@@ -53,23 +49,20 @@ export default function ArtSubmission() {
   });
   const [tagInputVal, setTagInputVal] = useState("");
   const history = useHistory();
-  const [uploadArt] = useMutation(CREATE_ARTWORK_MUTATION);
-  const { images, clearLibrary } = usePhotoLibrary();
+  const [uploadArtReview] = useMutation(CREATE_ART_REVIEW_MUTATION);
   const { profile } = useProfileInfo();
 
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
     const payload = {
-      pictures: images,
-      location: [-120.664, 35.258], // For demo purposes. We'll attach geolocation to usePhotoLibrary later.
-      foundBy: profile.id,
-      ...data,
+      artworkId: artwork.id, //Follow bradens ex from reportArtwork, grab from url
+      author: profile?.id, //Ask john how to grab this from user state
+      content: data.description,
       rating: data.rating * 20,
+      tags: data.tags,
     };
-    uploadArt({ variables: payload }).then((res) => {
-      clearLibrary();
-      history.push("/artwork/" + res.data.createArtwork.artwork.id);
-    });
+    uploadArtReview({ variables: payload });
+    history.push("/artwork/" + artwork.id);
   }
 
   function handleTagSubmit(e) {
@@ -83,34 +76,24 @@ export default function ArtSubmission() {
   }
 
   return (
-    <section className="ArtSubmission">
+    <section className="ArtReview">
       <header>
         <nav>
           <button className="wrapper" onClick={history.goBack}>
             <ArrowLeft />
           </button>
         </nav>
-        <img src={images[0]} alt="Art" />
-        <h1>New Artwork</h1>
+        <img src={artwork.pictures[0]} alt="Art" />
+        <h1>Review</h1>
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label>
-          <p className="field-label">Artwork Title</p>
-          <input
-            name="title"
-            type="text"
-            placeholder="Title"
-            ref={register({ required: true })}
-          />
-        </label>
-
         {errors.title && errors.title.type === "required" && (
           <p className="errorMsg" style={{ color: "Red" }}>
             Artwork Title is required.
           </p>
         )}
         <label>
-          <p className="field-label">Rating</p>
+          <p className="rating">Rating</p>
           <Controller
             control={control}
             name="rating"

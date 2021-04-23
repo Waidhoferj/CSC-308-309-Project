@@ -32,7 +32,7 @@ function App() {
             <Route exact path="/map/:artwork" component={ArtMap} />
             <Route exact path="/map/:artwork/track" component={ArtMap} />
             <Route exact path="/artwork/:id/report" component={ReportArtwork} />
-            <Route exact path="/artwork/:id" component={Artwork} />
+            <Route path="/artwork/:id" component={Artwork} />
             <Route
               exact
               path="/artwork/:id/discussion"
@@ -40,6 +40,7 @@ function App() {
             />
             <Route path="/camera" component={Camera} />
             <Route path="/art-submission" component={ArtSubmission} />
+
             <Route path="/profile" component={Profile} />
             <Route path="/portfolio" component={UserPortfolio} />
             <Route path="/groups" component={GroupsList} />
