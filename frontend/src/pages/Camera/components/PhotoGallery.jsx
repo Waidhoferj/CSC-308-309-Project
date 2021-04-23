@@ -1,10 +1,8 @@
 import { useRef } from "react";
 import { X, Trash } from "react-feather";
-import { useHistory } from "react-router-dom";
 import usePhotoLibrary from "../../../hooks/usePhotoLibrary";
 
 export default function PhotoGallery({ onHide }) {
-  const { goBack } = useHistory();
   const { images, removeImage } = usePhotoLibrary();
   const sideScrollRef = useRef();
   function deletePhoto() {
@@ -26,7 +24,7 @@ export default function PhotoGallery({ onHide }) {
           <ul className="photos" ref={sideScrollRef}>
             {images.map((photoData, i) => (
               <li className="photo" key={i}>
-                <img src={photoData} />
+                <img alt={"Photo " + (i + 1)} src={photoData} />
               </li>
             ))}
           </ul>

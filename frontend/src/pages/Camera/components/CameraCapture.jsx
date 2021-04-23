@@ -1,5 +1,5 @@
 import Webcam from "react-webcam";
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 import { useHistory } from "react-router-dom";
 import usePhotoLibrary from "../../../hooks/usePhotoLibrary";
 import {
@@ -19,7 +19,7 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
   const history = useHistory();
   const { images } = usePhotoLibrary();
 
-  const takePhoto = useCallback(() => {
+  function takePhoto() {
     if (!cameraRef.current) return;
     const photo = cameraRef.current.getScreenshot();
     onImageCapture(photo);
@@ -30,7 +30,7 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
       },
       500
     );
-  }, [cameraRef.current]);
+  }
 
   function submitPhotos() {
     history.push("/art-submission");

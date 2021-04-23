@@ -1,14 +1,11 @@
 import "./Profile.scss";
-import { MoreHorizontal, AlertCircle } from "react-feather";
-import { useHistory } from "react-router-dom";
+import { MoreHorizontal } from "react-feather";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import useProfileInfo from "../../hooks/useProfileInfo";
 
 export default function Profile() {
   const { profile: user, error } = useProfileInfo();
-
-  const { goBack } = useHistory();
   return (
     <article className="Profile">
       {error ? (

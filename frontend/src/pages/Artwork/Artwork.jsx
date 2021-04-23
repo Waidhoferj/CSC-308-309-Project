@@ -11,7 +11,6 @@ import {
 
 import ArtReview from "../ArtReview/ArtReview";
 
-import exampleArt from "../../assets/example-art.jpg";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
@@ -51,7 +50,7 @@ export default function Artwork() {
 
   const artwork = data.artwork.edges[0]?.node;
 
-  if (artwork == undefined)
+  if (!artwork)
     return (
       <ConnectionErrorMessage>
         Error: Artwork does not exist

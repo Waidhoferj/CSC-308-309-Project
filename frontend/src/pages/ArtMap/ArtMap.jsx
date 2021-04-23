@@ -100,7 +100,14 @@ export default function ArtMap() {
         });
       }
     },
-    [viewingArtwork, navigating, artId, selectedArtwork, loadingArt]
+    [
+      viewingArtwork,
+      navigating,
+      artId,
+      selectedArtwork,
+      loadingArt,
+      artworkData,
+    ]
   );
 
   /**

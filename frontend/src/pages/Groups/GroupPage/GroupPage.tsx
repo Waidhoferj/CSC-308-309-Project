@@ -118,7 +118,7 @@ function ArtworkCard(props : ArtworkCardProps) {
 
 
 function useGroup(id:string) : Group | undefined {
-    const {data, loading, error} = useQuery(GET_GROUP_QUERY, {variables: {id}})
+    const {data} = useQuery(GET_GROUP_QUERY, {variables: {id}})
     const group: Group | undefined = useMemo(() => {
         const group = data?.groups.edges?.[0].node
         const artworks: Artwork[] = group?.groupPortfolio.artworks.edges.map(({node} : {node: Artwork}) => ({title: node.title, pictures: node.pictures, id: node.id}) )
@@ -127,7 +127,7 @@ function useGroup(id:string) : Group | undefined {
               bio: group.bio,
             metrics: group.metrics, 
             artworks}
-    }, [data,loading,error, id])
+    }, [data])
     return group
 }
 
