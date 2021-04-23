@@ -19,10 +19,10 @@ jobs:
         run: pip install pipenv
       - name: Go into backend folder, create virtual environent, and run testing
         env:
-          super_secret: ${{ secrets.DB_USERNAME }}
-          super_secret: ${{ secrets.DB_PASSWORD }}
-          super_secret: ${{ secrets.DB_NAME }}
-          super_secret: ${{ secrets.DB_TESTING_NAME }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_TESTING_NAME: ${{ secrets.DB_TESTING_NAME }}
         run: |
           cd backend
           pipenv install
