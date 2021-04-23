@@ -4,9 +4,8 @@ import { useMutation, gql } from "@apollo/client";
 import Rating from "react-rating-stars-component";
 import { useState } from "react";
 import { ArrowLeft } from "react-feather";
-import { useParams, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useForm, Controller, useController } from "react-hook-form";
-import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
 //import PropTypes from 'prop-types';
 
