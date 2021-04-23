@@ -99,7 +99,7 @@ function GroupCard({ name, pictures, metrics, id, onClick }) {
     <li className="GroupCard" onClick={onClick}>
       <div className="images">
         {pictures.map((picture, key) => (
-          <img key={key} src={picture} />
+          <img key={key} src={picture} alt="Group profile" />
         ))}
       </div>
       <motion.div className="info" whileTap={{ scale: 0.9 }}>

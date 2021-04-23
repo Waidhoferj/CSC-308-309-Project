@@ -4,17 +4,17 @@ import { useMutation, gql } from "@apollo/client";
 // import { useState } from "react";
 import { ArrowLeft } from "react-feather";
 import { useParams, useHistory } from "react-router-dom";
-import { useForm, Controller, useController } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import useProfileInfo from "../../hooks/useProfileInfo";
 
 const CREATE_REPORT_MUTATION = gql`
   mutation addReport(
-      $reportedIdType: String!
-      $reportedId: String!
-      $userId: String!
-      $reason: String!
-      $description: String!
-    )  {
+    $reportedIdType: String!
+    $reportedId: String!
+    $userId: String!
+    $reason: String!
+    $description: String!
+  ) {
     createReport(
       reportData: {
         reportedIdType: $reportedIdType
@@ -31,7 +31,7 @@ const CREATE_REPORT_MUTATION = gql`
         reason
         description
       }
-    }  
+    }
   }
 `;
 
@@ -40,7 +40,7 @@ const CREATE_REPORT_MUTATION = gql`
 export default function ArtSubmission() {
   /* Give a ref to each input field that we got from useForm hook.
    */
-  const { register, handleSubmit, control, errors } = useForm();
+  const { register, handleSubmit, errors } = useForm();
   const history = useHistory();
   const [submitReport] = useMutation(CREATE_REPORT_MUTATION);
   const { profile } = useProfileInfo();
@@ -53,9 +53,9 @@ export default function ArtSubmission() {
       reportedId: id,
       userId: profile?.id,
       reason: data.reason,
-      description: data.description
+      description: data.description,
     };
-    
+
     //debugger
     //console.log(payload)
     submitReport({ variables: payload }).then((res) => {
@@ -74,19 +74,21 @@ export default function ArtSubmission() {
         <h1>Report Artwork</h1>
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>
-
         <label>
           <p className="field-label">Reason</p>
-          <select id="reason" name="reason" ref={register({
-            required: true
-          })}>
+          <select
+            id="reason"
+            name="reason"
+            ref={register({
+              required: true,
+            })}
+          >
             <option value="duplicate">Duplicate</option>
             <option value="inappropriate">Inappropriate</option>
             <option value="not art">Not Art</option>
           </select>
         </label>
-        
-        
+
         <label>
           <p className="field-label">Description</p>
           <textarea

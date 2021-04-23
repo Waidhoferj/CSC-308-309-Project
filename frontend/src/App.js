@@ -22,7 +22,7 @@ function App() {
   // Until we get sign in working, this will set the user across the entire app.
   useEffect(() => {
     setUser(userId);
-  }, []);
+  }, [setUser]);
   return (
     <main id="App">
       <Router>

@@ -1,6 +1,6 @@
 import "./Discussion.scss"
 import {useQuery, useMutation, gql} from "@apollo/client"
-import React, { useMemo, useRef, useEffect } from "react"
+import {useRef, useEffect } from "react"
 import {useParams, useHistory} from "react-router-dom"
 
 import {
@@ -155,7 +155,7 @@ function MessageComposer({ onSend }: {onSend : (text: string) => void}) {
   return (
     <div className="MessageComposer">
         <div
-        role="input"
+          role="textbox"
           className="text-field"
           ref={textFieldRef}
           contentEditable="true"
