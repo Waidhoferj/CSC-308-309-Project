@@ -1,0 +1,34 @@
+.NewAccount {
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+    box-shadow: var(--shadow-button);
+    margin-bottom: 30px;
+
+    h2 {
+      display: inline-block;
+      margin: 0;
+    }
+  }
+
+  form {
+    margin-left: 30px;
+
+    > * {
+      margin: 0px;
+      margin-bottom: 10px;
+    }
+
+    .input input {
+      padding: 10px;
+    }
+
+    > input {
+      margin-top: 10px;
+      outline: none;
+    }
+  }
+}

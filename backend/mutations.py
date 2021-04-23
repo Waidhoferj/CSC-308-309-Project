@@ -196,6 +196,7 @@ class UserInput(graphene.InputObjectType):
     name = graphene.String()
     bio = graphene.String()
     email = graphene.String()
+    password = graphene.String()
     profile_pic = graphene.String()   # NOTE: will assume base64 encoded string
     metrics = graphene.InputField(UserMetricsInput)
     achievement = graphene.String()     # achievement id to add to user's achievements
@@ -222,6 +223,7 @@ class CreateUserMutation(graphene.Mutation):
             name = user_data.name,
             bio = user_data.bio,    # not required by model, will assume frontend filters input
             email = user_data.email,
+            password = user_data.password,
             profile_pic = user_data.profile_pic,
             metrics = metrics,
             achievements = [], # will likely want to add a hard coded initial achievement
@@ -254,6 +256,8 @@ class UpdateUserMutation(graphene.Mutation):
             user.bio = user_data.bio
         if user_data.email: # don't think I want this while primary key is email
             user.email = user_data.email
+        if user_data.password:
+            user.password = user_data.password
         if user_data.metrics:
             user.metrics = UserMetrics(
                 works_visited = user_data.metrics.works_visited,
@@ -520,8 +524,10 @@ Creates user and returns most relevant information about them:
 mutation {
   createUser(userData: {
     name: "Tony Richard",
-    bio: "Likes to take long walks in the valley",
-    email: "tony@richard.com"
+    bio: "Very Happy Boi",
+    email: "email@email.com"
+    password: "password"
+    profilePic: "ijf092ct890t423m98rym230948yrm32409r8y23m490asf"
   }) {
     user {
       name,
@@ -571,6 +577,8 @@ mutation {
   	userData: {
     	name: "Branden"
     	bio: "Sweet Hater of Science"
+      email: "email@email.com"
+      password: "password"
   	}
 	) {
     id
