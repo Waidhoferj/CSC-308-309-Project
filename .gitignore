@@ -3,6 +3,7 @@ __pycache__
 settings.json
 backend/secrets.py
 backend/Pipfile.lock
+backend/.env
 frontend/package-lock.json
 
 *.icloud

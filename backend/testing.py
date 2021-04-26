@@ -1,6 +1,5 @@
 from models import User, Artwork, Portfolio, Achievement, UserMetrics, Comment
 from mongoengine import connect
-from secrets import DB_ACTUAL_URI, DB_TESTING_URI
 from schema import schema
 from graphene.test import Client
 import base64

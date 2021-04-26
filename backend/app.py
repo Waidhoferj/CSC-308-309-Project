@@ -7,6 +7,7 @@ import argparse
 from mongoengine import connect
 import importlib
 from flask_cors import CORS
+import os
 
 
 app = Flask(__name__)
@@ -28,7 +29,13 @@ if __name__ == '__main__':
         print("Could not find secrets.py file, using dev server instead")
         use_local_dev = True
     print(f"Using {'local' if use_local_dev else 'remote'} server...")
-    database_uri = "mongomock://localhost" if use_local_dev else secrets.DB_TESTING_URI
+    try:
+        DB_USERNAME = os.getenv('DB_USERNAME')
+        DB_PASSWORD = os.getenv('DB_PASSWORD')
+        DB_TESTING_NAME = os.getenv('DB_TESTING_NAME')
+    except:
+        raise Exception("Missing one or more environmental variables")
+    database_uri = "mongomock://localhost" if use_local_dev else f"mongodb+srv://{DB_USERNAME}:{DB_PASSWORD}@geoart.0gfam.mongodb.net/{DB_TESTING_NAME}?retryWrites=true&w=majority"  # secrets.DB_TESTING_URI
     connect(host=database_uri)
     if use_local_dev:
         if execute_tests:
