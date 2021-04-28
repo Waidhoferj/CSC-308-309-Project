@@ -1,4 +1,4 @@
-import "./NewAccount.scss";
+import "./SignUp.scss";
 
 import { useMutation, gql } from "@apollo/client";
 import { useForm } from "react-hook-form";
