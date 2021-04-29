@@ -33,6 +33,9 @@ if __name__ == '__main__':
         DB_USERNAME = os.getenv('DB_USERNAME')
         DB_PASSWORD = os.getenv('DB_PASSWORD')
         DB_TESTING_NAME = os.getenv('DB_TESTING_NAME')
+        PORT = int(os.getenv("PORT", 8080))
+        DEBUG_MODE = int(os.getenv("DEBUG_MODE", 1))
+        
     except:
         raise Exception("Missing one or more environmental variables")
     database_uri = "mongomock://localhost" if use_local_dev else f"mongodb+srv://{DB_USERNAME}:{DB_PASSWORD}@geoart.0gfam.mongodb.net/{DB_TESTING_NAME}?retryWrites=true&w=majority"  # secrets.DB_TESTING_URI
@@ -42,4 +45,5 @@ if __name__ == '__main__':
             testing_boot_up() # must use both local and testing tag to get here
         else:
             init_db()
-    app.run(debug=True)
+    print(PORT, DEBUG_MODE)
+    app.run(host="0.0.0.0", debug=DEBUG_MODE, port=PORT)
