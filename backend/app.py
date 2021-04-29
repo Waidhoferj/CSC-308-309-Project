@@ -45,5 +45,4 @@ if __name__ == '__main__':
             testing_boot_up() # must use both local and testing tag to get here
         else:
             init_db()
-    print(PORT, DEBUG_MODE)
     app.run(host="0.0.0.0", debug=DEBUG_MODE, port=PORT)
