@@ -11,6 +11,7 @@ mongomock = "*"
 dnspython = "*"
 flask-cors = "*"
 pycodestyle = "*"
+gunicorn = "*"
 
 [dev-packages]
 
