@@ -38,8 +38,8 @@ if __name__ == '__main__':
         
     except:
         raise Exception("Missing one or more environmental variables")
-    database_uri = "mongomock://localhost" if use_local_dev else f"mongodb+srv://{DB_USERNAME}:{DB_PASSWORD}@geoarttesting.0gfam.mongodb.net/{DB_TESTING_NAME}?retryWrites=true&w=majority"  # secrets.DB_TESTING_URI
-    connect(db=DB_TESTING_NAME, alias="default", host=database_uri, port=PORT)
+    database_uri = "mongomock://localhost" if use_local_dev else f"mongodb+srv://{DB_USERNAME}:{DB_PASSWORD}@geoart.0gfam.mongodb.net/{DB_TESTING_NAME}?retryWrites=true&w=majority"  # secrets.DB_TESTING_URI
+    connect(alias="default", host=database_uri)
     if use_local_dev:
         if execute_tests:
             testing_boot_up() # must use both local and testing tag to get here
