@@ -375,6 +375,27 @@ class DiscussionCommentMutation(graphene.Mutation):
     artwork.save()
     return DiscussionCommentMutation(comment=c)
 
+  
+class GroupDiscussionCommentMutation(graphene.Mutation):
+  """
+  Adds a comment to the group page of an artwork.
+  """
+  class Arguments:
+      group_id = graphene.ID(required=True)
+      comment = CommentInput(required=True)
+  
+  comment = graphene.Field(CommentType)
+
+  def mutate(self, info, group_id=None, comment=None ):
+    # Find the user and the artwork and create a new comment.
+    
+    group: Group = Group.objects.get(pk=decodeId(group_id))
+    user : User = User.objects.get(pk=decodeId(comment.author))
+    c = Comment(author=user, content=comment.content)
+    group.chat.append(c)
+    group.save()
+    return GroupDiscussionCommentMutation(comment=c)
+
 
 
 class UpdateArtworkMutation(graphene.Mutation):
