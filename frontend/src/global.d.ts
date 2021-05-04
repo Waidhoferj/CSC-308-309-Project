@@ -1,6 +1,6 @@
 interface DiscussionComment {
-  author: String;
-  content: String;
+  author: string;
+  content: string;
   datePosted: Date;
 }
 

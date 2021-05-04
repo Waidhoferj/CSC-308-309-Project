@@ -1,17 +1,15 @@
 import "./Discussion.scss"
-import {useQuery, useMutation, gql, DocumentNode} from "@apollo/client"
+import {useQuery, useMutation, DocumentNode} from "@apollo/client"
 import {useRef, useEffect, useMemo } from "react"
-import {useParams, useHistory} from "react-router-dom"
+import {useHistory} from "react-router-dom"
 
 import {
     ArrowLeft,
     Send
   } from "react-feather";
 import useProfileInfo from "../../hooks/useProfileInfo";
-
-
-
-
+import Spinner from "../../components/Spinner/Spinner";
+import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 
 interface DiscussionProps {
   fetchQuery: DocumentNode;
@@ -22,14 +20,23 @@ interface DiscussionProps {
 }
 
 export default function Discussion(props : DiscussionProps) {
-
-    const {loading, data, error} = useQuery(props.fetchQuery, {variables: props.fetchVariables, pollInterval: 500});
-    const {comments, picture} = useMemo(() => props.commentResolver(data), [data])
+    const {loading, data, error, startPolling, stopPolling} = useQuery(props.fetchQuery, {variables: props.fetchVariables});
+    const {commentResolver} = props
+    const {comments, picture} = useMemo(() => commentResolver(data), [data, commentResolver])
     const {profile} = useProfileInfo()
     const [sendMessage] = useMutation(props.postMutation)
     const {goBack} = useHistory()
-    const {id:artworkId} = useParams<{id:string}>()
     const contentRef = useRef<HTMLUListElement | null>(null)
+
+    const headerStyles = {
+      background: picture ? "transparent" : "linear-gradient(90deg, #32a6ff70, transparent)"
+    }
+
+    // Only poll when on the discussion page.
+    useEffect(() => {
+      startPolling(500);
+      return () => stopPolling()
+    }, [startPolling, stopPolling])
 
   function postMessage(message: string) {
     if(!profile) return;
@@ -39,9 +46,10 @@ export default function Discussion(props : DiscussionProps) {
       contentRef.current?.scrollTo(0, contentRef.current.scrollHeight)
     }, 700)
   }
-
+    if(loading) return <Spinner absCenter={true}/>
+    else if(error) return <ConnectionErrorMessage>Couldn't find the conversation.</ConnectionErrorMessage>
     return <article className="Discussion">
-        <header>
+        <header style={headerStyles}>
         {picture && <img src={picture} alt="Art" />}
         <button className="wrapper back-button" onClick={goBack}>
           <ArrowLeft />
@@ -49,7 +57,9 @@ export default function Discussion(props : DiscussionProps) {
         <h1>Discussion</h1>
       </header>
       <ul className="content" ref={contentRef}>
-            {comments.map((data, i) => <CommentCard key={i} {...data}/>)}
+            {comments.length ? 
+            comments.map((data, i) => <CommentCard key={i} {...data}/>) :
+            <p className="absolute-center">Looks like you are the first one here, start the discussion!</p>}
         <MessageComposer onSend={postMessage}/>
       </ul>
     </article>

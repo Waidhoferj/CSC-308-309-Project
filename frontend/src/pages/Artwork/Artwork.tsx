@@ -21,7 +21,7 @@ import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import { useParams, useHistory, Route, Switch } from "react-router-dom";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 
 export default function Artwork() {
   const { goBack, push } = useHistory();
@@ -119,7 +119,12 @@ export default function Artwork() {
         <ArtReview artwork={artwork} />
       </Route>
       <Route exact path="/artwork/:id/discussion">
-        <Discussion fetchQuery={GET_ARTWORK_DISCUSSION} fetchVariables={{id}} commentResolver={artCommentResolver} postMutation={POST_DISCUSSION_MESSAGE} postResolver={artPostResolver} />
+        <Discussion 
+        fetchQuery={GET_ARTWORK_DISCUSSION} 
+        fetchVariables={{id}} 
+        commentResolver={artCommentResolver} 
+        postMutation={POST_DISCUSSION_MESSAGE} 
+        postResolver={artPostResolver} />
       </Route>
     </Switch>
   );

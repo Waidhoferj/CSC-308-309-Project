@@ -80,7 +80,7 @@ interface ArtworkCommentData {
 }
 
 /**
- * Handles retrieving artwork comments from the server.
+ * Turns gql data into a list of comments and an image.
  */
 export function artCommentResolver(
   data: ArtworkCommentData | undefined

@@ -46,7 +46,6 @@ export default function ArtSubmission() {
   const { profile } = useProfileInfo();
   const { id } = useParams();
 
-  //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
     const payload = {
       reportedIdType: "report",
@@ -56,8 +55,6 @@ export default function ArtSubmission() {
       description: data.description,
     };
 
-    //debugger
-    //console.log(payload)
     submitReport({ variables: payload }).then((res) => {
       history.push("/artwork/" + id);
     });
