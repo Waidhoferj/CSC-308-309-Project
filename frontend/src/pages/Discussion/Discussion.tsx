@@ -1,61 +1,39 @@
 import "./Discussion.scss"
-import {useQuery, useMutation, gql} from "@apollo/client"
-import {useRef, useEffect } from "react"
+import {useQuery, useMutation, gql, DocumentNode} from "@apollo/client"
+import {useRef, useEffect, useMemo } from "react"
 import {useParams, useHistory} from "react-router-dom"
 
 import {
     ArrowLeft,
     Send
   } from "react-feather";
-import useProfileInfo from "../../../../hooks/useProfileInfo";
+import useProfileInfo from "../../hooks/useProfileInfo";
 
-const GET_DISCUSSION = gql`
-query getDiscussion($id: ID!) {
-  artwork(id: $id) {
-    edges {
-      node {
-        pictures
-        comments {
-          edges {
-            node {
-              content
-              datePosted
-              author {
-                  name
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+
+
+
+
+interface DiscussionProps {
+  fetchQuery: DocumentNode;
+  fetchVariables: object;
+  commentResolver: (fetchResult: any) => {comments: DiscussionComment[], picture?: string};
+  postMutation: DocumentNode,
+  postResolver: (postInfo : {message: string, author: string}) => object;
 }
-`
 
-const POST_MESSAGE = gql`
-  mutation postMessage($id : ID!, $content: String!, $author: ID!) {
-    addArtworkComment(artworkId: $id, comment: {
-    content: $content
-    author: $author
-  }) {
-    comment {
-      content
-    }
-  }
-  }
-`
+export default function Discussion(props : DiscussionProps) {
 
-export default function Discussion() {
-    const {comments, picture} = useComments()
+    const {loading, data, error} = useQuery(props.fetchQuery, {variables: props.fetchVariables, pollInterval: 500});
+    const {comments, picture} = useMemo(() => props.commentResolver(data), [data])
     const {profile} = useProfileInfo()
-    const [sendMessage] = useMutation(POST_MESSAGE)
+    const [sendMessage] = useMutation(props.postMutation)
     const {goBack} = useHistory()
     const {id:artworkId} = useParams<{id:string}>()
     const contentRef = useRef<HTMLUListElement | null>(null)
 
   function postMessage(message: string) {
     if(!profile) return;
-    sendMessage({variables: {id: artworkId, content: message, author: profile.id}})
+    sendMessage({variables: props.postResolver({message, author: profile.id})})
     // Scroll to bottom after submitting.
     setTimeout(() => {
       contentRef.current?.scrollTo(0, contentRef.current.scrollHeight)
@@ -64,28 +42,23 @@ export default function Discussion() {
 
     return <article className="Discussion">
         <header>
-        <img src={picture} alt="Art" />
+        {picture && <img src={picture} alt="Art" />}
         <button className="wrapper back-button" onClick={goBack}>
           <ArrowLeft />
         </button>
         <h1>Discussion</h1>
       </header>
       <ul className="content" ref={contentRef}>
-            {comments.map((data, i) => <Comment key={i} {...data}/>)}
+            {comments.map((data, i) => <CommentCard key={i} {...data}/>)}
         <MessageComposer onSend={postMessage}/>
       </ul>
     </article>
 
 }
 
-type CommentProps = {
-    author: String,
-    content: String,
-    datePosted: Date
-}
 
 
-function Comment(props: CommentProps) {
+function CommentCard(props: DiscussionComment) {
     const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
     const dateStr:string = props.datePosted.toLocaleString("en", dateOptions)
     return <li className="Comment">
@@ -97,28 +70,9 @@ function Comment(props: CommentProps) {
     </li>
 }
 
-type GqlCommentData = {
-    content: string,
-    datePosted: string,
-    author: {
-        name : string
-    },
 
-}
 
-/**
- * Handles retrieving artwork comments from the server.
- */
-function useComments() : {picture: string, comments: CommentProps[]} {
-    const {id} = useParams<{id:string}>()
-    const {loading, data, error} = useQuery(GET_DISCUSSION, {variables: {id}, pollInterval: 500});
-    const hasNoData = loading || error
-    const comments: CommentProps[] = hasNoData ? [] : data.artwork.edges?.[0]
-    .node.comments.edges.map(({node}:{node : GqlCommentData}) => 
-    ({content: node.content, author: node.author.name, datePosted: new Date(node.datePosted)}))
-    const picture = hasNoData ? "" : data.artwork.edges?.[0].node.pictures[0]
-    return {comments, picture}
-}
+
 
 
 function MessageComposer({ onSend }: {onSend : (text: string) => void}) {
