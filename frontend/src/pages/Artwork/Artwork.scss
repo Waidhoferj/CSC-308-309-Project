@@ -3,7 +3,8 @@
     $abs-pad: 30px;
     position: relative;
     width: 100%;
-    height: 50vh;
+    height: 500px;
+    max-height: 30vh;
 
     img {
       width: 100%;
@@ -17,7 +18,7 @@
       left: $abs-pad;
       color: white;
       margin: 0;
-      filter: var(--text-shadow)
+      filter: var(--text-shadow);
     }
 
     .back-button {
@@ -26,7 +27,7 @@
       left: $abs-pad;
 
       svg {
-        filter: var(--text-shadow)
+        filter: var(--text-shadow);
       }
     }
 
