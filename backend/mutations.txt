@@ -1,0 +1,251 @@
+example mutations in graphql interface (see testing.py for more)
+---------------------------------------
+
+Creates user and returns most relevant information about them:
+
+mutation {
+  createUser(userData: {
+    name: "Tony Richard",
+    bio: "Very Happy Boi",
+    email: "email@email.com"
+    password: "password"
+    profilePic: "ijf092ct890t423m98rym230948yrm32409r8y23m490asf"
+  }) {
+    user {
+      name,
+      bio,
+      dateJoined,
+      metrics {
+        worksVisited,
+        worksFound
+      }
+      achievements {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+      }
+      personalPortfolio {
+        artworks {
+          edges {
+            node {
+              id,
+              title
+            }
+          }
+        }
+      }
+      groups {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      settings {
+        autoAddToGroupPortfolio
+      }
+    }
+  }
+}
+
+shorthand without extra query:
+
+mutation {
+  createUser(
+  	userData: {
+    	name: "Branden"
+    	bio: "Sweet Hater of Science"
+      email: "email@email.com"
+      password: "password"
+  	}
+	) {
+    id
+    user {
+      name
+    }
+  }  
+}
+
+update user using user id:
+
+mutation {
+  updateUser(userData: {
+    id: "6046714c0638939d05aac6ca"
+    bio: "Very Happy Boi, and not yet ready to go",
+    
+  }) {
+    user {
+      id,
+      name,
+      bio,
+      dateJoined,
+      metrics {
+        worksVisited,
+        worksFound
+      }
+      achievements {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+      }
+      personalPortfolio {
+        artworks {
+          edges {
+            node {
+              id,
+              title
+            }
+          }
+        }
+      }
+      groups {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      settings {
+        autoAddToGroupPortfolio
+      }
+    }
+  }
+}
+
+create artwork mutation ex:
+
+mutation {
+  createArtwork(artworkData: {
+    title: "Hidden Subway Mural",
+    description: "Far side of the subway station has a double walled mural."
+    foundBy: "603f37cc87708975e37f8b9c",
+    location: [-120.677494, 35.292708],
+    rating: 55.0,
+    tags: ["beautiful", "colorful"]
+    }) {
+    artwork {
+      id
+      title
+    }
+  }
+}
+
+update artwork mutation ex:
+
+mutation {
+  updateArtwork(artworkData: {
+    id: "603f4675869f6fe8ca22e226",
+    description: "Wall full of fire"
+    rating: 80.0,
+    }) {
+    artwork {
+      title
+    }
+  }
+}
+
+delete artwork mutation ex:
+
+mutation {
+  deleteArtwork(id:"6039777712563c35fb0d6bc0") {
+    success
+  }
+}
+
+add artwork review mutation ex:
+
+mutation {
+  addArtworkReview(reviewData: {
+    artworkId: "QXJ0d29ya1R5cGU6SGlkZGVuIFNzZGZnc2Rnc3VyYQ==",
+    comment: {
+      author: "VXNlclR5cGU6YnJhZGVuQGdtYWlsLmNvbQ=="
+      content: "I love this art!",
+    }
+    rating: 80,
+    tags: ["Added_Tag"]
+  }) {
+    artwork {
+      id
+      title
+      rating
+      numRatings
+    }
+  }    
+}
+
+create group mutation ex:
+
+mutation {
+  createGroup(groupData: {
+    name: "GeoArtBoys",
+    bio: "Geography lovers who take pics",
+    memberToAdd: "braden@gmail.com"
+    }) {
+    group {
+      id
+      name
+      bio
+      members {
+        edges {
+          node {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+update group mutation ex (Adding new member): 
+
+mutation {
+  updateGroup(groupData: {{
+    id: "{0}",
+    memberToAdd: "{1}"
+  }}) {{
+      group {{
+          id
+          name
+          bio
+          members {{
+              edges {{
+                  node {{
+                      name
+                  }}
+              }}
+          }}
+      }}
+  }}
+}}"""
+
+create report ex:
+
+mutation {
+  createReport(
+  	reportData: {
+    	reportedIdType: "report"
+    	reportedId: "sadjfoisdj"
+    	userId: "sdifjosdaij"
+    	reason: "innapropriate"
+    	description: "It is some man's forhead"
+  	}
+	) {
+    report {
+      reportedIdType
+      reportedId
+      userId
+      reason
+      description
+    }
+  }  
+}
+
+

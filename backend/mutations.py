@@ -1,26 +1,24 @@
 import graphene
 from bson import ObjectId
 from graphene.types.scalars import ID
-from models import User, UserMetrics, Portfolio, Settings, Achievement, Group, Artwork, ArtworkMetrics, Comment
-from models import Report
-from api_types import UserType, UserMetricsType, PortfolioType, SettingsType, AchievementType, GroupType
-from api_types import ArtworkType, CommentType, AchievementType, ReportType
+from models import (User, UserMetrics, Portfolio, Settings, Achievement,
+                    Group, Artwork, ArtworkMetrics, Comment, Report)
+from api_types import (UserType, UserMetricsType, PortfolioType, SettingsType,
+                       AchievementType, GroupType, ArtworkType, CommentType,
+                       AchievementType, ReportType)
 import base64
 
 '''
-Need to research more into mutation arguments, but I think how I have them right now is how it should be
 List of possible mutations to make:
 
-    add_to_portfolio - todo
     update_settings
 
-    incrementing metrics mutations (users and artworks) - todo 
-      Can call "checkAchievements" from these mutations instead of main ones   
 '''
 
 # NOTE: reference fields need ObjectId-typed input
-# NOTE: Collection methods - Remove deletes everything in the list, pop removes by index
-# Idea, might wanna store the graphql id in mongodb or vise versa somehow
+# NOTE: Collection methods - Remove deletes everything in the list,
+#       pop removes by index
+
 
 def decodeId(id):
     decoded = base64.b64decode(id)    # ex: b'UserType:braden@n.com'
@@ -40,6 +38,7 @@ def checkAchievements(user):
         user.achievements.append(achievement_to_add)
     return achievements_to_add
 
+
 def compareUserMetrics(user_metrics, achievement_threshold):
     if user_metrics.works_visited < achievement_threshold.works_visited:
         return False
@@ -47,18 +46,20 @@ def compareUserMetrics(user_metrics, achievement_threshold):
         return False
     return True
 
+
 class UserMetricsInput(graphene.InputObjectType):
     works_visited = graphene.Int()
     works_found = graphene.Int()
 
+
 class AchievementInput(graphene.InputObjectType):
-    title = graphene.String() 
+    title = graphene.String()
     description = graphene.String()
     points = graphene.Int()
     threshold = graphene.InputField(UserMetricsInput)
 
+
 class CreateAchievementMutation(graphene.Mutation):
-    # NOTE: only creating achievements because I'm assuming they are made by us and static
     achievement = graphene.Field(AchievementType)
 
     class Arguments:
@@ -69,20 +70,21 @@ class CreateAchievementMutation(graphene.Mutation):
             works_visited=achievement_data.threshold.works_visited,
             works_found=achievement_data.threshold.works_found
         )
-
         achievement = Achievement(
-            title = achievement_data.title,
-            description = achievement_data.description,
-            points = achievement_data.points,
-            threshold = threshold
+            title=achievement_data.title,
+            description=achievement_data.description,
+            points=achievement_data.points,
+            threshold=threshold
         )
         achievement.save()
 
         return CreateAchievementMutation(achievement=achievement)
 
+
 class CommentInput(graphene.InputObjectType):
     author = graphene.ID(required=True)   # User Object id
     content = graphene.String(required=True)
+
 
 class GroupInput(graphene.InputObjectType):
     id = graphene.String()
@@ -92,8 +94,9 @@ class GroupInput(graphene.InputObjectType):
     member_to_kick = graphene.String()    # User Object id
     art_to_add = graphene.String()    # Artwork Object id
     art_to_remove = graphene.String()     # Artwork Object id
-    comment_to_add = graphene.InputField(CommentInput)      # Actual comment data
-    comment_to_remove = graphene.String()  # Comment object id (could also do index here)
+    comment_to_add = graphene.InputField(CommentInput)  # Actual comment data
+    comment_to_remove = graphene.String()  # Comment object id
+
 
 class CreateGroupMutation(graphene.Mutation):
     # Need a user id with input (member_to_add)
@@ -104,17 +107,17 @@ class CreateGroupMutation(graphene.Mutation):
 
     def mutate(self, info, group_data=None):
         group_portfolio = Portfolio()
-        
         group = Group(
-            name = group_data.name,
-            bio = group_data.bio,    # not required by model, will assume frontend filters input
-            members = [UpdateUserMutation.getUser(group_data.member_to_add)],
-            group_portfolio = group_portfolio,  # not changed at all yet
-            chat = []
+            name=group_data.name,
+            bio=group_data.bio,
+            members=[UpdateUserMutation.getUser(group_data.member_to_add)],
+            group_portfolio=group_portfolio,
+            chat=[]
         )
         group.save()
 
         return CreateGroupMutation(group=group)
+
 
 class UpdateGroupMutation(graphene.Mutation):
     group = graphene.Field(GroupType)
@@ -125,43 +128,54 @@ class UpdateGroupMutation(graphene.Mutation):
     @staticmethod
     def getGroup(id, decode=True):   # can also check for none here
         return Group.objects.get(pk=decodeId(id))
-    
+
     def mutate(self, info, group_data=None):
         group = UpdateGroupMutation.getGroup(group_data.id)
-        if group_data.name:
-            group.name = group_data.name
         if group_data.bio:
             group.bio = group_data.bio
         if group_data.member_to_add:
             memberToAdd = UpdateUserMutation.getUser(group_data.member_to_add)
             group.members.append(memberToAdd)
+        # NOTE: below causes race condition,
+        #       need a specific mutation for removing self from group
         if group_data.member_to_kick:
-            memberToKick = UpdateUserMutation.getUser(group_data.member_to_kick)
+            memberToKick = (UpdateUserMutation.
+                            getUser(group_data.member_to_kick))
             index = group.members.index(memberToKick)
             if index == -1:
-                print(f"Member ({memberToKick.id}) is not a member of {group.name}")
+                print((f"Member ({memberToKick.id}) "
+                      f"is not a member of {group.name}"))
             else:
                 group.members.pop(index)
-            if len(group.members) == 0: # not tested
+            if len(group.members) == 0:  # need to test cascade deletion
                 return DeleteGroupMutation(id=group.id)
+        # NOTE: create add to group portfolio mutation
+        #       input: artwork_id, group_id
         if group_data.art_to_add:   # not tested
             artToAdd = UpdateArtworkMutation.getArtwork(group_data.art_to_add)
             group.group_portfolio.artworks.append(artToAdd)
+        # NOTE: likely delete this, we don't want to remove art from group
         if group_data.art_to_remove:    # not tested
-            artworkToRemove = UpdateArtworkMutation.getArtwork(group_data.art_to_remove)
+            artworkToRemove = (UpdateArtworkMutation.
+                               getArtwork(group_data.art_to_remove))
             index = group.group_portfolio.artworks.index(artworkToRemove)
             if index == -1:
                 print(f"Art ({artToRemove.id}) is not in Group's portfolio")
             else:
                 group.group_portfolio.artworks.pop(index)
+        # NOTE: delete if John's mutation covers this
         if group_data.comment_to_add:   # not tested
             commentToAdd = Comment(
-                author = UpdateUserMutation.getUser(group_data.comment_to_add.author),
-                content = group_data.comment_to_add.content
+                author=(UpdateUserMutation.
+                        getUser(group_data.comment_to_add.author)),
+                content=group_data.comment_to_add.content
             )
             group.chat.append(commentToAdd)
+        # NOTE: this is only effective if
+        #       we can confirm comment is from current user
         if group_data.comment_to_remove:    # not tested
-            commentToRemove = Comment.objects.get(pk=decodeId(group_data.comment_to_remove))
+            commentToRemove = (Comment.objects.
+                               get(pk=decodeId(group_data.comment_to_remove)))
             index = group.chat.index(commentToRemove)
             if index == -1:
                 print(f"Comment ({artToRemove.id}) is not in Group's chat")
@@ -171,7 +185,8 @@ class UpdateGroupMutation(graphene.Mutation):
 
         return UpdateGroupMutation(group=group)
 
-class DeleteGroupMutation(graphene.Mutation): # assume works but haven't tried
+
+class DeleteGroupMutation(graphene.Mutation):  # ensure cascade
     class Arguments:
         id = graphene.ID(required=True)
 
@@ -186,6 +201,7 @@ class DeleteGroupMutation(graphene.Mutation): # assume works but haven't tried
             return
 
         return DeleteGroupMutation(success=success)
+
 
 class UserSettingsInput(graphene.InputObjectType):
     autoAddToGroupPortfolio = graphene.Boolean()
@@ -254,22 +270,17 @@ class UpdateUserMutation(graphene.Mutation):
         return User.objects.get(pk=decodeId(id))
 
     def mutate(self, info, user_data=None):
+        '''
+        Need separate mutations for:
+          - change email
+          - change password
+        '''
+        
         user = UpdateUserMutation.getUser(user_data.id)
         if user_data.name:
             user.name = user_data.name
         if user_data.bio:
             user.bio = user_data.bio
-        if user_data.email: # don't think I want this while primary key is email
-            user.email = user_data.email
-        if user_data.password:
-            user.password = user_data.password
-        if user_data.metrics:
-            user.metrics = UserMetrics(
-                works_visited = user_data.metrics.works_visited,
-                works_found = user_data.metrics.works_found
-            )
-        if user_data.achievement:
-            user.achievements.append(Achievement.objects.get(pk=decodeId(user_data.achievement))) 
         if user_data.art_to_add:
             artToAdd = UpdateArtworkMutation.getArtwork(user_data.art_to_add)
             # Check if none
@@ -285,7 +296,7 @@ class UpdateUserMutation(graphene.Mutation):
             user.groups.append(UpdateGroupMutation.getGroup(user_data.group))
         if user_data.settings: # to be tested but I imagine works
             user.settings = Settings(
-                autoAddToGroupPortfolio = settings.autoAddToGroupPortfolio
+                autoAddToGroupPortfolio=settings.autoAddToGroupPortfolio
             )
         # Need to add success/failure responses
         checkAchievements(user)
@@ -336,20 +347,20 @@ class CreateArtworkMutation(graphene.Mutation):
     def mutate(self, info, artwork_data=None):
         metrics = ArtworkMetrics()
         artwork = Artwork(
-            title = artwork_data.title,
-            artist = artwork_data.artist,
-            description = artwork_data.description,
-            pictures = artwork_data.pictures if artwork_data.pictures else [],
-            found_by = decodeId(artwork_data.found_by),   # might wanna error check
-            location = {
+            title=artwork_data.title,
+            artist=artwork_data.artist,
+            description=artwork_data.description,
+            pictures=artwork_data.pictures if artwork_data.pictures else [],
+            found_by=decodeId(artwork_data.found_by),   # might wanna error check
+            location={
                 "type": "Point",
                 "coordinates": [artwork_data.location[0], artwork_data.location[1]]
             },
-            metrics = metrics,
-            num_ratings = artwork_data.num_ratings,
-            rating = artwork_data.rating,
-            comments = [],
-            tags = artwork_data.tags
+            metrics=metrics,
+            num_ratings=artwork_data.num_ratings,
+            rating=artwork_data.rating,
+            comments=[],
+            tags=artwork_data.tags
         )
         artwork.save()
         # Add artwork to user portfolio
@@ -402,7 +413,6 @@ class GroupDiscussionCommentMutation(graphene.Mutation):
     return GroupDiscussionCommentMutation(comment=c)
 
 
-
 class UpdateArtworkMutation(graphene.Mutation):
     artwork = graphene.Field(ArtworkType)
 
@@ -415,33 +425,13 @@ class UpdateArtworkMutation(graphene.Mutation):
 
     def mutate(self, info, artwork_data=None):
         artwork = UpdateArtworkMutation.getArtwork(artwork_data.id)
-        if artwork_data.title:
-            artwork.title = artwork_data.title
         if artwork_data.artist:
             artwork.artist = artwork_data.artist
         if artwork_data.description:
             artwork.description = artwork_data.description
         if artwork_data.picture_to_add:
             artwork.pictures.append(artwork_data.picture_to_add)
-        if artwork_data.found_by:   # not tested, but this also shouldn't change after artwork creation
-            artwork.found_by = decodeId(artwork_data.found_by)
-        if artwork_data.location: # not tested, but this also shouldn't change after artwork creation
-            artwork.location = {
-                "type": "Point",
-                "coordinates": [artwork_data.location[0], artwork_data.location[1]]
-            }
-        if artwork_data.metrics: # not tested
-            artwork.metrics = ArtworkMetrics(
-                total_visits = artwork_data.metrics.total_visits
-            )
-        if artwork_data.num_ratings:
-            artwork.num_ratings = artwork_data.num_ratings
-        if artwork_data.rating:     # Might get rid of because changing breaks dependency with num_ratings
-            artwork.rating = artwork_data.rating
-        if artwork_data.comment:    # not tested and probably need to add more logic to control comments
-            artwork.comments.append(artwork_data.comment)
-        if artwork_data.tags:        # not tested, and might wanna add additional logic
-            artwork.tags = artwork_data.tags
+        # add picture to remove
         artwork.save()
 
         return UpdateArtworkMutation(artwork=artwork)
@@ -490,8 +480,8 @@ class AddArtworkReviewMutation(graphene.Mutation):
             return
         if review_data.comment: # to test
             artwork.comments.append(Comment(
-              author = decodeId(review_data.comment.author),
-              content = review_data.comment.content))
+              author=decodeId(review_data.comment.author),
+              content=review_data.comment.content))
         if review_data.rating:  # to test
             artwork.num_ratings += 1    # NOTE: incrementing num_ratings BEFORE updating average
             artwork.rating = addArtworkRating(artwork.rating, review_data.rating, artwork.num_ratings)
@@ -519,11 +509,11 @@ class CreateReportMutation(graphene.Mutation):
 
     def mutate(self, info, report_data=None):
         report = Report(
-            reported_id_type = report_data.reported_id_type,
-            reported_id = report_data.reported_id,
-            user_id = report_data.user_id,
-            reason = report_data.reason,
-            description = report_data.description
+            reported_id_type=report_data.reported_id_type,
+            reported_id=report_data.reported_id,
+            user_id=report_data.user_id,
+            reason=report_data.reason,
+            description=report_data.description
         )
         report.save()
 
@@ -552,270 +542,3 @@ class AuthenticateUserMutation(graphene.Mutation):
             return AuthenticateUserMutation(user=None, success=False)
 
         return AuthenticateUserMutation(user=user, success=True)
-
-
-''' 
-Geospatial Indexing Links:
-    https://docs.mongodb.com/manual/geospatial-queries/
-    https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex
-    https://www.youtube.com/watch?v=iGnSNfzaLf4&ab_channel=Udacity
-    https://docs.mongoengine.org/guide/defining-documents.html# 
-    https://docs.mongoengine.org/guide/querying.html#advanced-queries - will want to use near
-
-'''
-
-'''
-example mutations in graphql interface (see testing.py for more)
----------------------------------------
-
-Creates user and returns most relevant information about them:
-
-mutation {
-  createUser(userData: {
-    name: "Tony Richard",
-    bio: "Very Happy Boi",
-    email: "email@email.com"
-    password: "password"
-    profilePic: "ijf092ct890t423m98rym230948yrm32409r8y23m490asf"
-  }) {
-    user {
-      name,
-      bio,
-      dateJoined,
-      metrics {
-        worksVisited,
-        worksFound
-      }
-      achievements {
-        edges {
-          node {
-            id
-            title
-          }
-        }
-      }
-      personalPortfolio {
-        artworks {
-          edges {
-            node {
-              id,
-              title
-            }
-          }
-        }
-      }
-      groups {
-        edges {
-          node {
-            id
-            name
-          }
-        }
-      }
-      settings {
-        autoAddToGroupPortfolio
-      }
-    }
-  }
-}
-
-shorthand without extra query:
-
-mutation {
-  createUser(
-  	userData: {
-    	name: "Branden"
-    	bio: "Sweet Hater of Science"
-      email: "email@email.com"
-      password: "password"
-  	}
-	) {
-    id
-    user {
-      name
-    }
-  }  
-}
-
-update user using user id:
-
-mutation {
-  updateUser(userData: {
-    id: "6046714c0638939d05aac6ca"
-    bio: "Very Happy Boi, and not yet ready to go",
-    
-  }) {
-    user {
-      id,
-      name,
-      bio,
-      dateJoined,
-      metrics {
-        worksVisited,
-        worksFound
-      }
-      achievements {
-        edges {
-          node {
-            id
-            title
-          }
-        }
-      }
-      personalPortfolio {
-        artworks {
-          edges {
-            node {
-              id,
-              title
-            }
-          }
-        }
-      }
-      groups {
-        edges {
-          node {
-            id
-            name
-          }
-        }
-      }
-      settings {
-        autoAddToGroupPortfolio
-      }
-    }
-  }
-}
-
-create artwork mutation ex:
-
-mutation {
-  createArtwork(artworkData: {
-    title: "Hidden Subway Mural",
-    description: "Far side of the subway station has a double walled mural."
-    foundBy: "603f37cc87708975e37f8b9c",
-    location: [-120.677494, 35.292708],
-    rating: 55.0,
-    tags: ["beautiful", "colorful"]
-    }) {
-    artwork {
-      id
-      title
-    }
-  }
-}
-
-update artwork mutation ex:
-
-mutation {
-  updateArtwork(artworkData: {
-    id: "603f4675869f6fe8ca22e226",
-    description: "Wall full of fire"
-    rating: 80.0,
-    }) {
-    artwork {
-      title
-    }
-  }
-}
-
-delete artwork mutation ex:
-
-mutation {
-  deleteArtwork(id:"6039777712563c35fb0d6bc0") {
-    success
-  }
-}
-
-add artwork review mutation ex:
-
-mutation {
-  addArtworkReview(reviewData: {
-    artworkId: "QXJ0d29ya1R5cGU6SGlkZGVuIFNzZGZnc2Rnc3VyYQ==",
-    comment: {
-      author: "VXNlclR5cGU6YnJhZGVuQGdtYWlsLmNvbQ=="
-      content: "I love this art!",
-    }
-    rating: 80,
-    tags: ["Added_Tag"]
-  }) {
-    artwork {
-      id
-      title
-      rating
-      numRatings
-    }
-  }    
-}
-
-create group mutation ex:
-
-mutation {
-  createGroup(groupData: {
-    name: "GeoArtBoys",
-    bio: "Geography lovers who take pics",
-    memberToAdd: "braden@gmail.com"
-    }) {
-    group {
-      id
-      name
-      bio
-      members {
-        edges {
-          node {
-            name
-          }
-        }
-      }
-    }
-  }
-}
-
-update group mutation ex (Adding new member): 
-
-mutation {
-  updateGroup(groupData: {{
-    id: "{0}",
-    memberToAdd: "{1}"
-  }}) {{
-      group {{
-          id
-          name
-          bio
-          members {{
-              edges {{
-                  node {{
-                      name
-                  }}
-              }}
-          }}
-      }}
-  }}
-}}"""
-
-create report ex:
-
-mutation {
-  createReport(
-  	reportData: {
-    	reportedIdType: "report"
-    	reportedId: "sadjfoisdj"
-    	userId: "sdifjosdaij"
-    	reason: "innapropriate"
-    	description: "It is some man's forhead"
-  	}
-	) {
-    report {
-      reportedIdType
-      reportedId
-      userId
-      reason
-      description
-    }
-  }  
-}
-
-
-'''
-
-
