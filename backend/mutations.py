@@ -445,7 +445,6 @@ class GroupDiscussionCommentMutation(graphene.Mutation):
         group.save()
         return GroupDiscussionCommentMutation(comment=c)
 
-
 class UpdateArtworkMutation(graphene.Mutation):
     """ Updates the attributes of an already created artwork """
     artwork = graphene.Field(ArtworkType)
