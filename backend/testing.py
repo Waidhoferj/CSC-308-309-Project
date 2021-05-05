@@ -6,6 +6,7 @@ import base64
 import os
 import random
 from typing import List
+import datetime
 
 
 def testing_boot_up():
@@ -418,8 +419,17 @@ def get_comments(num_comments:int, users: List[User]) -> List[Comment]:
         "I started painting as a hobby when I was little. I didn’t know I had any talent. I believe talent is just a pursued interest. Anybody can do what I do."
     ]
 
-
-    comments = [Comment(author=random.choice(users), content=random.choice(content_lib)) for x in range(num_comments)]
+    start_date = datetime.date(2020, 1, 1)
+    end_date = datetime.datetime.now().date()
+    time_between_dates = end_date - start_date
+    
+    comments = []
+    for _ in range(num_comments):
+        random_number_of_days = random.randrange(time_between_dates.days)
+        rand_date = start_date + datetime.timedelta(days=random_number_of_days)
+        rand_datetime = datetime.datetime.combine(rand_date, datetime.datetime.min.time())
+        comment = Comment(author=random.choice(users), content=random.choice(content_lib), date_posted=rand_datetime)
+        comments.append(comment)
     return comments
 
 

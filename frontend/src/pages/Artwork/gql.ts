@@ -87,11 +87,14 @@ export function artCommentResolver(
 ): { picture: string; comments: DiscussionComment[] } {
   const comments: DiscussionComment[] | undefined = !data
     ? []
-    : data.artwork.edges?.[0].node.comments.edges.map(({ node }) => ({
-        content: node.content,
-        author: node.author.name,
-        datePosted: new Date(node.datePosted),
-      }));
+    : data.artwork.edges?.[0].node.comments.edges.map(({ node }) => {
+        return {
+          content: node.content,
+          author: node.author.name,
+          datePosted: new Date(node.datePosted),
+        };
+      });
   const picture = !data ? "" : data.artwork.edges?.[0].node.pictures[0];
+  comments.sort((a, b) => a.datePosted.getTime() - b.datePosted.getTime());
   return { comments, picture };
 }
