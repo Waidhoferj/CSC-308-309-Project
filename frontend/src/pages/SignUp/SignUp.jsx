@@ -90,7 +90,7 @@ export default function NewAccount() {
       </form>
       <h4>Already have an account?</h4>
       <div>
-        <button onClick={console.log("stop calling me when loading the page")}>Log In</button>
+        <button onClick={() => push("/login")}>Log In</button>
       </div>
     </article>
   );

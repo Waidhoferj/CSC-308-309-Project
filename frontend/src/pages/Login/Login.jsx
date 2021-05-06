@@ -82,7 +82,7 @@ export default function Login() {
       </form>
       <h4>New user?</h4>
       <div>
-        <button onClick={console.log("stop calling me when loading the page")}>Sign Up</button>
+        <button onClick={() => push("/sign-up")}>Sign Up</button>
       </div>
     </article>
   );
