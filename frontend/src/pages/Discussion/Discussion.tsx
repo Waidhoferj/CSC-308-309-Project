@@ -1,91 +1,74 @@
 import "./Discussion.scss"
-import {useQuery, useMutation, gql} from "@apollo/client"
-import {useRef, useEffect } from "react"
-import {useParams, useHistory} from "react-router-dom"
+import {useQuery, useMutation, DocumentNode} from "@apollo/client"
+import {useRef, useEffect, useMemo } from "react"
+import {useHistory} from "react-router-dom"
 
 import {
     ArrowLeft,
     Send
   } from "react-feather";
-import useProfileInfo from "../../../../hooks/useProfileInfo";
+import useProfileInfo from "../../hooks/useProfileInfo";
+import Spinner from "../../components/Spinner/Spinner";
+import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 
-const GET_DISCUSSION = gql`
-query getDiscussion($id: ID!) {
-  artwork(id: $id) {
-    edges {
-      node {
-        pictures
-        comments {
-          edges {
-            node {
-              content
-              datePosted
-              author {
-                  name
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+interface DiscussionProps {
+  fetchQuery: DocumentNode;
+  fetchVariables: object;
+  commentResolver: (fetchResult: any) => {comments: DiscussionComment[], picture?: string};
+  postMutation: DocumentNode,
+  postResolver: (postInfo : {message: string, author: string}) => object;
 }
-`
 
-const POST_MESSAGE = gql`
-  mutation postMessage($id : ID!, $content: String!, $author: ID!) {
-    addArtworkComment(artworkId: $id, comment: {
-    content: $content
-    author: $author
-  }) {
-    comment {
-      content
-    }
-  }
-  }
-`
-
-export default function Discussion() {
-    const {comments, picture} = useComments()
+export default function Discussion(props : DiscussionProps) {
+    const {loading, data, error, startPolling, stopPolling} = useQuery(props.fetchQuery, {variables: props.fetchVariables});
+    const {commentResolver} = props
+    const {comments, picture} = useMemo(() => commentResolver(data), [data, commentResolver])
     const {profile} = useProfileInfo()
-    const [sendMessage] = useMutation(POST_MESSAGE)
+    const [sendMessage] = useMutation(props.postMutation)
     const {goBack} = useHistory()
-    const {id:artworkId} = useParams<{id:string}>()
     const contentRef = useRef<HTMLUListElement | null>(null)
+
+    const headerStyles = {
+      background: picture ? "transparent" : "linear-gradient(90deg, #32a6ff70, transparent)"
+    }
+
+    // Only poll when on the discussion page.
+    useEffect(() => {
+      startPolling(500);
+      return () => stopPolling()
+    }, [startPolling, stopPolling])
 
   function postMessage(message: string) {
     if(!profile) return;
-    sendMessage({variables: {id: artworkId, content: message, author: profile.id}})
+    sendMessage({variables: props.postResolver({message, author: profile.id})})
     // Scroll to bottom after submitting.
     setTimeout(() => {
       contentRef.current?.scrollTo(0, contentRef.current.scrollHeight)
     }, 700)
   }
-
+    if(loading) return <Spinner absCenter={true}/>
+    else if(error) return <ConnectionErrorMessage>Couldn't find the conversation.</ConnectionErrorMessage>
     return <article className="Discussion">
-        <header>
-        <img src={picture} alt="Art" />
+        <header style={headerStyles}>
+        {picture && <img src={picture} alt="Art" />}
         <button className="wrapper back-button" onClick={goBack}>
           <ArrowLeft />
         </button>
         <h1>Discussion</h1>
       </header>
       <ul className="content" ref={contentRef}>
-            {comments.map((data, i) => <Comment key={i} {...data}/>)}
+            {comments.length ? 
+            comments.map((data, i) => <CommentCard key={i} {...data}/>) :
+            <p className="absolute-center">Looks like you are the first one here, start the discussion!</p>}
         <MessageComposer onSend={postMessage}/>
       </ul>
     </article>
 
 }
 
-type CommentProps = {
-    author: String,
-    content: String,
-    datePosted: Date
-}
 
 
-function Comment(props: CommentProps) {
+function CommentCard(props: DiscussionComment) {
     const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
     const dateStr:string = props.datePosted.toLocaleString("en", dateOptions)
     return <li className="Comment">
@@ -97,28 +80,9 @@ function Comment(props: CommentProps) {
     </li>
 }
 
-type GqlCommentData = {
-    content: string,
-    datePosted: string,
-    author: {
-        name : string
-    },
 
-}
 
-/**
- * Handles retrieving artwork comments from the server.
- */
-function useComments() : {picture: string, comments: CommentProps[]} {
-    const {id} = useParams<{id:string}>()
-    const {loading, data, error} = useQuery(GET_DISCUSSION, {variables: {id}, pollInterval: 500});
-    const hasNoData = loading || error
-    const comments: CommentProps[] = hasNoData ? [] : data.artwork.edges?.[0]
-    .node.comments.edges.map(({node}:{node : GqlCommentData}) => 
-    ({content: node.content, author: node.author.name, datePosted: new Date(node.datePosted)}))
-    const picture = hasNoData ? "" : data.artwork.edges?.[0].node.pictures[0]
-    return {comments, picture}
-}
+
 
 
 function MessageComposer({ onSend }: {onSend : (text: string) => void}) {

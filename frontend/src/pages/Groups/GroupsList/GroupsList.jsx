@@ -45,31 +45,23 @@ export default function GroupsList() {
   function openGroup(id) {
     history.push("group/" + id);
   }
-
+  if (loading) return <Spinner absCenter={true} />;
+  if (!groups.length)
+    return (
+      <ConnectionErrorMessage>
+        Doesn't look like you've joined any groups
+      </ConnectionErrorMessage>
+    );
   return (
     <article className="GroupsList">
       <header>
         <h1>Groups</h1>
       </header>
-      {loading ? (
-        <div className="spinner">
-          <Spinner />
-        </div>
-      ) : groups.length ? (
-        <ul className="groups">
-          {groups.map((group, key) => (
-            <GroupCard
-              key={key}
-              {...group}
-              onClick={() => openGroup(group.id)}
-            />
-          ))}
-        </ul>
-      ) : (
-        <ConnectionErrorMessage>
-          Doesn't look like you've joined any groups
-        </ConnectionErrorMessage>
-      )}
+      <ul className="groups">
+        {groups.map((group, key) => (
+          <GroupCard key={key} {...group} onClick={() => openGroup(group.id)} />
+        ))}
+      </ul>
     </article>
   );
 }

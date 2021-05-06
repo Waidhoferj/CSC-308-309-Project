@@ -10,42 +10,34 @@ import {
 } from "react-feather";
 
 import ArtReview from "../ArtReview/ArtReview";
-
+import Discussion from "../Discussion/Discussion";
+import {
+  GET_ARTWORK_DISCUSSION,
+  POST_DISCUSSION_MESSAGE,
+  GET_ARTWORK, 
+  artCommentResolver,
+  ArtworkQueryData} from "./gql"
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import { useParams, useHistory, Route, Switch } from "react-router-dom";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 
 export default function Artwork() {
   const { goBack, push } = useHistory();
-  const { id } = useParams();
-  const query = gql`
-    query getArtwork($id: ID!) {
-      artwork(id: $id) {
-        edges {
-          node {
-            pictures
-            title
-            description
-            tags
-            id
-            metrics {
-              totalVisits
-            }
-            rating
-          }
-        }
-      }
-    }
-  `;
+  const { id } = useParams<{id: string}>();
+  
 
-  const { loading, error, data } = useQuery(query, { variables: { id } });
+
+
+  
+
+  const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, { variables: { id } });
 
   if (loading) return <h1>Loading...</h1>;
-  if (error)
+  if (error || !data)
     return (
-      <ConnectionErrorMessage>Error: {error.message}</ConnectionErrorMessage>
+      <ConnectionErrorMessage>Could not access the artwork you requested.</ConnectionErrorMessage>
     );
 
   const artwork = data.artwork.edges[0]?.node;
@@ -63,6 +55,10 @@ export default function Artwork() {
   ];
 
   const pic_src = artwork.pictures[0];
+
+  function artPostResolver(postInfo: {message: string, author: string}) {
+    return {content: postInfo.message, author: postInfo.author, id }
+  }
 
   return (
     <Switch>
@@ -121,6 +117,14 @@ export default function Artwork() {
       </Route>
       <Route exact path="/artwork/:id/art-review">
         <ArtReview artwork={artwork} />
+      </Route>
+      <Route exact path="/artwork/:id/discussion">
+        <Discussion 
+        fetchQuery={GET_ARTWORK_DISCUSSION} 
+        fetchVariables={{id}} 
+        commentResolver={artCommentResolver} 
+        postMutation={POST_DISCUSSION_MESSAGE} 
+        postResolver={artPostResolver} />
       </Route>
     </Switch>
   );

@@ -1,5 +1,6 @@
 import "./GroupPage.scss"
-import {useQuery, gql} from "@apollo/client"
+import {useQuery} from "@apollo/client"
+import {GET_GROUP_QUERY, GET_COMMENTS_QUERY, POST_DISCUSSION_MESSAGE, groupResolver, groupCommentsResolver} from "./gql"
 import {ArrowLeft, MessageSquare, BookOpen} from "react-feather"
 import MetricBadge from "../../../components/MetricBadge/MetricBadge"
 import { Switch, useHistory, useParams } from "react-router-dom"
@@ -7,41 +8,21 @@ import { useMemo } from "react";
 import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/ConnectionErrorMessage.jsx";
 import {Route} from "react-router-dom"
 import Portfolio from "../../Portfolio/Portfolio"
+import Discussion from "../../Discussion/Discussion"
 
 
-const GET_GROUP_QUERY = gql`
-  query getGroup($id: ID!) {
-    groups(id: $id) {
-            edges {
-              node {
-                name
-                bio
-                metrics {
-                  artworkCount
-                  memberCount
-                }
-                groupPortfolio {
-                  artworks(first: 7) {
-                    edges {
-                      node {
-                        id
-                        title
-                        pictures
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-  }
-`;
 
 
 export default function GroupPage() {
     const {goBack, push} = useHistory()
     const {id} = useParams<{id:string}>()
-    const group = useGroup(id);
+    const {data} = useQuery(GET_GROUP_QUERY, {variables: {id}})
+    const group = useMemo(() => groupResolver(data), [data]);
+
+    function groupPostResolver(postInfo: {message: string, author: string}) {
+      return {content: postInfo.message, author: postInfo.author, id }
+    }
+
     return <Switch>
         <Route exact path="/group/:id">
             {
@@ -54,7 +35,7 @@ export default function GroupPage() {
           <h1>{group.name}</h1>
           <div className="header-options">
       <button className="wrapper" onClick={() => push("/group/" + id + "/portfolio")}><BookOpen/></button>
-      <button className="wrapper"><MessageSquare/></button>
+      <button className="wrapper" onClick={() => push("/group/" + id + "/discussion")}><MessageSquare/></button>
     </div>
         </header>
         <div className="content">
@@ -85,22 +66,15 @@ export default function GroupPage() {
         <Route exact path="/group/:id/portfolio">
           <Portfolio title={`${group?.name} Portfolio`} artworks={group?.artworks} showBackButton={true} />
         </Route>
+        <Route exact path="/group/:id/discussion">
+        <Discussion 
+        fetchQuery={GET_COMMENTS_QUERY} 
+        fetchVariables={{id}} 
+        commentResolver={groupCommentsResolver} 
+        postMutation={POST_DISCUSSION_MESSAGE} 
+        postResolver={groupPostResolver} />
+        </Route>
     </Switch>
-}
-
-interface Artwork {
-    title: string,
-    pictures: string[]
-    id: string
-}
-interface Group {
-    name: string,
-    bio:string,
-    metrics: {
-        artworkCount: number,
-        memberCount : number
-    },
-    artworks: Artwork[]
 }
 
 interface ArtworkCardProps {
@@ -115,19 +89,3 @@ function ArtworkCard(props : ArtworkCardProps) {
     <h3>{props.title}</h3>
   </div>
 }
-
-
-function useGroup(id:string) : Group | undefined {
-    const {data} = useQuery(GET_GROUP_QUERY, {variables: {id}})
-    const group: Group | undefined = useMemo(() => {
-        const group = data?.groups.edges?.[0].node
-        const artworks: Artwork[] = group?.groupPortfolio.artworks.edges.map(({node} : {node: Artwork}) => ({title: node.title, pictures: node.pictures, id: node.id}) )
-        return group && 
-            {name: group.name, 
-              bio: group.bio,
-            metrics: group.metrics, 
-            artworks}
-    }, [data])
-    return group
-}
-
