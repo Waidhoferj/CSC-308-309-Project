@@ -7,10 +7,11 @@ import useProfileInfo from "../../hooks/useProfileInfo";
 
 const GET_USER_MUTATION = gql`
   mutation getUser($email: String!, $password: String!) {
-    authenticateUser(userData: { email: $email, password: $password }) {
+    authenticateUser(email: $email, password: $password) {
       user {
         id
       }
+      success
     }
   }
 `;
@@ -27,21 +28,21 @@ export default function Login() {
 
   async function onSubmit(data) {
     // If encrypting, we would encrypt the password here
+    
     const payload = {
       email: data.email,
       password: data.password
     };
 
-    let login = await userLogin({variables: payload});
+    const login = await userLogin({variables: payload});
 
-    debugger;
-
-    console.log(login.data)
-    console.log(login.error)
-    console.log(login.loading)
-
-    //setUser(resp.data.createUser.user.id);
-    //push("/profile");
+    if (login["data"]["authenticateUser"]["success"]) {
+      setUser(login["data"]["authenticateUser"]["user"]["id"]);
+      push("/map");
+    }
+    else {
+      alert("Unrecognized email/password combination.");
+    }
   }
 
   return (
@@ -79,6 +80,10 @@ export default function Login() {
 
         <input type="submit" />
       </form>
+      <h4>New user?</h4>
+      <div>
+        <button onClick={console.log("stop calling me when loading the page")}>Sign Up</button>
+      </div>
     </article>
   );
 }
