@@ -27,6 +27,7 @@ def decodeId(id):
     type_and_id = str(decoded)[2:-1].split(":")
     return type_and_id[1]
 
+
 def checkAchievements(user):
     achievements = Achievement.objects
     achievements_to_add = []
@@ -209,6 +210,7 @@ class UserInput(graphene.InputObjectType):
 class CreateUserMutation(graphene.Mutation):
     # possible output types to show with return query
     user = graphene.Field(UserType)
+    success = graphene.Boolean()
 
     class Arguments:
         user_data = UserInput(required=True)
@@ -218,23 +220,26 @@ class CreateUserMutation(graphene.Mutation):
         settings = Settings()
         metrics = UserMetrics()
         
-        user = User(
-            # Need to eventually add username (if that's not the 'name') and password
-            name = user_data.name,
-            bio = user_data.bio,    # not required by model, will assume frontend filters input
-            email = user_data.email,
-            password = user_data.password,
-            profile_pic = user_data.profile_pic,
-            metrics = metrics,
-            achievements = [], # will likely want to add a hard coded initial achievement
-            personal_portfolio = portfolio,
-            groups = [],
-            settings = settings
-        )
-        checkAchievements(user)
-        user.save()
+        try:
+            user = User.objects.get(pk=user_data.email)
+        except Exception as e: # email not taken
+            user = User(
+                name = user_data.name,
+                bio = user_data.bio,
+                email = user_data.email,
+                password = user_data.password,
+                profile_pic = user_data.profile_pic,
+                metrics = metrics,
+                achievements = [],
+                personal_portfolio = portfolio,
+                groups = [],
+                settings = settings
+            )
+            checkAchievements(user)
+            user.save()
+            return CreateUserMutation(user=user, success=True)
 
-        return CreateUserMutation(user=user)
+        return CreateUserMutation(user=None, success=False)
 
 # Querying by id as an "id" argument should be by encoded string
 # id within user_input will be the primary key (email right now)
@@ -503,6 +508,29 @@ class CreateReportMutation(graphene.Mutation):
 
         return CreateReportMutation(report=report)
 
+
+class AuthenticateUserMutation(graphene.Mutation):
+    user = graphene.Field(UserType)
+    success = graphene.Boolean()
+
+    class Arguments:
+        email = graphene.String()
+        password = graphene.String()
+
+    def mutate(self, info, email, password):
+        
+        def cryptPassword(password):
+            return password
+        
+        try:
+            user = User.objects.get(pk=email)
+        except Exception as e:
+            return AuthenticateUserMutation(user=None, success=False)
+
+        if cryptPassword(password) != user.password:
+            return AuthenticateUserMutation(user=None, success=False)
+
+        return AuthenticateUserMutation(user=user, success=True)
 
 
 ''' 

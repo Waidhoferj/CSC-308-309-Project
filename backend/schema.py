@@ -2,7 +2,7 @@ import graphene
 from graphene.relay import Node
 from mutations import UpdateUserMutation, CreateUserMutation, DeleteUserMutation, CreateArtworkMutation, UpdateArtworkMutation
 from mutations import DeleteArtworkMutation, CreateGroupMutation, UpdateGroupMutation, CreateAchievementMutation, CreateReportMutation
-from mutations import AddArtworkReviewMutation, DiscussionCommentMutation
+from mutations import AddArtworkReviewMutation, DiscussionCommentMutation, AuthenticateUserMutation
 from api_types import UserType, PortfolioType, ArtworkType, AchievementType, GroupType, ReportType
 from graphene_mongo import MongoengineConnectionField
 from models import Artwork
@@ -26,6 +26,7 @@ class Mutations(graphene.ObjectType):
     create_user = CreateUserMutation.Field()
     update_user = UpdateUserMutation.Field()
     delete_user = DeleteUserMutation.Field()
+    authenticate_user = AuthenticateUserMutation.Field()
 
     create_artwork = CreateArtworkMutation.Field()
     update_artwork = UpdateArtworkMutation.Field()
