@@ -28,7 +28,6 @@ export default function Login() {
 
   async function onSubmit(data) {
     // If encrypting, we would encrypt the password here
-    
     const payload = {
       email: data.email,
       password: data.password
