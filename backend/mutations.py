@@ -18,6 +18,7 @@ List of possible mutations to make:
 # NOTE: reference fields need ObjectId-typed input
 # NOTE: Collection methods - Remove deletes everything in the list,
 #       pop removes by index
+# NOTE: Querying by id as an "id" argument should be by encoded string
 
 
 def decodeId(id):
