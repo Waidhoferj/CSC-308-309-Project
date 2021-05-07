@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import { AlertCircle, Search, ArrowLeft } from "react-feather";
 import useProfileInfo from "../../hooks/useProfileInfo";
+import Spinner from "../../components/Spinner/Spinner";
 
 const GET_PORTFOLIO = gql`
   query getPortfolio($id: ID!) {
@@ -29,23 +30,30 @@ const GET_PORTFOLIO = gql`
 `;
 
 interface Artwork {
-  title: string,
-  pictures: string[]
-  id: string
+  title: string;
+  pictures: string[];
+  id: string;
 }
 
 interface PortfolioProps {
-  title?: string,
-  showBackButton?: boolean,
-  artworks: Artwork[] | undefined
+  title?: string;
+  showBackButton?: boolean;
+  artworks: Artwork[] | undefined;
 }
 
-export default function Portfolio({ showBackButton = false, ...props}:PortfolioProps) {
+export default function Portfolio({
+  showBackButton = false,
+  ...props
+}: PortfolioProps) {
   const history = useHistory();
   return (
     <article className="Portfolio">
       <header>
-        {showBackButton && <button className="wrapper" onClick={history.goBack}><ArrowLeft/></button>}
+        {showBackButton && (
+          <button className="wrapper" onClick={history.goBack}>
+            <ArrowLeft />
+          </button>
+        )}
         <h1>{props.title || "Portfolio"}</h1>
       </header>
 
@@ -70,14 +78,28 @@ export default function Portfolio({ showBackButton = false, ...props}:PortfolioP
 
 export function UserPortfolio() {
   const { profile } = useProfileInfo();
-  const artworks = usePortfolio(profile?.id);
+  const { data, loading } = useQuery(GET_PORTFOLIO, {
+    variables: { id: profile?.id },
+  });
+  const artworks: Artwork[] | undefined = useMemo(
+    () =>
+      data?.users.edges[0]?.node.personalPortfolio.artworks.edges.map(
+        ({ node }: { node: Artwork }) => ({
+          title: node.title,
+          pictures: [node.pictures?.[0]],
+          id: node.id,
+        })
+      ),
+    [data]
+  );
+  if (loading) return <Spinner absCenter={true} />;
   return <Portfolio title="Personal Portfolio" artworks={artworks} />;
 }
 
 interface ArtworkCardProps {
-  title: string,
-  pictures: string[],
-  onClick: React.MouseEventHandler<HTMLLIElement> 
+  title: string;
+  pictures: string[];
+  onClick: React.MouseEventHandler<HTMLLIElement>;
 }
 
 /**
@@ -115,20 +137,4 @@ function CannotFindArtworkMessage() {
       </p>
     </div>
   );
-}
-
-function usePortfolio(id: string | undefined) {
-  const { data } = useQuery(GET_PORTFOLIO, { variables: { id } });
-  const portfolio: Artwork[] = useMemo(
-    () =>
-      data?.users.edges[0]?.node.personalPortfolio.artworks.edges.map(
-        ({ node }: {node :Artwork}) => ({
-          title: node.title,
-          pictures: [node.pictures?.[0]],
-          id: node.id,
-        })
-      ),
-    [data]
-  );
-  return portfolio;
 }

@@ -14,30 +14,31 @@ import Discussion from "../Discussion/Discussion";
 import {
   GET_ARTWORK_DISCUSSION,
   POST_DISCUSSION_MESSAGE,
-  GET_ARTWORK, 
+  GET_ARTWORK,
   artCommentResolver,
-  ArtworkQueryData} from "./gql"
+  ArtworkQueryData,
+} from "./gql";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import { useParams, useHistory, Route, Switch } from "react-router-dom";
 import { useQuery } from "@apollo/client";
+import Spinner from "../../components/Spinner/Spinner";
 
 export default function Artwork() {
   const { goBack, push } = useHistory();
-  const { id } = useParams<{id: string}>();
-  
+  const { id } = useParams<{ id: string }>();
 
+  const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, {
+    variables: { id },
+  });
 
-
-  
-
-  const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, { variables: { id } });
-
-  if (loading) return <h1>Loading...</h1>;
+  if (loading) return <Spinner absCenter={true} />;
   if (error || !data)
     return (
-      <ConnectionErrorMessage>Could not access the artwork you requested.</ConnectionErrorMessage>
+      <ConnectionErrorMessage>
+        Could not access the artwork you requested.
+      </ConnectionErrorMessage>
     );
 
   const artwork = data.artwork.edges[0]?.node;
@@ -56,8 +57,8 @@ export default function Artwork() {
 
   const pic_src = artwork.pictures[0];
 
-  function artPostResolver(postInfo: {message: string, author: string}) {
-    return {content: postInfo.message, author: postInfo.author, id }
+  function artPostResolver(postInfo: { message: string; author: string }) {
+    return { content: postInfo.message, author: postInfo.author, id };
   }
 
   return (
@@ -119,12 +120,13 @@ export default function Artwork() {
         <ArtReview artwork={artwork} />
       </Route>
       <Route exact path="/artwork/:id/discussion">
-        <Discussion 
-        fetchQuery={GET_ARTWORK_DISCUSSION} 
-        fetchVariables={{id}} 
-        commentResolver={artCommentResolver} 
-        postMutation={POST_DISCUSSION_MESSAGE} 
-        postResolver={artPostResolver} />
+        <Discussion
+          fetchQuery={GET_ARTWORK_DISCUSSION}
+          fetchVariables={{ id }}
+          commentResolver={artCommentResolver}
+          postMutation={POST_DISCUSSION_MESSAGE}
+          postResolver={artPostResolver}
+        />
       </Route>
     </Switch>
   );
