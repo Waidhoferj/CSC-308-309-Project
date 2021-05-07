@@ -41,7 +41,11 @@
         position: relative;
         display: flex;
         height: 100px;
+        width: 100%;
+        overflow: hidden;
+
         justify-content: flex-start;
+
         img {
           object-fit: cover;
           width: 100%;

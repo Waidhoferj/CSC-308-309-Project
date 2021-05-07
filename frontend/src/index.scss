@@ -14,11 +14,18 @@
 }
 
 html,
+body {
+  position: fixed;
+  overflow: hidden;
+}
+
+html,
 body,
 #root {
   margin: 0;
   padding: 0;
   min-height: 100%;
+  width: 100%;
 }
 
 body {
@@ -76,6 +83,9 @@ input[type="submit"] {
   border-radius: 10px;
   cursor: pointer;
   transition: transform 0.1s;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 
   &.wrapper {
     padding: 0;
@@ -139,7 +149,8 @@ code {
 #App {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: var(--safe-height, 100vh);
+  overflow: hidden;
 
   #app-screen {
     position: relative;

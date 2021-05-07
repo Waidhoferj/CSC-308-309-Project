@@ -22,6 +22,19 @@ function App() {
   useEffect(() => {
     setUser(userId);
   }, [setUser]);
+
+  // Sets true height for mobile devices so that the menu bars don't overlay our UI.
+  useEffect(() => {
+    const setSafeHeight = () =>
+      document.documentElement.style.setProperty(
+        "--safe-height",
+        window.innerHeight + "px"
+      );
+    window.addEventListener("resize", setSafeHeight);
+    setSafeHeight();
+    return () => window.removeEventListener("resize", setSafeHeight);
+  }, []);
+
   return (
     <main id="App">
       <Router>
