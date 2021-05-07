@@ -3,6 +3,8 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
+  overflow-y: scroll;
+
   header {
     position: relative;
     display: flex;
@@ -12,6 +14,7 @@
     height: 33vh;
     width: 100%;
     padding: 20px;
+    min-height: max-content;
 
     nav {
       padding: 0;

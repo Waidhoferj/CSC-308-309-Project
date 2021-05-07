@@ -233,7 +233,7 @@ export default function ArtMap() {
                 <div
                   className={`art-marker${artwork.visited ? " visited" : ""}`}
                 >
-                  <p>{artwork.rating}</p> <Star />
+                  <p>{artwork.rating.toFixed(2)}</p> <Star />
                 </div>
               </Marker>
             ))}
