@@ -21,15 +21,15 @@ List of possible mutations to make:
 
 
 def decodeId(id):
-    """ 
+    """
     For MongoDB + GraphQL, the primary key is base64 encoded after
         being put into the form: "{api_type}:{pk}" for the frontend
         (eg: 'UserType:braden@braden.com')
     The decoded id is needed for correct queries, so this function is used
     to change the id from the frontend into something usable here.
     (eg:
-        VXNlclR5cGU6Z3JhbnRAZ3JhbnQuY29t 
-            -> UserType:grant@grant.com 
+        VXNlclR5cGU6Z3JhbnRAZ3JhbnQuY29t
+            -> UserType:grant@grant.com
                 -> grant@grant.com
     )
     """
