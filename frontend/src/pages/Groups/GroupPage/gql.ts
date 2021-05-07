@@ -6,6 +6,7 @@ export const GET_GROUP_QUERY = gql`
       edges {
         node {
           name
+          id
           bio
           metrics {
             artworkCount
@@ -69,6 +70,7 @@ export interface GqlGroupData {
       node: {
         name: string;
         bio: string;
+        id: string;
         metrics: {
           artworkCount: number;
           memberCount: number;
@@ -95,8 +97,9 @@ interface Artwork {
   id: string;
 }
 
-interface Group {
+export interface Group {
   name: string;
+  id: string;
   bio: string;
   metrics: {
     artworkCount: number;
@@ -119,6 +122,7 @@ export function groupResolver(data: GqlGroupData): Group | undefined {
       name: group.name,
       bio: group.bio,
       metrics: group.metrics,
+      id: group.id,
       artworks,
     }
   );
