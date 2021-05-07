@@ -18,6 +18,7 @@ List of possible mutations to make:
 # NOTE: reference fields need ObjectId-typed input
 # NOTE: Collection methods - Remove deletes everything in the list,
 #       pop removes by index
+# NOTE: Querying by id as an "id" argument should be by encoded string
 
 
 def decodeId(id):
@@ -196,7 +197,7 @@ class DeleteGroupMutation(graphene.Mutation):  # ensure cascade
         try:
             UpdateGroupMutation.getGroup(id).delete()
             success = True
-        except:
+        except Exception as e:
             print("could not find object")
             return
 
@@ -208,7 +209,6 @@ class UserSettingsInput(graphene.InputObjectType):
 
 
 class UserInput(graphene.InputObjectType):
-    # since this class is generalized for all updating and creating, won't make any attributes required
     id = graphene.String()
     name = graphene.String()
     bio = graphene.String()
@@ -216,7 +216,7 @@ class UserInput(graphene.InputObjectType):
     password = graphene.String()
     profile_pic = graphene.String()   # NOTE: will assume base64 encoded string
     metrics = graphene.InputField(UserMetricsInput)
-    achievement = graphene.String()     # achievement id to add to user's achievements
+    achievement = graphene.String()     # achievement id
     art_to_add = graphene.String()    # artwork id to add to portfolio
     art_to_remove = graphene.String()     # artwork id to remove from portfolio
     group = graphene.String()         # group id to add to user's groups
@@ -235,6 +235,7 @@ class CreateUserMutation(graphene.Mutation):
         portfolio = Portfolio()
         settings = Settings()
         metrics = UserMetrics()
+<<<<<<< HEAD
         
         try:
             user = User.objects.get(pk=user_data.email)
@@ -254,11 +255,26 @@ class CreateUserMutation(graphene.Mutation):
             checkAchievements(user)
             user.save()
             return CreateUserMutation(user=user, success=True)
+=======
+        user = User(
+            name=user_data.name,
+            bio=user_data.bio,
+            email=user_data.email,
+            password=user_data.password,
+            profile_pic=user_data.profile_pic,
+            metrics=metrics,
+            achievements=[],
+            personal_portfolio=portfolio,
+            groups=[],
+            settings=settings
+        )
+        checkAchievements(user)
+        user.save()
+>>>>>>> 6327377 (Formatted mutations.py)
 
         return CreateUserMutation(user=None, success=False)
 
-# Querying by id as an "id" argument should be by encoded string
-# id within user_input will be the primary key (email right now)
+
 class UpdateUserMutation(graphene.Mutation):
     user = graphene.Field(UserType)
 
@@ -275,7 +291,6 @@ class UpdateUserMutation(graphene.Mutation):
           - change email
           - change password
         '''
-        
         user = UpdateUserMutation.getUser(user_data.id)
         if user_data.name:
             user.name = user_data.name
@@ -286,15 +301,16 @@ class UpdateUserMutation(graphene.Mutation):
             # Check if none
             user.personal_portfolio.artworks.append(artToAdd)
         if user_data.art_to_remove:
-            artToRemove = UpdateArtworkMutation.getArtwork(user_data.art_to_remove)
+            artToRemove = (UpdateArtworkMutation.
+                           getArtwork(user_data.art_to_remove))
             index = user.personal_portfolio.artworks.index(artToRemove)
             if index == -1:
                 print(f"Art ({artToRemove.id}) is not in User's portfolio")
             else:
                 user.personal_portfolio.artworks.pop(index)
-        if user_data.group: # to be tested
+        if user_data.group:  # to be tested
             user.groups.append(UpdateGroupMutation.getGroup(user_data.group))
-        if user_data.settings: # to be tested but I imagine works
+        if user_data.settings:  # to be tested but I imagine works
             user.settings = Settings(
                 autoAddToGroupPortfolio=settings.autoAddToGroupPortfolio
             )
@@ -303,7 +319,8 @@ class UpdateUserMutation(graphene.Mutation):
         user.save()
 
         return UpdateUserMutation(user=user)
-    
+
+
 class DeleteUserMutation(graphene.Mutation):
     class Arguments:
         id = graphene.ID(required=True)
@@ -314,28 +331,30 @@ class DeleteUserMutation(graphene.Mutation):
         try:
             UpdateUserMutation.getUser(id).delete()
             success = True
-        except:
+        except Exception as e:
             print("could not find object")
             return
 
         return DeleteUserMutation(success=success)
 
+
 class ArtworkMetricsInput(graphene.InputObjectType):
     total_visits = graphene.Int()
+
 
 class ArtworkInput(graphene.InputObjectType):
     id = graphene.ID()
     title = graphene.String()
     artist = graphene.String()
     description = graphene.String()
-    pictures = graphene.List(graphene.String)     # NOTE: removing pic will be from index from frontend
+    pictures = graphene.List(graphene.String)
     found_by = graphene.String()  # will be user id
-    location = graphene.List(graphene.Float)    # (longitude, latitude)
+    location = graphene.List(graphene.Float)  # (longitude, latitude)
     metrics = graphene.InputField(ArtworkMetricsInput)
     num_ratings = graphene.Int()
-    rating = graphene.Float()    # assuming 1-100 at the moment
+    rating = graphene.Float()  # assuming 1-100 at the moment
     comment = graphene.InputField(CommentInput)
-    tags = graphene.List(graphene.String)    
+    tags = graphene.List(graphene.String)
 
 
 class CreateArtworkMutation(graphene.Mutation):
@@ -351,10 +370,11 @@ class CreateArtworkMutation(graphene.Mutation):
             artist=artwork_data.artist,
             description=artwork_data.description,
             pictures=artwork_data.pictures if artwork_data.pictures else [],
-            found_by=decodeId(artwork_data.found_by),   # might wanna error check
+            found_by=decodeId(artwork_data.found_by),
             location={
                 "type": "Point",
-                "coordinates": [artwork_data.location[0], artwork_data.location[1]]
+                "coordinates": [artwork_data.location[0],
+                                artwork_data.location[1]]
             },
             metrics=metrics,
             num_ratings=artwork_data.num_ratings,
@@ -372,45 +392,44 @@ class CreateArtworkMutation(graphene.Mutation):
 
 
 class DiscussionCommentMutation(graphene.Mutation):
-  """
-  Adds a comment to the discussion page of an artwork.
-  """
-  class Arguments:
-      artwork_id = graphene.ID(required=True)
-      comment = CommentInput(required=True)
-  
-  comment = graphene.Field(CommentType)
+    """
+    Adds a comment to the discussion page of an artwork.
+    """
+    class Arguments:
+        artwork_id = graphene.ID(required=True)
+        comment = CommentInput(required=True)
 
-  def mutate(self, info, artwork_id=None, comment=None ):
-    # Find the user and the artwork and create a new comment.
-    
-    artwork: Artwork = Artwork.objects.get(pk=decodeId(artwork_id))
-    user : User = User.objects.get(pk=decodeId(comment.author))
-    c = Comment(author=user, content=comment.content)
-    artwork.comments.append(c)
-    artwork.save()
-    return DiscussionCommentMutation(comment=c)
+    comment = graphene.Field(CommentType)
 
-  
+    def mutate(self, info, artwork_id=None, comment=None):
+        # Find the user and the artwork and create a new comment.
+        artwork: Artwork = Artwork.objects.get(pk=decodeId(artwork_id))
+        user: User = User.objects.get(pk=decodeId(comment.author))
+        c = Comment(author=user, content=comment.content)
+        artwork.comments.append(c)
+        artwork.save()
+        return DiscussionCommentMutation(comment=c)
+
+
 class GroupDiscussionCommentMutation(graphene.Mutation):
-  """
-  Adds a comment to the group page of an artwork.
-  """
-  class Arguments:
-      group_id = graphene.ID(required=True)
-      comment = CommentInput(required=True)
-  
-  comment = graphene.Field(CommentType)
+    """
+    Adds a comment to the group page of an artwork.
+    """
+    class Arguments:
+        group_id = graphene.ID(required=True)
+        comment = CommentInput(required=True)
 
-  def mutate(self, info, group_id=None, comment=None ):
-    # Find the user and the artwork and create a new comment.
-    
-    group: Group = Group.objects.get(pk=decodeId(group_id))
-    user : User = User.objects.get(pk=decodeId(comment.author))
-    c = Comment(author=user, content=comment.content)
-    group.chat.append(c)
-    group.save()
-    return GroupDiscussionCommentMutation(comment=c)
+    comment = graphene.Field(CommentType)
+
+    def mutate(self, info, group_id=None, comment=None):
+        # Find the user and the artwork and create a new comment.
+
+        group: Group = Group.objects.get(pk=decodeId(group_id))
+        user: User = User.objects.get(pk=decodeId(comment.author))
+        c = Comment(author=user, content=comment.content)
+        group.chat.append(c)
+        group.save()
+        return GroupDiscussionCommentMutation(comment=c)
 
 
 class UpdateArtworkMutation(graphene.Mutation):
@@ -420,7 +439,7 @@ class UpdateArtworkMutation(graphene.Mutation):
         artwork_data = ArtworkInput(required=True)
 
     @staticmethod
-    def getArtwork(id):   # can also check for none here
+    def getArtwork(id):  # can also check for none here
         return Artwork.objects.get(pk=decodeId(id))
 
     def mutate(self, info, artwork_data=None):
@@ -436,6 +455,7 @@ class UpdateArtworkMutation(graphene.Mutation):
 
         return UpdateArtworkMutation(artwork=artwork)
 
+
 class DeleteArtworkMutation(graphene.Mutation):
     class Arguments:
         id = graphene.ID(required=True)
@@ -446,7 +466,7 @@ class DeleteArtworkMutation(graphene.Mutation):
         try:
             UpdateArtworkMutation.getArtwork(id).delete()
             success = True
-        except:
+        except Exception as e:
             print("could not find object")
             return
 
@@ -456,36 +476,44 @@ class DeleteArtworkMutation(graphene.Mutation):
 class ArtworkReviewInput(graphene.InputObjectType):
     artwork_id = graphene.ID(required=True)
     comment = graphene.InputField(CommentInput)
-    rating = graphene.Float() # 1-100
+    rating = graphene.Float()  # 1-100
     tags = graphene.List(graphene.String)
 
+
 class AddArtworkReviewMutation(graphene.Mutation):
-    # Need to either split up ratings/tags with comment or create a new comment class
+    # Need to either split up ratings/tags with comment
+    #   or create a new comment class
     # For now I decided to split up ratings/tags with comment
     # Don't want users just adding endless tags and reviews, no check yet
     # Could leave comments open to add "endlessly" though
     artwork = graphene.Field(ArtworkType)
+
     class Arguments:
         review_data = ArtworkReviewInput(required=True)
-  
+
     def mutate(self, info, review_data=None):
 
         def addArtworkRating(old_rating, rating_to_add, new_count):
-            ''' Updates the moving rating average, only works with one new rating at a time '''
-            return ( ( old_rating * (new_count - 1) ) + rating_to_add ) / new_count
+            ''' Updates the moving rating average,
+                only works with one new rating at a time '''
+            return (((old_rating * (new_count - 1)) + rating_to_add)
+                    / new_count)
 
         artwork = UpdateArtworkMutation.getArtwork(review_data.artwork_id)
         if artwork is None:
             print("Could not find artwork")
             return
-        if review_data.comment: # to test
+        if review_data.comment:
             artwork.comments.append(Comment(
               author=decodeId(review_data.comment.author),
               content=review_data.comment.content))
-        if review_data.rating:  # to test
-            artwork.num_ratings += 1    # NOTE: incrementing num_ratings BEFORE updating average
-            artwork.rating = addArtworkRating(artwork.rating, review_data.rating, artwork.num_ratings)
-        if review_data.tags:  # to test
+        if review_data.rating:
+            # NOTE: incrementing num_ratings BEFORE updating average
+            artwork.num_ratings += 1
+            artwork.rating = addArtworkRating(artwork.rating,
+                                              review_data.rating,
+                                              artwork.num_ratings)
+        if review_data.tags:
             for tag in review_data.tags:
                 artwork.tags.append(tag)
         artwork.save()
@@ -494,14 +522,14 @@ class AddArtworkReviewMutation(graphene.Mutation):
 
 
 class ReportInput(graphene.InputObjectType):
-    reported_id_type = graphene.String()   # just "artwork" for now
+    reported_id_type = graphene.String()  # just "artwork" for now
     reported_id = graphene.String()
     user_id = graphene.String()
     reason = graphene.String()
     description = graphene.String()
 
+
 class CreateReportMutation(graphene.Mutation):
-    # NOTE: only creating achievements because I'm assuming they are made by us and static
     report = graphene.Field(ReportType)
 
     class Arguments:
