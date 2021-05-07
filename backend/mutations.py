@@ -18,16 +18,31 @@ List of possible mutations to make:
 # NOTE: reference fields need ObjectId-typed input
 # NOTE: Collection methods - Remove deletes everything in the list,
 #       pop removes by index
-# NOTE: Querying by id as an "id" argument should be by encoded string
 
 
 def decodeId(id):
+    """ 
+    For MongoDB + GraphQL, the primary key is base64 encoded after
+        being put into the form: "{api_type}:{pk}" for the frontend
+        (eg: 'UserType:braden@braden.com')
+    The decoded id is needed for correct queries, so this function is used
+    to change the id from the frontend into something usable here.
+    (eg:
+        VXNlclR5cGU6Z3JhbnRAZ3JhbnQuY29t 
+            -> UserType:grant@grant.com 
+                -> grant@grant.com
+    )
+    """
     decoded = base64.b64decode(id)    # ex: b'UserType:braden@n.com'
     type_and_id = str(decoded)[2:-1].split(":")
     return type_and_id[1]
 
 
 def checkAchievements(user):
+    '''
+    Compares user metrics with all achievement metrics thresholds.
+    If a new threshold is met, the achievement is awarded.
+    '''
     achievements = Achievement.objects
     achievements_to_add = []
     for achievement in achievements:
@@ -41,6 +56,8 @@ def checkAchievements(user):
 
 
 def compareUserMetrics(user_metrics, achievement_threshold):
+    """ Returns true if user_metrics exceed achievement_threshold.
+         False otherwise """
     if user_metrics.works_visited < achievement_threshold.works_visited:
         return False
     elif user_metrics.works_found < achievement_threshold.works_found:
@@ -49,11 +66,13 @@ def compareUserMetrics(user_metrics, achievement_threshold):
 
 
 class UserMetricsInput(graphene.InputObjectType):
+    """ Attributes for inputting user metrics """
     works_visited = graphene.Int()
     works_found = graphene.Int()
 
 
 class AchievementInput(graphene.InputObjectType):
+    """ Attributes for inputting an achievement """
     title = graphene.String()
     description = graphene.String()
     points = graphene.Int()
@@ -61,6 +80,7 @@ class AchievementInput(graphene.InputObjectType):
 
 
 class CreateAchievementMutation(graphene.Mutation):
+    """ Mutation to create an achievement. Not to be used by users """
     achievement = graphene.Field(AchievementType)
 
     class Arguments:
@@ -83,11 +103,13 @@ class CreateAchievementMutation(graphene.Mutation):
 
 
 class CommentInput(graphene.InputObjectType):
+    """ All input information needed for a creatings a comment """
     author = graphene.ID(required=True)   # User Object id
     content = graphene.String(required=True)
 
 
 class GroupInput(graphene.InputObjectType):
+    """ All input information needed for group creation/updating """
     id = graphene.String()
     name = graphene.String()
     bio = graphene.String()
@@ -100,7 +122,7 @@ class GroupInput(graphene.InputObjectType):
 
 
 class CreateGroupMutation(graphene.Mutation):
-    # Need a user id with input (member_to_add)
+    """ Mutation allowing a user to create a new group """
     group = graphene.Field(GroupType)
 
     class Arguments:
@@ -121,6 +143,7 @@ class CreateGroupMutation(graphene.Mutation):
 
 
 class UpdateGroupMutation(graphene.Mutation):
+    """ Mutation updating attributes of a group """
     group = graphene.Field(GroupType)
 
     class Arguments:
@@ -188,6 +211,10 @@ class UpdateGroupMutation(graphene.Mutation):
 
 
 class DeleteGroupMutation(graphene.Mutation):  # ensure cascade
+    """ Deletes a group. Should be replaced with leave group mutation
+        This is because we only want groups to be implicitely deleted
+        when they have no members
+    """
     class Arguments:
         id = graphene.ID(required=True)
 
@@ -205,10 +232,12 @@ class DeleteGroupMutation(graphene.Mutation):  # ensure cascade
 
 
 class UserSettingsInput(graphene.InputObjectType):
+    """ Settings input for initializing or updating user settings """
     autoAddToGroupPortfolio = graphene.Boolean()
 
 
 class UserInput(graphene.InputObjectType):
+    """ User attribute input for user creation and updating """
     id = graphene.String()
     name = graphene.String()
     bio = graphene.String()
@@ -224,7 +253,7 @@ class UserInput(graphene.InputObjectType):
 
 
 class CreateUserMutation(graphene.Mutation):
-    # possible output types to show with return query
+    """ Mutation to create user from the sign up page """
     user = graphene.Field(UserType)
     success = graphene.Boolean()
 
@@ -276,6 +305,7 @@ class CreateUserMutation(graphene.Mutation):
 
 
 class UpdateUserMutation(graphene.Mutation):
+    """ Mutation to allow users to update their profile """
     user = graphene.Field(UserType)
 
     class Arguments:
@@ -322,6 +352,7 @@ class UpdateUserMutation(graphene.Mutation):
 
 
 class DeleteUserMutation(graphene.Mutation):
+    """ Mutation to delete a user. Can't currently be used by users """
     class Arguments:
         id = graphene.ID(required=True)
 
@@ -339,10 +370,12 @@ class DeleteUserMutation(graphene.Mutation):
 
 
 class ArtworkMetricsInput(graphene.InputObjectType):
+    """ Attributes for inputting artwork metrics """
     total_visits = graphene.Int()
 
 
 class ArtworkInput(graphene.InputObjectType):
+    """ Artwork attribute input for artwork creation and updating """
     id = graphene.ID()
     title = graphene.String()
     artist = graphene.String()
@@ -358,6 +391,7 @@ class ArtworkInput(graphene.InputObjectType):
 
 
 class CreateArtworkMutation(graphene.Mutation):
+    """ Mutation for a user to upload a new artwork to the map """
     artwork = graphene.Field(ArtworkType)
 
     class Arguments:
@@ -433,6 +467,7 @@ class GroupDiscussionCommentMutation(graphene.Mutation):
 
 
 class UpdateArtworkMutation(graphene.Mutation):
+    """ Updates the attributes of an already created artwork """
     artwork = graphene.Field(ArtworkType)
 
     class Arguments:
@@ -457,6 +492,7 @@ class UpdateArtworkMutation(graphene.Mutation):
 
 
 class DeleteArtworkMutation(graphene.Mutation):
+    """ Deletes an artwork. Not to be used by users currently. """
     class Arguments:
         id = graphene.ID(required=True)
 
@@ -474,6 +510,7 @@ class DeleteArtworkMutation(graphene.Mutation):
 
 
 class ArtworkReviewInput(graphene.InputObjectType):
+    """ Input needed for a review of an artwork by a user. """
     artwork_id = graphene.ID(required=True)
     comment = graphene.InputField(CommentInput)
     rating = graphene.Float()  # 1-100
@@ -481,6 +518,7 @@ class ArtworkReviewInput(graphene.InputObjectType):
 
 
 class AddArtworkReviewMutation(graphene.Mutation):
+    """ Mutation to add a user's review to an artwork. """
     # Need to either split up ratings/tags with comment
     #   or create a new comment class
     # For now I decided to split up ratings/tags with comment
@@ -522,6 +560,7 @@ class AddArtworkReviewMutation(graphene.Mutation):
 
 
 class ReportInput(graphene.InputObjectType):
+    """ Input of report attributes to create a new report """
     reported_id_type = graphene.String()  # just "artwork" for now
     reported_id = graphene.String()
     user_id = graphene.String()
@@ -530,6 +569,7 @@ class ReportInput(graphene.InputObjectType):
 
 
 class CreateReportMutation(graphene.Mutation):
+    """ Mutation for a user to create a new report """
     report = graphene.Field(ReportType)
 
     class Arguments:
