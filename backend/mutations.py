@@ -264,8 +264,6 @@ class CreateUserMutation(graphene.Mutation):
         portfolio = Portfolio()
         settings = Settings()
         metrics = UserMetrics()
-<<<<<<< HEAD
-        
         try:
             user = User.objects.get(pk=user_data.email)
         except Exception as e: # email not taken
@@ -284,24 +282,6 @@ class CreateUserMutation(graphene.Mutation):
             checkAchievements(user)
             user.save()
             return CreateUserMutation(user=user, success=True)
-=======
-        user = User(
-            name=user_data.name,
-            bio=user_data.bio,
-            email=user_data.email,
-            password=user_data.password,
-            profile_pic=user_data.profile_pic,
-            metrics=metrics,
-            achievements=[],
-            personal_portfolio=portfolio,
-            groups=[],
-            settings=settings
-        )
-        checkAchievements(user)
-        user.save()
->>>>>>> 6327377 (Formatted mutations.py)
-
-        return CreateUserMutation(user=None, success=False)
 
 
 class UpdateUserMutation(graphene.Mutation):

@@ -1,14 +1,7 @@
 import graphene
 from graphene.relay import Node
-<<<<<<< HEAD
-from mutations import UpdateUserMutation, CreateUserMutation, DeleteUserMutation, CreateArtworkMutation, UpdateArtworkMutation
-from mutations import DeleteArtworkMutation, CreateGroupMutation, UpdateGroupMutation, CreateAchievementMutation, CreateReportMutation
-from mutations import AddArtworkReviewMutation, DiscussionCommentMutation, GroupDiscussionCommentMutation, AuthenticateUserMutation
-from api_types import UserType, PortfolioType, ArtworkType, AchievementType, GroupType, ReportType
-=======
 from mutations import *
 from api_types import *
->>>>>>> 041868d (formatted schema.py and testing.py)
 from graphene_mongo import MongoengineConnectionField
 
 
