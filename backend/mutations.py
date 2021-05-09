@@ -266,18 +266,18 @@ class CreateUserMutation(graphene.Mutation):
         metrics = UserMetrics()
         try:
             user = User.objects.get(pk=user_data.email)
-        except Exception as e: # email not taken
+        except Exception as e:  # email not taken
             user = User(
-                name = user_data.name,
-                bio = user_data.bio,
-                email = user_data.email,
-                password = user_data.password,
-                profile_pic = user_data.profile_pic,
-                metrics = metrics,
-                achievements = [],
-                personal_portfolio = portfolio,
-                groups = [],
-                settings = settings
+                name=user_data.name,
+                bio=user_data.bio,
+                email=user_data.email,
+                password=user_data.password,
+                profile_pic=user_data.profile_pic,
+                metrics=metrics,
+                achievements=[],
+                personal_portfolio=portfolio,
+                groups=[],
+                settings=settings
             )
             checkAchievements(user)
             user.save()
@@ -445,6 +445,7 @@ class GroupDiscussionCommentMutation(graphene.Mutation):
         group.save()
         return GroupDiscussionCommentMutation(comment=c)
 
+
 class UpdateArtworkMutation(graphene.Mutation):
     """ Updates the attributes of an already created artwork """
     artwork = graphene.Field(ArtworkType)
@@ -576,10 +577,9 @@ class AuthenticateUserMutation(graphene.Mutation):
         password = graphene.String()
 
     def mutate(self, info, email, password):
-        
+
         def cryptPassword(password):
             return password
-        
         try:
             user = User.objects.get(pk=email)
         except Exception as e:
