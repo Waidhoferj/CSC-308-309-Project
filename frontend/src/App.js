@@ -11,7 +11,7 @@ import GroupsList from "./pages/Groups/GroupsList/GroupsList";
 import ReportArtwork from "./pages/ReportArtwork/ReportArtwork";
 import TabBar from "./components/TabBar/TabBar";
 import useProfileInfo from "./hooks/useProfileInfo";
-import NewAccount from "./pages/SignUp/SignUp";
+import SignUp from "./pages/SignUp/SignUp";
 import Login from "./pages/Login/Login";
 import { useEffect } from "react";
 
@@ -54,7 +54,7 @@ function App() {
             <Route path="/groups" component={GroupsList} />
             <Route path="/group/:id" component={GroupPage} />
             <Route path="/style-guide" component={StyleGuide} />
-            <Route path="/sign-up" component={NewAccount} />
+            <Route path="/sign-up" component={SignUp} />
             <Route path="/login" component={Login} />
             <Route path="*" component={ArtMap} />
           </Switch>
