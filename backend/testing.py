@@ -15,9 +15,10 @@ def testing_boot_up():
     # Number of artworks: 4
     # Number of groups: 2
     client = Client(schema)
-    users_with_ids, artworks_with_ids, groups_with_ids, achievements_with_ids = mock_db_setup(client)
-    # print(users_with_ids)
-    # print(artworks_with_ids)
+    (users_with_ids,
+     artworks_with_ids,
+     groups_with_ids,
+     achievements_with_ids) = mock_db_setup(client)
     run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids)
 
 
@@ -26,44 +27,55 @@ def mock_db_setup(client):
         Currently, just users and artworks are created and related '''
     achievements_with_ids = create_achievements(client)
     users_with_ids = create_users(client)
-    artworks_with_ids = create_artworks(client, users_with_ids) # creates artworks, each with a user that "created" it
-    assign_artworks(client, users_with_ids, artworks_with_ids)  # makes sure each user's portfolio contains the artwork they created
-    group_creators_with_members = [ # group_creator: other members
+    #  creates artworks, each with a user that "created" it
+    artworks_with_ids = create_artworks(client, users_with_ids)
+    #  makes sure each user's portfolio contains the artwork they created
+    assign_artworks(client, users_with_ids, artworks_with_ids)
+    group_creators_with_members = [  # group_creator: other members
         [users_with_ids[0], users_with_ids[1:3]],
         [users_with_ids[3], users_with_ids[:3]]
     ]
     groups_with_ids = create_groups(client, group_creators_with_members)
-    return users_with_ids, artworks_with_ids, groups_with_ids, achievements_with_ids
+    return (users_with_ids, artworks_with_ids,
+            groups_with_ids, achievements_with_ids)
 
 
 def run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
     test_consistent_ids(client)
     test_add_artwork_review(client, users_with_ids[1], artworks_with_ids[0])
-    test_submit_artwork_review(client, users_with_ids[0], artworks_with_ids[0])
+    test_submit_artwork_review(client,
+                               users_with_ids[0],
+                               artworks_with_ids[0])
     print("--- Tests Successful ---")
 
 
 def create_achievements(client):
     create_achievement_inputs = [
-        ["Explored 10 Art Locations", "You have officially visited 10 art locations. Keep it up!", 10, UserMetrics(works_visited=10, works_found=0)],
-        ["Noob", "You signed up for the service!", 10, UserMetrics()]
+        ["Explored 10 Art Locations",
+         "You have officially visited 10 art locations. Keep it up!",
+         10,
+         UserMetrics(works_visited=10, works_found=0)],
+        ["Noob",
+         "You signed up for the service!",
+         10,
+         UserMetrics()]
     ]
     achievements_with_ids = []
     for achievement_input in create_achievement_inputs:
         executed = client.execute("""
         mutation {{
             createAchievement(
-  	            achievementData: {{
-    	            title: "{0}"
-    	            description: "{1}"
+                achievementData: {{
+                    title: "{0}"
+                    description: "{1}"
                     points: {2}
                     threshold: {{
                         worksVisited: {3},
                         worksFound: {4}
                     }}
-  	            }}
-	        ) {{
+                }}
+            ) {{
                 achievement {{
                     title
                     id
@@ -73,50 +85,75 @@ def create_achievements(client):
             achievement_input[0], achievement_input[1],
             achievement_input[2], achievement_input[3]["works_visited"],
             achievement_input[3]["works_found"]))
-        achievements_with_ids.append((executed["data"]["createAchievement"]["achievement"]["title"], executed["data"]["createAchievement"]["achievement"]["id"]))
+        achievement = executed["data"]["createAchievement"]["achievement"]
+        achievements_with_ids.append((achievement["title"], achievement["id"]))
         # append (user's name, user id)
     return(achievements_with_ids)
 
 
 def create_users(client):
     create_user_inputs = [
-        ("Braden", "Spending some time on CSC 400.", "braden@gmail.com", "bradeniscool"),
-        ("Grant", "Love me some AI and maybe web dev.", "grant@gmail.com", "grantiscool"),
-        ("Kyle", "Fitness, meditation and good books.", "kyle@gmail.com", "kyleiscool"),
-        ("John", "Looking around for some art. Wasn't satisfied with my dope Windows Vista wallpaper.", "john@gmail.com", "johniscool")]
-    
-    users_with_ids = [] # user names with db ids
+        ("Braden", "Spending some time on CSC 400.",
+         "braden@gmail.com", "bradeniscool"),
+        ("Grant", "Love me some AI and maybe web dev.",
+         "grant@gmail.com", "grantiscool"),
+        ("Kyle", "Fitness, meditation and good books.",
+         "kyle@gmail.com", "kyleiscool"),
+        ("John", "In desperate need for some art",
+         "john@gmail.com", "johniscool")]
+
+    users_with_ids = []  # user names with db ids
     for user_input in create_user_inputs:
         executed = client.execute("""
         mutation {{
             createUser(
-  	            userData: {{
+                userData: {{
                     name: "{0}"
                     bio: "{1}"
                     email: "{2}"
                     password: "{3}"
                     profilePic: "{4}"
-  	            }}
-	        ) {{
+                }}
+            ) {{
                 user {{
                     id
                     name
                 }}
             }}
-        }}""".format(user_input[0], user_input[1], user_input[2], user_input[3], get_sample_encoded_profile_image()))
-        users_with_ids.append((executed["data"]["createUser"]["user"]["name"], executed["data"]["createUser"]["user"]["id"]))
+        }}""".format(user_input[0], user_input[1], user_input[2],
+                     user_input[3], get_sample_encoded_profile_image()))
+        user = executed["data"]["createUser"]["user"]
+        users_with_ids.append((user["name"], user["id"]))
         # append (user's name, user id)
     return(users_with_ids)
-    
+
 
 def create_artworks(client, users_with_ids):
     # Creating artworks
     artworks = [
-        ("Hidden Subway Mural", "Far side of the subway station has a double walled mural.", users_with_ids[0][1], "[-120.677494, 35.292708]", "55.0", "[\"sick\", \"rad\"]"),
-        ("Blue Bridge", "Neon blue tentacles of paint wind up the struts of the bridge", users_with_ids[1][1], "[-121.677494, 32.292708]", "75.0", "[\"sick\", \"blue\"]"),
-        ("Artistic Underpass", "Bridge ceiling covered in art", users_with_ids[2][1], "[-120.777494, 34.292708]", "99.0", "[\"overwhelming\", \"scary\"]"),
-        ("Fire Wall", "Tongues of flame comemorate the historic fire of this district", users_with_ids[3][1], "[-122.677494, 35.282708]", "32.0", "[]")
-    ]   # Might wanna change location data for more testable locations (like within radius of me)
+        ("Hidden Subway Mural",
+         "Far side of the subway station has a double walled mural.",
+         users_with_ids[0][1],
+         "[-120.677494, 35.292708]",
+         "55.0", "[\"sick\", \"rad\"]"),
+        ("Blue Bridge",
+         "Neon blue tentacles of paint wind up the struts of the bridge",
+         users_with_ids[1][1],
+         "[-121.677494, 32.292708]",
+         "75.0", "[\"sick\", \"blue\"]"),
+        ("Artistic Underpass",
+         "Bridge ceiling covered in art",
+         users_with_ids[2][1],
+         "[-120.777494, 34.292708]",
+         "99.0",
+         "[\"overwhelming\", \"scary\"]"),
+        ("Fire Wall",
+         "Tongues of flame comemorate the historic fire of this district",
+         users_with_ids[3][1],
+         "[-122.677494, 35.282708]",
+         "32.0",
+         "[]")
+    ]
 
     artworks_with_ids = []
     for artwork in artworks:
@@ -137,10 +174,13 @@ def create_artworks(client, users_with_ids):
                     tags
                 }}
             }}
-        }}""".format(artwork[0], artwork[1], artwork[2], artwork[3], artwork[4], artwork[5], get_sample_encoded_art_image()))
-        #print(executed)
-        artworks_with_ids.append((executed["data"]["createArtwork"]["artwork"]["title"], executed["data"]["createArtwork"]["artwork"]["id"]))
+        }}""".format(artwork[0], artwork[1], artwork[2], artwork[3],
+                     artwork[4], artwork[5], get_sample_encoded_art_image()))
+        artworks_with_ids.append((
+            executed["data"]["createArtwork"]["artwork"]["title"],
+            executed["data"]["createArtwork"]["artwork"]["id"]))
     return artworks_with_ids
+
 
 def assign_artworks(client, users_with_ids, artworks_with_ids):
     for user, artwork in zip(users_with_ids, artworks_with_ids):
@@ -148,7 +188,7 @@ def assign_artworks(client, users_with_ids, artworks_with_ids):
         mutation {{
             updateUser(userData: {{
                 id: "{0}",
-                artToAdd: "{1}"    
+                artToAdd: "{1}"
             }}) {{
                 user {{
                     name,
@@ -165,6 +205,7 @@ def assign_artworks(client, users_with_ids, artworks_with_ids):
             }}
         }} }}
         """.format(user[1], artwork[1]))
+
 
 def create_groups(client, group_creators_with_members):
     group_names_and_bios = [
@@ -193,10 +234,12 @@ def create_groups(client, group_creators_with_members):
                         }}
                     }}
                 }}
-            }}""".format(group_names_and_bios[i][0], group_names_and_bios[i][1], group_set[0][1]))
-        groups_with_ids.append(
-            (executed["data"]["createGroup"]["group"]["name"],  executed["data"]["createGroup"]["group"]["id"]))
-    
+            }}""".format(group_names_and_bios[i][0],
+                         group_names_and_bios[i][1],
+                         group_set[0][1]))
+        group = executed["data"]["createGroup"]["group"]
+        groups_with_ids.append((group["name"],  group["id"]))
+
     # Assuming same order as created for assigning group members
     for i, group_set in enumerate(group_creators_with_members):
         for new_member in group_set[1]:
@@ -237,7 +280,7 @@ def test_consistent_ids(client):
             }}
         }}
     """.format(TEST_ID))
-    
+
     expected_name = test['data']['users']['edges'][0]['node']['name']
     if TEST_NAME != expected_name:
         print("IDs are not consistent")
@@ -245,12 +288,13 @@ def test_consistent_ids(client):
 
 def test_removing_artwork(client, userNameId, artworkNameId):
     ''' Will add the artwork, and then delete it
-        Assumptions: update mutation works to add artwork and artwork isn't already in user's portfolio '''
-    
+        Assumptions: update mutation works to add artwork and
+                     artwork isn't already in user's portfolio
+    '''
     before = client.execute("""
         mutation {{
             updateUser(userData: {{
-                id: "{0}",   
+                id: "{0}",
             }}) {{
                 user {{
                     name,
@@ -272,7 +316,7 @@ def test_removing_artwork(client, userNameId, artworkNameId):
         mutation {{
             updateUser(userData: {{
                 id: "{0}",
-                artToAdd: "{1}"    
+                artToAdd: "{1}"
             }}) {{
                 user {{
                     name,
@@ -294,7 +338,7 @@ def test_removing_artwork(client, userNameId, artworkNameId):
         mutation {{
             updateUser(userData: {{
                 id: "{0}",
-                artToRemove: "{1}"    
+                artToRemove: "{1}"
             }}) {{
                 user {{
                     name,
@@ -314,8 +358,10 @@ def test_removing_artwork(client, userNameId, artworkNameId):
     if removed != before:
         print("Artwork Removal Failed")
 
+
 def test_add_artwork_review(client, user, artwork):
-    ''' Tests the addArtworkReview mutation, simply adding fields to artwork '''
+    ''' Tests the addArtworkReview mutation,
+        simply adding fields to artwork '''
     artwork_id = artwork[1]
     user_id = user[1]
     content = "I love this ART!"
@@ -323,7 +369,7 @@ def test_add_artwork_review(client, user, artwork):
     tags = ["Magnificent"]
     formatted_tags = "[\"Magnificent\"]"
 
-    old_artwork = client.execute("""
+    resp = client.execute("""
         query {{
             artwork(id: "{0}") {{
                 edges {{
@@ -334,11 +380,12 @@ def test_add_artwork_review(client, user, artwork):
                 }}
             }}
         }}""".format(artwork_id))
-    old_rating = old_artwork["data"]["artwork"]["edges"][0]["node"]["rating"]
-    old_num_ratings = old_artwork["data"]["artwork"]["edges"][0]["node"]["numRatings"]
 
+    old_artwork = resp["data"]["artwork"]
+    old_rating = old_artwork["edges"][0]["node"]["rating"]
+    old_num_ratings = old_artwork["edges"][0]["node"]["numRatings"]
 
-    updated_artwork = client.execute("""
+    resp = client.execute("""
         mutation {{
             addArtworkReview(reviewData: {{
                 artworkId: "{0}",
@@ -370,14 +417,17 @@ def test_add_artwork_review(client, user, artwork):
         }}
         """.format(artwork_id, user_id, content, rating, formatted_tags))
 
-    updated_rating = updated_artwork["data"]["addArtworkReview"]["artwork"]["rating"]
-    updated_num_ratings = updated_artwork["data"]["addArtworkReview"]["artwork"]["numRatings"]
-    updated_comments = updated_artwork["data"]["addArtworkReview"]["artwork"]["comments"]["edges"]
-    updated_tags = updated_artwork["data"]["addArtworkReview"]["artwork"]["tags"]
+    updated_artwork = resp["data"]["addArtworkReview"]["artwork"]
+
+    updated_rating = updated_artwork["rating"]
+    updated_num_ratings = updated_artwork["numRatings"]
+    updated_comments = updated_artwork["comments"]["edges"]
+    updated_tags = updated_artwork["tags"]
 
     assert updated_num_ratings == old_num_ratings + 1
-    assert updated_rating == ((old_rating * old_num_ratings) + rating) / updated_num_ratings
-    
+    assert updated_rating == (((old_rating * old_num_ratings) + rating) /
+                              updated_num_ratings)
+
     comment_added = False
     for comment_node in updated_comments:
         if comment_node["node"]["author"]["id"] == user_id:
@@ -386,18 +436,20 @@ def test_add_artwork_review(client, user, artwork):
     assert comment_added
     for tag in tags:
         assert tag in updated_tags
-    
+
 
 def get_sample_encoded_art_image(filepath="") -> str:
     if filepath == "":
         # select random image if not supplied with a path
         path = "./assets/sample-artworks"
         image_paths = os.listdir(path)
-        filepath = os.path.join(path, random.choice(image_paths)) 
+        filepath = os.path.join(path, random.choice(image_paths))
     return b64_encode_image(filepath)
+
 
 def get_sample_encoded_profile_image() -> str:
     return b64_encode_image("../frontend/src/assets/example-profile-pic.png")
+
 
 def b64_encode_image(filepath: str) -> str:
     """
@@ -408,50 +460,50 @@ def b64_encode_image(filepath: str) -> str:
     with open(filepath, "rb") as image_file:
         encoded_image = base64.b64encode(image_file.read()).decode()
         return header + encoded_image
-def get_comments(num_comments:int, users: List[User]) -> List[Comment]:
+
+
+def get_comments(num_comments: int, users: List[User]) -> List[Comment]:
     content_lib = [
         "While drawing I discover what I really want to say.",
-        "If people only knew how hard I work to gain my mastery. It wouldn't seem so wonderful at all.",
-        "Inspiration is for amateurs. The rest of us just show up and get the work done. If you wait around for the clouds to part and a bolt of lightning to strike you in the brain, you're not going to make an awful lot of work",
-        "In drawing, one must look for or suspect that there is more than is casually seen.",
+        "If people only knew how hard I work to gain my mastery.",
+        "Inspiration is for amateurs.",
+        "In drawing, one must look for real passion.",
         "Art is never finished, only abandoned.",
-        "If you as a designer don’t believe in your design and don’t see it beyond the context of the film but as a real creature in a real world then how can you expect the audience to believe it?",
-        "I started painting as a hobby when I was little. I didn’t know I had any talent. I believe talent is just a pursued interest. Anybody can do what I do."
+        "If you as a designer don’t believe in your design, leave",
+        "I started painting as a hobby when I was little. I'm pretty good."
     ]
 
     start_date = datetime.date(2020, 1, 1)
     end_date = datetime.datetime.now().date()
     time_between_dates = end_date - start_date
-    
+
     comments = []
     for _ in range(num_comments):
         random_number_of_days = random.randrange(time_between_dates.days)
         rand_date = start_date + datetime.timedelta(days=random_number_of_days)
-        rand_datetime = datetime.datetime.combine(rand_date, datetime.datetime.min.time())
-        comment = Comment(author=random.choice(users), content=random.choice(content_lib), date_posted=rand_datetime)
+        rand_datetime = (datetime.datetime.
+                         combine(rand_date, datetime.datetime.min.time()))
+        comment = Comment(author=random.choice(users),
+                          content=random.choice(content_lib),
+                          date_posted=rand_datetime)
         comments.append(comment)
     return comments
 
 
-
-
-
-def test_submit_artwork_review(client, user, artwork): #[name, id]
+def test_submit_artwork_review(client, user, artwork):  # [name, id]
     reported_id_type = "artwork"
     reported_id = artwork[1]
     user_id = user[1]
     reason = "inappropriate"
     description = "This is a selfie, come on"
 
-
-
     report = client.execute("""
         mutation {{
             createReport(reportData: {{
                 reportedIdType: "{0}"
-    	        reportedId: "{1}"
-    	        userId: "{2}"
-    	        reason: "{3}"
+                reportedId: "{1}"
+                userId: "{2}"
+                reason: "{3}"
                 description: "{4}"
             }}) {{
                 report {{
@@ -463,8 +515,8 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
                 }}
             }}
         }}
-        """.format(reported_id_type, reported_id, user_id, reason, description))
-    
+        """.format(reported_id_type, reported_id,
+                   user_id, reason, description))
 
     report_data = report["data"]["createReport"]["report"]
     assert report_data['reportedIdType'] == reported_id_type
@@ -473,6 +525,7 @@ def test_submit_artwork_review(client, user, artwork): #[name, id]
     assert report_data['reason'] == reason
     assert report_data['description'] == description
 
-if __name__ == "__main__" :
+
+if __name__ == "__main__":
     connect(host="mongomock://localhost")
     testing_boot_up()
