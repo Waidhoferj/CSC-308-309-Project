@@ -1,8 +1,8 @@
 import "./SignUp.scss";
-
-import { useMutation, gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
+import auth from "../../auth";
 import useProfileInfo from "../../hooks/useProfileInfo";
 
 const NEW_ACCOUNT_MUTATION = gql`
@@ -18,9 +18,8 @@ const NEW_ACCOUNT_MUTATION = gql`
 
 export default function SignUp() {
   const [submitUser] = useMutation(NEW_ACCOUNT_MUTATION);
-  const { setUser } = useProfileInfo();
   const { push } = useHistory();
-
+  const { setUser } = useProfileInfo();
   const { register, handleSubmit } = useForm();
 
   async function onSubmit(data) {
@@ -29,14 +28,17 @@ export default function SignUp() {
       name: data.name,
       password: data.password,
     };
+    try {
+      await Promise.all([
+        auth.signup(data.email, data.password, { name: data.name }),
+        submitUser({ variables: payload }),
+      ]);
 
-    let resp = await submitUser({ variables: payload });
-    if (resp.data.createUser.success) {
-      setUser(resp.data.createUser.user.id);
+      const user = await auth.login(data.email, data.password, true);
+      setUser(user.email);
       push("/map");
-    }
-    else {
-      alert("An account already exists with that email.");
+    } catch (err) {
+      alert("Something went wrong, please try again later.");
     }
   }
 
