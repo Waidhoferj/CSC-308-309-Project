@@ -48,6 +48,7 @@ export default function Login() {
             type="password"
             name="password"
             id="password"
+            autoComplete="current-password"
             ref={register({
               required: true,
             })}

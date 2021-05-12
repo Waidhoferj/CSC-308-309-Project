@@ -2,8 +2,8 @@ import { useQuery, gql } from "@apollo/client";
 import { useEffect, useState } from "react";
 import auth from "../auth";
 
-let listeners: React.Dispatch<React.SetStateAction<string | undefined>>[] = [];
-let email: string | undefined = auth.currentUser()?.email;
+let listeners: React.Dispatch<React.SetStateAction<string | null>>[] = [];
+let email: string | null = auth.currentUser()?.email || null;
 
 const GET_USER_QUERY = gql`
   query fetchUser($email: String!) {
@@ -33,13 +33,13 @@ type UserProfile = {
 };
 
 export default function useProfileInfo() {
-  const listener = useState<string | undefined>("")[1];
+  const listener = useState<string | null>("")[1];
   const { data, error } = useQuery(GET_USER_QUERY, {
     variables: { email },
   });
 
   let profile: UserProfile | undefined = data?.users.edges[0]?.node;
-  function setUser(new_email: string | undefined) {
+  function setUser(new_email: string | null) {
     email = new_email;
     listeners.forEach((l) => l(email));
   }
