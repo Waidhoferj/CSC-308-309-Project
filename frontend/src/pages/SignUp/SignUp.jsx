@@ -16,7 +16,7 @@ const NEW_ACCOUNT_MUTATION = gql`
   }
 `;
 
-export default function NewAccount() {
+export default function SignUp() {
   const [submitUser] = useMutation(NEW_ACCOUNT_MUTATION);
   const { setUser } = useProfileInfo();
   const { push } = useHistory();
@@ -41,7 +41,7 @@ export default function NewAccount() {
   }
 
   return (
-    <article className="NewAccount">
+    <article className="SignUp">
       <header>
         <h2>Sign Up</h2>
       </header>
