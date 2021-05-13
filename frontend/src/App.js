@@ -51,6 +51,7 @@ function App() {
             <Route path="/portfolio" component={UserPortfolio} />
             <Route path="/groups" component={GroupsList} />
             <Route path="/group/:id" component={GroupPage} />
+            <Route path="*" component={ArtMap} />
           </Switch>
         </div>
 
