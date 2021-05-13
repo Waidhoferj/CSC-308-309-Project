@@ -59,12 +59,19 @@
       margin: 0 5px;
     }
   }
-
   .content {
     height: calc(100vh - 160px);
     overflow-y: scroll;
     padding: 20px;
     padding-bottom: 80px;
+
+    .actions {
+      button {
+        display: inline-block;
+        margin: 10px;
+        outline: none;
+      }
+    }
 
     section {
       margin: 60px 0;
@@ -108,5 +115,6 @@
         object-fit: cover;
       }
     }
+
   }
 }
