@@ -14,7 +14,7 @@ import GroupPage from "./pages/Groups/GroupPage/GroupPage";
 import GroupsList from "./pages/Groups/GroupsList/GroupsList";
 import ReportArtwork from "./pages/ReportArtwork/ReportArtwork";
 import TabBar from "./components/TabBar/TabBar";
-import NewAccount from "./pages/SignUp/SignUp";
+import SignUp from "./pages/SignUp/SignUp";
 import Login from "./pages/Login/Login";
 import { useEffect } from "react";
 import auth from "./auth";
@@ -37,7 +37,7 @@ function App() {
       <Router>
         <div id="app-screen">
           <Switch>
-            <Route path="/sign-up" component={NewAccount} />
+            <Route path="/sign-up" component={SignUp} />
             <Route path="/login" component={Login} />
             {!auth.currentUser() && <Redirect to="/login" />}
             <Route exact path="/map" component={ArtMap} />

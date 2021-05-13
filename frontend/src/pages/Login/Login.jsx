@@ -15,7 +15,9 @@ export default function Login() {
     try {
       const user = await auth.login(data.email, data.password, true);
       setUser(user.email);
-      push("/map");
+      setTimeout(() => {
+        push("/map");
+      }, 300);
     } catch (err) {
       alert(err);
     }
