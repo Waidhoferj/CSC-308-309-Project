@@ -64,6 +64,17 @@ export const POST_DISCUSSION_MESSAGE = gql`
   }
 `;
 
+export const LEAVE_GROUP = gql`
+  mutation leaveGroup($user: String!, $group: String!) {
+    leaveGroup(
+      userId: $user
+      groupId: $group
+    ) {
+      success
+    }
+  }
+`;
+
 export interface GqlGroupData {
   groups: {
     edges: {
