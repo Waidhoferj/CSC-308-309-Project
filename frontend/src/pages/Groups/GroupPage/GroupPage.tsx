@@ -77,7 +77,7 @@ function GroupHub({ group }: GroupHubProps) {
   const { id } = useParams<{ id: string }>();
   const { goBack, push } = useHistory();
   const [leaveGroupMutation] = useMutation(LEAVE_GROUP);
-  const { profile: user, error: profileError } = useProfileInfo();
+  const { profile: user} = useProfileInfo();
 
   async function leaveGroup() {
     const payload = {
