@@ -68,6 +68,7 @@ export default function SignUp() {
             type="text"
             name="name"
             id="username"
+            autoComplete="username"
             ref={register({
               required: true,
             })}
@@ -80,6 +81,7 @@ export default function SignUp() {
           <input
             type="password"
             name="password"
+            autoComplete="password"
             id="password"
             ref={register({
               required: true,

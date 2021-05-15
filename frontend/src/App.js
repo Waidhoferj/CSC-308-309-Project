@@ -13,7 +13,6 @@ import TabBar from "./components/TabBar/TabBar";
 import SignUp from "./pages/SignUp/SignUp";
 import Login from "./pages/Login/Login";
 import { useEffect } from "react";
-import auth from "./auth";
 import useProfileInfo from "./hooks/useProfileInfo";
 
 function App() {

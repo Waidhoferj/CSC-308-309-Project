@@ -1,5 +1,6 @@
 import { RouteProps } from "react-router";
 import { Route, Redirect } from "react-router-dom";
+import auth from "../../auth";
 import useProfileInfo from "../../hooks/useProfileInfo";
 type ProtectedRouteProps = RouteProps & {
   redirectPath?: string;
@@ -21,7 +22,7 @@ export default function ProtectedRoute({
       path={profile ? path : "fdsafdsf"}
       {...restProps}
       render={(props) => {
-        if (shouldRender ?? profile) {
+        if (shouldRender ?? auth.currentUser()) {
           return Component ? (
             <Component {...props} />
           ) : render ? (
@@ -30,7 +31,7 @@ export default function ProtectedRoute({
             children
           );
         } else {
-          console.log(shouldRender ?? profile);
+          console.log(shouldRender ?? auth.currentUser());
           return <Redirect exact to={redirectPath} />;
         }
       }}
