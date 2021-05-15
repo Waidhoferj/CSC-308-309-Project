@@ -29,16 +29,15 @@ export default function SignUp() {
       password: data.password,
     };
     try {
-      await Promise.all([
-        auth.signup(data.email, data.password, { name: data.name }),
-        submitUser({ variables: payload }),
-      ]);
+      await auth.signup(data.email, data.password, { name: data.name });
+      await auth.login(data.email, data.password, true);
+      await submitUser({ variables: payload });
 
       const user = await auth.login(data.email, data.password, true);
       setUser(user.email);
       push("/map");
     } catch (err) {
-      alert("Something went wrong, please try again later.");
+      alert(err.message);
     }
   }
 

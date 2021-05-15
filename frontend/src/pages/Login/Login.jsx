@@ -19,7 +19,7 @@ export default function Login() {
         push("/map");
       }, 300);
     } catch (err) {
-      alert(err);
+      alert(err.message);
     }
   }
 

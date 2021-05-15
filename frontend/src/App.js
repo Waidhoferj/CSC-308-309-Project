@@ -1,9 +1,5 @@
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-} from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import ArtMap from "./pages/ArtMap/ArtMap";
 import Camera from "./pages/Camera/Camera";
 import Artwork from "./pages/Artwork/Artwork";
@@ -18,6 +14,7 @@ import SignUp from "./pages/SignUp/SignUp";
 import Login from "./pages/Login/Login";
 import { useEffect } from "react";
 import auth from "./auth";
+import useProfileInfo from "./hooks/useProfileInfo";
 
 function App() {
   // Sets true height for mobile devices so that the menu bars don't overlay our UI.
@@ -32,6 +29,8 @@ function App() {
     return () => window.removeEventListener("resize", setSafeHeight);
   }, []);
 
+  const { profile } = useProfileInfo();
+
   return (
     <main id="App">
       <Router>
@@ -39,23 +38,30 @@ function App() {
           <Switch>
             <Route path="/sign-up" component={SignUp} />
             <Route path="/login" component={Login} />
-            {!auth.currentUser() && <Redirect to="/login" />}
-            <Route exact path="/map" component={ArtMap} />
-            <Route exact path="/map/:artwork" component={ArtMap} />
-            <Route exact path="/map/:artwork/track" component={ArtMap} />
-            <Route exact path="/artwork/:id/report" component={ReportArtwork} />
-            <Route path="/artwork/:id" component={Artwork} />
-            <Route path="/camera" component={Camera} />
-            <Route path="/art-submission" component={ArtSubmission} />
-            <Route path="/profile" component={Profile} />
-            <Route path="/portfolio" component={UserPortfolio} />
-            <Route path="/groups" component={GroupsList} />
-            <Route path="/group/:id" component={GroupPage} />
-            <Route path="*" component={ArtMap} />
+            <ProtectedRoute exact path="/map" component={ArtMap} />
+            <ProtectedRoute exact path="/map/:artwork" component={ArtMap} />
+            <ProtectedRoute
+              exact
+              path="/map/:artwork/track"
+              component={ArtMap}
+            />
+            <ProtectedRoute
+              exact
+              path="/artwork/:id/report"
+              component={ReportArtwork}
+            />
+            <ProtectedRoute path="/artwork/:id" component={Artwork} />
+            <ProtectedRoute path="/camera" component={Camera} />
+            <ProtectedRoute path="/art-submission" component={ArtSubmission} />
+            <ProtectedRoute path="/profile" component={Profile} />
+            <ProtectedRoute path="/portfolio" component={UserPortfolio} />
+            <ProtectedRoute path="/groups" component={GroupsList} />
+            <ProtectedRoute path="/group/:id" component={GroupPage} />
+            <Route path="*" component={profile ? ArtMap : Login} />
           </Switch>
         </div>
 
-        {auth.currentUser() && <TabBar />}
+        {profile && <TabBar />}
       </Router>
     </main>
   );
