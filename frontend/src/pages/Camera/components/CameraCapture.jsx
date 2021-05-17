@@ -1,6 +1,5 @@
 import Webcam from "react-webcam";
 import { useRef } from "react";
-import { useHistory } from "react-router-dom";
 import usePhotoLibrary from "../../../hooks/usePhotoLibrary";
 import {
   Image,
@@ -13,10 +12,9 @@ const videoConstraints = {
   facingMode: "environment",
 };
 
-export default function CameraCapture({ onShowPhotos, onImageCapture }) {
+export default function CameraCapture({ onShowPhotos, onImageCapture, onSubmit}) {
   const cameraRef = useRef(null);
   const flashRef = useRef(null);
-  const history = useHistory();
   const { images } = usePhotoLibrary();
 
   function takePhoto() {
@@ -30,10 +28,6 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
       },
       500
     );
-  }
-
-  function submitPhotos() {
-    history.push("/art-submission");
   }
 
   function getInputtedFiles(e) {
@@ -80,7 +74,7 @@ export default function CameraCapture({ onShowPhotos, onImageCapture }) {
         <li>
           <button
             className="wrapper"
-            onClick={submitPhotos}
+            onClick={onSubmit}
             disabled={images.length < 1}
           >
             <ArrowRightCircle />

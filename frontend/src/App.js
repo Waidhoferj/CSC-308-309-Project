@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import { BrowserRouter as Router, Switch, Route, useHistory } from "react-router-dom";
 import ArtMap from "./pages/ArtMap/ArtMap";
 import Camera from "./pages/Camera/Camera";
 import Artwork from "./pages/Artwork/Artwork";
@@ -16,6 +16,11 @@ import { useEffect } from "react";
 import useProfileInfo from "./hooks/useProfileInfo";
 
 function App() {
+  function CameraPage() {
+    const history = useHistory();
+    return <Camera onSubmit={() => history.push("/art-submission")}/>;
+  }
+
   // Sets true height for mobile devices so that the menu bars don't overlay our UI.
   useEffect(() => {
     const setSafeHeight = () =>
@@ -50,7 +55,7 @@ function App() {
               component={ReportArtwork}
             />
             <ProtectedRoute path="/artwork/:id" component={Artwork} />
-            <ProtectedRoute path="/camera" component={Camera} />
+            <ProtectedRoute path="/camera" component={CameraPage} />
             <ProtectedRoute path="/art-submission" component={ArtSubmission} />
             <ProtectedRoute path="/profile" component={Profile} />
             <ProtectedRoute path="/portfolio" component={UserPortfolio} />
