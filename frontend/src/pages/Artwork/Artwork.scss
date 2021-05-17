@@ -65,4 +65,21 @@
       }
     }
   }
+
+  .drawer-button {
+    display: block;
+    padding: 5px;
+    margin: 5px 0;
+    background-color: transparent;
+    color: black;
+    font-weight: 400;
+    width: 100%;
+    text-align: left;
+    transition: all 0.3s;
+    border-radius: 0;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  }
 }

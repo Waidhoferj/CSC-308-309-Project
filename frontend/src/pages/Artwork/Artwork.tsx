@@ -7,6 +7,7 @@ import {
   MessageSquare,
   AlertCircle,
   Camera,
+  Users,
 } from "react-feather";
 
 import ArtReview from "../ArtReview/ArtReview";
@@ -24,11 +25,14 @@ import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/Conn
 import { useParams, useHistory, Route, Switch } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import Spinner from "../../components/Spinner/Spinner";
+import Drawer from "../../components/Drawer/Drawer";
+import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 
 export default function Artwork() {
   const { goBack, push } = useHistory();
   const { id } = useParams<{ id: string }>();
-
+  const [showGroupDrawer, setShowGroupDrawer] = useState(false);
   const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, {
     variables: { id },
   });
@@ -112,8 +116,16 @@ export default function Artwork() {
               <button>
                 <Camera />
               </button>
+              <button onClick={() => setShowGroupDrawer(true)}>
+                <Users />
+              </button>
             </div>
           </div>
+          <AnimatePresence>
+            {showGroupDrawer && (
+              
+            )}
+          </AnimatePresence>
         </article>
       </Route>
       <Route exact path="/artwork/:id/art-review">
@@ -130,4 +142,20 @@ export default function Artwork() {
       </Route>
     </Switch>
   );
+}
+
+
+interface GroupDrawerProps {
+  onClose: () => void
+}
+
+function GroupDrawer(props: GroupDrawerProps) {
+  const {data} = useQuery()
+  return <Drawer
+  title="Choose Group"
+  onClose={props.onClose}
+>
+  <button className="drawer-button">Test</button>
+  <button className="drawer-button">Test</button>
+</Drawer>
 }

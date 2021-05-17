@@ -56,6 +56,26 @@ export const GET_ARTWORK = gql`
   }
 `;
 
+export const GET_GROUPS = gql`
+  query getGroups($userId: ID!) {
+    artwork(id: $userId) {
+      edges {
+        node {
+          pictures
+          title
+          description
+          tags
+          id
+          metrics {
+            totalVisits
+          }
+          rating
+        }
+      }
+    }
+  }
+`;
+
 export interface ArtworkQueryData {
   artwork: {
     edges: {
@@ -82,9 +102,10 @@ interface ArtworkCommentData {
 /**
  * Turns gql data into a list of comments and an image.
  */
-export function artCommentResolver(
-  data: ArtworkCommentData | undefined
-): { picture: string; comments: DiscussionComment[] } {
+export function artCommentResolver(data: ArtworkCommentData | undefined): {
+  picture: string;
+  comments: DiscussionComment[];
+} {
   const comments: DiscussionComment[] | undefined = !data
     ? []
     : data.artwork.edges?.[0].node.comments.edges.map(({ node }) => {
