@@ -4,15 +4,17 @@ import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import useProfileInfo from "../../hooks/useProfileInfo";
 import auth from "../../auth";
+import { useState } from "react";
 
 export default function Login() {
   const { setUser } = useProfileInfo();
   const { push } = useHistory();
-
+  const [submitDisabled, setSubmitDisabled] = useState(false);
   const { register, handleSubmit } = useForm();
 
   async function onSubmit(data) {
     try {
+      setSubmitDisabled(true);
       const user = await auth.login(data.email, data.password, true);
       setUser(user.email);
       setTimeout(() => {
@@ -20,6 +22,7 @@ export default function Login() {
       }, 300);
     } catch (err) {
       alert(err.message);
+      setSubmitDisabled(false);
     }
   }
 
@@ -57,7 +60,7 @@ export default function Login() {
           />
         </div>
 
-        <input type="submit" />
+        <input type="submit" disabled={submitDisabled} />
       </form>
       <h4>New user?</h4>
       <div>

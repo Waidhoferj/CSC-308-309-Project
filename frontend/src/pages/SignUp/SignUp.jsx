@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import auth from "../../auth";
 import useProfileInfo from "../../hooks/useProfileInfo";
+import { useState } from "react";
 
 const NEW_ACCOUNT_MUTATION = gql`
   mutation addUser($email: String!, $name: String!, $password: String!) {
@@ -21,8 +22,10 @@ export default function SignUp() {
   const { push } = useHistory();
   const { setUser } = useProfileInfo();
   const { register, handleSubmit } = useForm();
+  const [submitDisabled, setSubmitDisabled] = useState(false);
 
   async function onSubmit(data) {
+    setSubmitDisabled(true);
     const payload = {
       email: data.email,
       name: data.name,
@@ -37,6 +40,7 @@ export default function SignUp() {
       setUser(user.email);
       push("/map");
     } catch (err) {
+      setSubmitDisabled(false);
       alert(err.message);
     }
   }
@@ -89,7 +93,7 @@ export default function SignUp() {
           />
         </div>
 
-        <input type="submit" />
+        <input type="submit" disabled={submitDisabled} />
       </form>
       <h4>Already have an account?</h4>
       <div>
