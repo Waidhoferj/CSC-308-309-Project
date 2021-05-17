@@ -1,11 +1,20 @@
 import "./Profile.scss";
-import { MoreHorizontal } from "react-feather";
+import { LogOut } from "react-feather";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import useProfileInfo from "../../hooks/useProfileInfo";
+import auth from "../../auth";
+import { useHistory } from "react-router";
 
 export default function Profile() {
-  const { profile: user, error } = useProfileInfo();
+  const { profile: user, error, setUser } = useProfileInfo();
+  const history = useHistory();
+  function logOut() {
+    auth.currentUser()?.logout();
+    setUser(null);
+    history.push("/login");
+  }
+
   return (
     <article className="Profile">
       {error ? (
@@ -21,7 +30,7 @@ export default function Profile() {
             </div>
             <div className="options">
               <button className="wrapper">
-                <MoreHorizontal size={30} />
+                <LogOut size={30} onClick={logOut} />
               </button>
             </div>
           </header>
