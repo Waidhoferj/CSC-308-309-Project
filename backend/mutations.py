@@ -526,8 +526,8 @@ class UpdateArtworkMutation(graphene.Mutation):
             artwork.artist = artwork_data.artist
         if artwork_data.description:
             artwork.description = artwork_data.description
-        if artwork_data.picture_to_add:
-            artwork.pictures.append(artwork_data.picture_to_add)
+        if artwork_data.pictures:
+            artwork.pictures.extend(artwork_data.pictures)
         # add picture to remove
         artwork.save()
 
