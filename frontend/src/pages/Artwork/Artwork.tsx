@@ -6,12 +6,14 @@ import {
   Star,
   MessageSquare,
   AlertCircle,
-  Camera,
   Users,
+  Camera as CamIcon,
 } from "react-feather";
+import { useMutation, gql } from "@apollo/client";
 
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
+import Camera from "../Camera/Camera";
 import {
   GET_ARTWORK_DISCUSSION,
   POST_DISCUSSION_MESSAGE,
@@ -32,11 +34,33 @@ import Drawer from "../../components/Drawer/Drawer";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import useProfileInfo from "../../hooks/useProfileInfo";
+import usePhotoLibrary from "../../hooks/usePhotoLibrary";
+
+const ADD_PHOTOS_MUTATION = gql`
+  mutation addPhotos(
+    $artworkId: ID!
+    $pictures_to_add: [String]
+  ) {
+    updateArtwork(
+      artworkData: {
+        id: $artworkId
+        pictures: $pictures_to_add
+      }
+    ) {
+      artwork {
+        id
+      }
+    }
+  }
+`;
 
 export default function Artwork() {
   const { goBack, push } = useHistory();
   const { id } = useParams<{ id: string }>();
   const [showGroupDrawer, setShowGroupDrawer] = useState(false);
+  const [addPhotos] = useMutation(ADD_PHOTOS_MUTATION);
+  const { images, clearLibrary } = usePhotoLibrary();
+
   const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, {
     variables: { id },
   });
@@ -67,6 +91,17 @@ export default function Artwork() {
 
   function artPostResolver(postInfo: { message: string; author: string }) {
     return { content: postInfo.message, author: postInfo.author, id };
+  }
+
+  function uploadImages() {
+    const payload = {
+      artworkId: id, 
+      pictures_to_add: images,
+    };
+    addPhotos({ variables: payload }).then((res) => {
+      clearLibrary();
+      push("/artwork/" + res.data.updateArtwork.artwork.id);
+    });
   }
 
   return (
@@ -117,8 +152,8 @@ export default function Artwork() {
               <button onClick={() => push("/artwork/" + id + "/report")}>
                 <AlertCircle />
               </button>
-              <button>
-                <Camera />
+              <button onClick={() => push("/artwork/" + id + "/add-photos")}>
+                <CamIcon />
               </button>
               <button onClick={() => setShowGroupDrawer(true)}>
                 <Users />
@@ -146,6 +181,9 @@ export default function Artwork() {
           postMutation={POST_DISCUSSION_MESSAGE}
           postResolver={artPostResolver}
         />
+      </Route>
+      <Route exact path="/artwork/:id/add-photos">
+        <Camera onSubmit={uploadImages}/>
       </Route>
     </Switch>
   );
