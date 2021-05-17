@@ -1,9 +1,10 @@
 import "./GroupPage.scss";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import {
   GET_GROUP_QUERY,
   GET_COMMENTS_QUERY,
   POST_DISCUSSION_MESSAGE,
+  LEAVE_GROUP,
   groupResolver,
   groupCommentsResolver,
   Group,
@@ -17,6 +18,7 @@ import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/C
 import { Route } from "react-router-dom";
 import Portfolio from "../../Portfolio/Portfolio";
 import Discussion from "../../Discussion/Discussion";
+import useProfileInfo from "../../../hooks/useProfileInfo";
 
 /**
  * Wrapper component around individual group activities.
@@ -72,7 +74,25 @@ interface GroupHubProps {
  * Presents general group info like the bio, metrics and recent activity.
  */
 function GroupHub({ group }: GroupHubProps) {
+  const { id } = useParams<{ id: string }>();
   const { goBack, push } = useHistory();
+  const [leaveGroupMutation] = useMutation(LEAVE_GROUP);
+  const { profile: user} = useProfileInfo();
+
+  async function leaveGroup() {
+    const payload = {
+      user: user?.id,
+      group: id
+    }
+    let resp = await leaveGroupMutation({ variables: payload }); 
+
+    if (resp["data"]["leaveGroup"]["success"]) {
+      push("/groups");
+    }
+    else {
+      alert("Error when attempting to leave group");
+    }
+  }
 
   return (
     <article className="GroupPage">
@@ -98,6 +118,9 @@ function GroupHub({ group }: GroupHubProps) {
         </div>
       </header>
       <div className="content">
+        <div className="actions">
+          <button onClick={leaveGroup}>Leave Group</button>
+        </div>
         <section>
           <h2>Group Bio</h2>
           <p>{group.bio}</p>

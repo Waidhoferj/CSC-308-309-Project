@@ -129,15 +129,18 @@ class CreateGroupMutation(graphene.Mutation):
         group_data = GroupInput(required=True)
 
     def mutate(self, info, group_data=None):
+        user = UpdateUserMutation.getUser(group_data.member_to_add)
         group_portfolio = Portfolio()
         group = Group(
             name=group_data.name,
             bio=group_data.bio,
-            members=[UpdateUserMutation.getUser(group_data.member_to_add)],
+            members=[user],
             group_portfolio=group_portfolio,
             chat=[]
         )
         group.save()
+        user.groups.append(group)
+        user.save()
 
         return CreateGroupMutation(group=group)
 
@@ -220,7 +223,7 @@ class DeleteGroupMutation(graphene.Mutation):  # ensure cascade
 
     success = graphene.Boolean()
 
-    def mutate(self, info, id):
+    def mutate(self, id):
         try:
             UpdateGroupMutation.getGroup(id).delete()
             success = True
@@ -229,6 +232,66 @@ class DeleteGroupMutation(graphene.Mutation):  # ensure cascade
             return
 
         return DeleteGroupMutation(success=success)
+
+
+class JoinGroupMutation(graphene.Mutation):
+    """ Allows a specific user to join a specific group """
+    success = graphene.Boolean()
+
+    class Arguments:
+        user_id = graphene.String()
+        group_id = graphene.String()
+
+    def mutate(self, info, user_id, group_id):
+
+        group = UpdateGroupMutation.getGroup(group_id)
+        user = UpdateUserMutation.getUser(user_id)
+        expected_sizes = (len(group.members) + 1, len(user.groups) + 1)
+        group.members.append(user)
+        user.groups.append(group)
+        actual_sizes = (len(group.members), len(user.groups))
+
+        if expected_sizes == actual_sizes:
+            user.save()
+            group.save()
+            success = True
+        else:
+            success = False
+        return JoinGroupMutation(success=success)
+
+
+class LeaveGroupMutation(graphene.Mutation):
+    """ Lets a specific user leave a specific group """
+    success = graphene.Boolean()
+
+    class Arguments:
+        user_id = graphene.String()
+        group_id = graphene.String()
+
+
+    def mutate(self, info, user_id, group_id):
+        #  checking success by size of list here
+        group = UpdateGroupMutation.getGroup(group_id)
+        user = UpdateUserMutation.getUser(user_id)
+
+        expected_sizes = (len(group.members) - 1, len(user.groups) - 1)
+
+        user.update(pull__groups=group)
+        group.update(pull__members=user)
+        updated_group = UpdateGroupMutation.getGroup(group_id)
+        updated_user = UpdateUserMutation.getUser(user_id)
+
+        actual_sizes = (len(updated_group.members), len(updated_user.groups))
+
+        if expected_sizes == actual_sizes:
+            success = True
+            #  if the last member of the group left, delete the group
+            #  could add checks here
+            if len(updated_group.members) == 0:
+                updated_group.delete()
+        else:
+            success = False
+        return LeaveGroupMutation(success=success)
 
 
 class UserSettingsInput(graphene.InputObjectType):

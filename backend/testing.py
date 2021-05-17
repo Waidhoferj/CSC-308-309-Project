@@ -18,8 +18,10 @@ def testing_boot_up():
     (users_with_ids,
      artworks_with_ids,
      groups_with_ids,
-     achievements_with_ids) = mock_db_setup(client)
-    run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids)
+     achievements_with_ids,
+     group_creators_with_members) = mock_db_setup(client)
+    run_tests(client, users_with_ids, artworks_with_ids,
+              groups_with_ids, group_creators_with_members)
 
 
 def mock_db_setup(client):
@@ -37,16 +39,21 @@ def mock_db_setup(client):
     ]
     groups_with_ids = create_groups(client, group_creators_with_members)
     return (users_with_ids, artworks_with_ids,
-            groups_with_ids, achievements_with_ids)
+            groups_with_ids, achievements_with_ids,
+            group_creators_with_members)
 
 
-def run_tests(client, users_with_ids, artworks_with_ids, groups_with_ids):
+def run_tests(client, users_with_ids,
+              artworks_with_ids, groups_with_ids,
+              group_creators_with_members):
     test_removing_artwork(client, users_with_ids[0], artworks_with_ids[1])
     test_consistent_ids(client)
     test_add_artwork_review(client, users_with_ids[1], artworks_with_ids[0])
     test_submit_artwork_review(client,
                                users_with_ids[0],
                                artworks_with_ids[0])
+    test_leaving_group(client, groups_with_ids, group_creators_with_members)
+    test_group_deletion(client, users_with_ids[0])
     print("--- Tests Successful ---")
 
 
@@ -245,24 +252,14 @@ def create_groups(client, group_creators_with_members):
         for new_member in group_set[1]:
             executed = client.execute("""
                 mutation {{
-                    updateGroup(groupData: {{
-                        id: "{0}",
-                        memberToAdd: "{1}"
-                    }}) {{
-                        group {{
-                            id
-                            name
-                            bio
-                            members {{
-                                edges {{
-                                    node {{
-                                        name
-                                    }}
-                                }}
-                            }}
-                        }}
+                    joinGroup(
+                        userId: "{0}",
+                        groupId: "{1}"
+                    ) {{
+                        success
                     }}
-                }}""".format(groups_with_ids[i][1], new_member[1]))
+                }}""".format(new_member[1], groups_with_ids[i][1],))
+    return groups_with_ids
 
 
 def test_consistent_ids(client):
@@ -525,6 +522,130 @@ def test_submit_artwork_review(client, user, artwork):  # [name, id]
     assert report_data['reason'] == reason
     assert report_data['description'] == description
 
+
+def test_leaving_group(client, groups_with_ids, group_creators_with_members):
+    # group_with_ids index relates to index of group_creators_with_members
+    # index means they relate to the same group
+
+    def get_user_groups(member_id):
+        user_groups = client.execute("""
+            query {{
+                users(id: "{0}") {{
+                    edges {{
+                        node {{
+                            groups {{
+                                edges {{
+                                    node {{
+                                        id
+                                        name                             
+                                    }}
+                                }}
+                            }}
+                        }}
+                    }}
+                }}
+            }}""".format(member_id))
+        return (user_groups['data']['users']['edges']
+                [0]['node']['groups']['edges'])
+    
+    def get_group_members(group_id):
+        group_members = client.execute("""
+        query {{
+            groups(id: "{0}") {{
+                edges {{
+                    node {{
+                        members {{
+                            edges {{
+                                node {{
+                                    id
+                                    name                                    
+                                }}
+                            }}
+                        }}
+                    }}
+                }}
+            }}
+        }}""".format(group_id))
+        return (group_members['data']['groups']['edges']
+                [0]['node']['members']['edges'])
+
+
+    # first group, not creator, first member on list, id of member 
+    member_id = group_creators_with_members[0][1][0][1]
+    
+    # first group, id of group
+    group_id = groups_with_ids[0][1]
+
+    user_before_mutation = get_user_groups(member_id)
+    group_before_mutation = get_group_members(group_id)
+
+    resp = client.execute("""
+        mutation {{
+            leaveGroup(
+                userId: "{0}"
+                groupId: "{1}"
+            ) {{
+                success
+            }}
+        }}
+        """.format(member_id, group_id))
+
+    user_after_mutation = get_user_groups(member_id)
+    group_after_mutation = get_group_members(group_id)
+
+    for group_node in user_after_mutation:
+        assert group_node["node"]["id"] != member_id
+    for member_node in group_after_mutation:
+        assert member_node["node"]["id"] != group_id
+
+
+def test_group_deletion(client, user):
+    new_group = client.execute("""
+        mutation {{
+            createGroup(groupData: {{
+                name: "Delete Me",
+                bio: "Fake group made to be deleted",
+                memberToAdd: "{0}"
+            }}) {{
+                group {{
+                    id
+                    name
+                    bio
+                    members {{
+                        edges {{
+                            node {{
+                                name
+                            }}
+                        }}
+                    }}
+                }}
+            }}
+        }}""".format(user[1]))["data"]['createGroup']["group"]
+
+    resp = client.execute("""
+        mutation {{
+            leaveGroup(
+                userId: "{0}"
+                groupId: "{1}"
+            ) {{
+                success
+            }}
+        }}
+        """.format(user[1], new_group["id"]))
+
+    deleted_group = client.execute("""
+        query {{
+            groups(id: "{0}") {{
+                edges {{
+                    node {{
+                        name
+                    }}
+                }}
+            }}
+        }}""".format(new_group["id"]))['data']['groups']['edges']
+
+    assert len(deleted_group) == 0
+        
 
 if __name__ == "__main__":
     connect(host="mongomock://localhost")
