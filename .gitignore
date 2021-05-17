@@ -4,6 +4,7 @@ settings.json
 backend/secrets.py
 backend/Pipfile.lock
 backend/.env
+backend/style.sh
 frontend/package-lock.json
 
 *.icloud
