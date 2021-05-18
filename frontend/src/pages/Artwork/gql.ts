@@ -58,19 +58,47 @@ export const GET_ARTWORK = gql`
 
 export const GET_GROUPS = gql`
   query getGroups($userId: ID!) {
-    artwork(id: $userId) {
+    users(id: $userId) {
       edges {
         node {
-          pictures
-          title
-          description
-          tags
-          id
-          metrics {
-            totalVisits
+          groups {
+            edges {
+              node {
+                name
+                id
+              }
+            }
           }
-          rating
         }
+      }
+    }
+  }
+`;
+
+interface GroupOption {
+  name: string;
+  id: string;
+}
+
+/**
+ * Reformats data to flat array of group options for adding artwork to group.
+ * @param data getGroups() GraphQL query result
+ * @returns Array of group options
+ */
+export function groupOptionsResolver(data: any): GroupOption[] {
+  return (
+    data?.users.edges?.[0].node.groups.edges.map((e: any) => ({
+      name: e.node.name,
+      id: e.node.id,
+    })) || []
+  );
+}
+
+export const ADD_ARTWORK_TO_GROUP = gql`
+  mutation addArtworkToGroup($artworkId: ID!, $groupId: ID!) {
+    updateGroup(groupData: { id: $groupId, artToAdd: $groupId }) {
+      group {
+        id
       }
     }
   }

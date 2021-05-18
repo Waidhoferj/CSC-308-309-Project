@@ -23,7 +23,7 @@ export default function Drawer(props: DrawerProps) {
         exit={{ y: "120%", x: "-50%" }}
       >
         {props.title && <h2>{props.title}</h2>}
-        {props.children}
+        <div className="drawer-content">{props.children}</div>
       </motion.div>
     </motion.div>
   );

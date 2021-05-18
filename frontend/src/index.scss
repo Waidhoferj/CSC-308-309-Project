@@ -101,6 +101,10 @@ input[type="submit"] {
     }
   }
 
+  &.danger {
+    background-color: var(--c-problem);
+  }
+
   &:disabled {
     opacity: 0.7;
   }

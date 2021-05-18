@@ -439,7 +439,7 @@ def get_sample_encoded_art_image(filepath="") -> str:
     if filepath == "":
         # select random image if not supplied with a path
         path = "./assets/sample-artworks"
-        image_paths = os.listdir(path)
+        image_paths = [img for img in os.listdir(path) if img.endswith(".jpg")]
         filepath = os.path.join(path, random.choice(image_paths))
     return b64_encode_image(filepath)
 

@@ -16,18 +16,22 @@ import {
   GET_ARTWORK_DISCUSSION,
   POST_DISCUSSION_MESSAGE,
   GET_ARTWORK,
+  GET_GROUPS,
+  ADD_ARTWORK_TO_GROUP,
   artCommentResolver,
   ArtworkQueryData,
+  groupOptionsResolver,
 } from "./gql";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import { useParams, useHistory, Route, Switch } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import Spinner from "../../components/Spinner/Spinner";
 import Drawer from "../../components/Drawer/Drawer";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import useProfileInfo from "../../hooks/useProfileInfo";
 
 export default function Artwork() {
   const { goBack, push } = useHistory();
@@ -90,7 +94,7 @@ export default function Artwork() {
 
             <ul className="tags">
               {artwork.tags?.map((tag) => (
-                <li>
+                <li key={tag}>
                   <Tag key={tag}>{tag}</Tag>
                 </li>
               ))}
@@ -98,8 +102,8 @@ export default function Artwork() {
 
             <h2>Stats</h2>
             <div className="metric-badges">
-              {metrics.map((metric) => (
-                <MetricBadge {...metric} />
+              {metrics.map((metric, key) => (
+                <MetricBadge key={key} {...metric} />
               ))}
             </div>
 
@@ -123,7 +127,10 @@ export default function Artwork() {
           </div>
           <AnimatePresence>
             {showGroupDrawer && (
-              
+              <GroupDrawer
+                artworkId={id}
+                onClose={() => setShowGroupDrawer(false)}
+              />
             )}
           </AnimatePresence>
         </article>
@@ -144,18 +151,46 @@ export default function Artwork() {
   );
 }
 
-
 interface GroupDrawerProps {
-  onClose: () => void
+  onClose: () => void;
+  artworkId: string;
 }
 
-function GroupDrawer(props: GroupDrawerProps) {
-  const {data} = useQuery()
-  return <Drawer
-  title="Choose Group"
-  onClose={props.onClose}
->
-  <button className="drawer-button">Test</button>
-  <button className="drawer-button">Test</button>
-</Drawer>
+/**
+ * Menu for adding selected artwork to a group.
+ */
+function GroupDrawer({ onClose, artworkId }: GroupDrawerProps) {
+  const { profile } = useProfileInfo();
+  const { data, loading } = useQuery(GET_GROUPS, {
+    variables: { userId: profile?.id },
+  });
+  const groupOptions = groupOptionsResolver(data);
+  const [addArtworkToGroup] = useMutation(ADD_ARTWORK_TO_GROUP);
+
+  function onGroupClick(groupId: string) {
+    addArtworkToGroup({
+      variables: { artworkId, groupId },
+    }).catch(console.log);
+    onClose();
+  }
+
+  return (
+    <Drawer title="Choose Group" onClose={onClose}>
+      {loading ? (
+        <Spinner absCenter={true} />
+      ) : groupOptions.length ? (
+        groupOptions.map((option) => (
+          <button
+            key={option.name}
+            className="drawer-button"
+            onClick={() => onGroupClick(option.id)}
+          >
+            {option.name}
+          </button>
+        ))
+      ) : (
+        <p>Looks like you haven't joined any groups yet.</p>
+      )}
+    </Drawer>
+  );
 }
