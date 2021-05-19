@@ -95,8 +95,8 @@ export function groupOptionsResolver(data: any): GroupOption[] {
 }
 
 export const ADD_ARTWORK_TO_GROUP = gql`
-  mutation addArtworkToGroup($artworkId: ID!, $groupId: ID!) {
-    updateGroup(groupData: { id: $groupId, artToAdd: $groupId }) {
+  mutation addArtworkToGroup($artworkId: String!, $groupId: String!) {
+    updateGroup(groupData: { id: $groupId, artToAdd: $artworkId }) {
       group {
         id
       }

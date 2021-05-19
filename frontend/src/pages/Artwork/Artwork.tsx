@@ -170,7 +170,7 @@ function GroupDrawer({ onClose, artworkId }: GroupDrawerProps) {
   function onGroupClick(groupId: string) {
     addArtworkToGroup({
       variables: { artworkId, groupId },
-    }).catch(console.log);
+    }).catch(console.error);
     onClose();
   }
 
