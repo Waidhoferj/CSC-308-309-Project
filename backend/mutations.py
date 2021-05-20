@@ -234,18 +234,6 @@ class DeleteGroupMutation(graphene.Mutation):  # ensure cascade
         return DeleteGroupMutation(success=success)
 
 
-class CheckMembershipMutation(graphene.Mutation):
-    ''' 
-    Returns true if user is a member of the group, false otherwise
-    Note: Membership is defined as the user being in the group's member list
-            AND the user contains the group in their group list
-    '''
-    member = graphene.Boolean()
-
-    class Arguments:
-        user_id = graphene.String()
-        group_id = graphene.String()
-
 class JoinGroupMutation(graphene.Mutation):
     """ Allows a specific user to join a specific group """
     success = graphene.Boolean()
@@ -291,6 +279,10 @@ class CheckMembershipMutation(graphene.Mutation):
     
     @staticmethod
     def checkMembership(user, group):
+        '''
+        Takes in a user object and group object
+        Returns true if user is a member of the group, false otherwise
+        '''
         if (user not in group.members) and (group not in user.groups):
             return False
         return True
