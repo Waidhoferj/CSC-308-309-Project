@@ -75,6 +75,17 @@ export const LEAVE_GROUP = gql`
   }
 `;
 
+export const CHECK_MEMBERSHIP = gql`
+  mutation checkMembership($user: String!, $group: String!) {
+    checkMember(
+      userId: $String!
+      groupId: $String!
+    ) {
+      member
+    }
+  }
+`;
+
 export interface GqlGroupData {
   groups: {
     edges: {

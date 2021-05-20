@@ -5,6 +5,7 @@ import {
   GET_COMMENTS_QUERY,
   POST_DISCUSSION_MESSAGE,
   LEAVE_GROUP,
+  CHECK_MEMBERSHIP,
   groupResolver,
   groupCommentsResolver,
   Group,
@@ -13,7 +14,7 @@ import { ArrowLeft, MessageSquare, BookOpen } from "react-feather";
 import MetricBadge from "../../../components/MetricBadge/MetricBadge";
 import Spinner from "../../../components/Spinner/Spinner";
 import { Switch, useHistory, useParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/ConnectionErrorMessage.jsx";
 import { Route } from "react-router-dom";
 import Portfolio from "../../Portfolio/Portfolio";
@@ -77,7 +78,10 @@ function GroupHub({ group }: GroupHubProps) {
   const { id } = useParams<{ id: string }>();
   const { goBack, push } = useHistory();
   const [leaveGroupMutation] = useMutation(LEAVE_GROUP);
-  const { profile: user } = useProfileInfo();
+  const [checkMembershipMutation] = useMutation(CHECK_MEMBERSHIP);
+  const { profile: user} = useProfileInfo();
+  const [loading, setLoading] = useState(true)
+  const [member, setMember] = useState(null)
 
   async function leaveGroup() {
     const payload = {
@@ -92,6 +96,24 @@ function GroupHub({ group }: GroupHubProps) {
       alert("Error when attempting to leave group");
     }
   }
+
+  useEffect(async () => {
+    try {
+      setLoading(true)
+      const payload = {
+        user: user?.id,
+        group: id
+      }
+      const member = await checkMembershipMutation({ variables: payload });
+      
+      if (!member) {
+        try
+      }
+    }
+  })
+
+  if 
+
 
   return (
     <article className="GroupPage">
