@@ -279,10 +279,6 @@ class CheckMembershipMutation(graphene.Mutation):
     
     @staticmethod
     def checkMembership(user, group):
-        '''
-        Takes in a user object and group object
-        Returns true if user is a member of the group, false otherwise
-        '''
         if (user not in group.members) and (group not in user.groups):
             return False
         return True
