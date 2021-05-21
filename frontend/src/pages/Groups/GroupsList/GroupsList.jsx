@@ -83,6 +83,7 @@ function useGroupList() {
       })) || [],
     [data]
   );
+  console.log(groups);
   return { loading, groups };
 }
 

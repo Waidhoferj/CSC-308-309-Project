@@ -75,7 +75,6 @@ export const LEAVE_GROUP = gql`
   }
 `;
 
-<<<<<<< HEAD
 
 export const JOIN_GROUP = gql`
   mutation join($user: String!, $group: String!) {
@@ -94,13 +93,6 @@ export const CHECK_MEMBERSHIP = gql`
     checkMembership(
       userId: $user
       groupId: $group
-=======
-export const CHECK_MEMBERSHIP = gql`
-  mutation checkMembership($user: String!, $group: String!) {
-    checkMember(
-      userId: $String!
-      groupId: $String!
->>>>>>> 9af3800 (Added check membership mutation. Still need to add frontend functionality)
     ) {
       member
     }
