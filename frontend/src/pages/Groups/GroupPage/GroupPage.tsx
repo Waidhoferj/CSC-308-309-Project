@@ -96,8 +96,10 @@ function GroupHub({ group }: GroupHubProps) {
 
     if (resp["data"]["leaveGroup"]["success"]) {
       push("/groups");
-    } else {
+    }
+    else {
       alert("Error when attempting to leave group");
+      push("/groups");
     }
   }
 
@@ -114,7 +116,7 @@ function GroupHub({ group }: GroupHubProps) {
       };
       const memberResp = await checkMembershipMutation({ variables: payload });
       if (memberResp?.errors) {
-        console.log(memberResp.errors)
+        alert(memberResp.errors);
         push("/groups");
       }
       if (memberResp.data.checkMembership.member === true) {
@@ -125,14 +127,12 @@ function GroupHub({ group }: GroupHubProps) {
       // not a member
       const joinResp = await joinGroupMutation({ variables: payload });
       if (joinResp?.errors) {
-        alert('An error occurred')
-        console.log(memberResp.errors)
+        alert(memberResp.errors);
         push("/groups");
       }
       console.log(joinResp)
       if (joinResp.data.joinGroup.success === true) {
         setMember(true);
-        console.log(member);
         setLoading(false);
         return
       }
@@ -143,7 +143,7 @@ function GroupHub({ group }: GroupHubProps) {
     }
   }
   if (!member) {
-    checkMembership()
+    checkMembership();
   }
   if (loading) {
     return <Spinner absCenter={true} />;
