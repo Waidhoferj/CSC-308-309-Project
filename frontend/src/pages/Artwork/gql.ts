@@ -56,6 +56,54 @@ export const GET_ARTWORK = gql`
   }
 `;
 
+export const GET_GROUPS = gql`
+  query getGroups($userId: ID!) {
+    users(id: $userId) {
+      edges {
+        node {
+          groups {
+            edges {
+              node {
+                name
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+interface GroupOption {
+  name: string;
+  id: string;
+}
+
+/**
+ * Reformats data to flat array of group options for adding artwork to group.
+ * @param data getGroups() GraphQL query result
+ * @returns Array of group options
+ */
+export function groupOptionsResolver(data: any): GroupOption[] {
+  return (
+    data?.users.edges?.[0].node.groups.edges.map((e: any) => ({
+      name: e.node.name,
+      id: e.node.id,
+    })) || []
+  );
+}
+
+export const ADD_ARTWORK_TO_GROUP = gql`
+  mutation addArtworkToGroup($artworkId: String!, $groupId: String!) {
+    updateGroup(groupData: { id: $groupId, artToAdd: $artworkId }) {
+      group {
+        id
+      }
+    }
+  }
+`;
+
 export interface ArtworkQueryData {
   artwork: {
     edges: {
@@ -82,9 +130,10 @@ interface ArtworkCommentData {
 /**
  * Turns gql data into a list of comments and an image.
  */
-export function artCommentResolver(
-  data: ArtworkCommentData | undefined
-): { picture: string; comments: DiscussionComment[] } {
+export function artCommentResolver(data: ArtworkCommentData | undefined): {
+  picture: string;
+  comments: DiscussionComment[];
+} {
   const comments: DiscussionComment[] | undefined = !data
     ? []
     : data.artwork.edges?.[0].node.comments.edges.map(({ node }) => {

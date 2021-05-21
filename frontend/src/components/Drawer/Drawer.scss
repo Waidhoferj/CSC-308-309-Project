@@ -1,0 +1,32 @@
+.Drawer {
+  .backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+  }
+
+  .drawer-wrapper {
+    position: relative;
+    padding: 15px 35px;
+    background-color: white;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 300px;
+    min-height: 200px;
+    max-width: 100%;
+    transform: translateX(-50%);
+
+    .drawer-content {
+      max-height: 200px;
+      overflow-y: scroll;
+    }
+
+    h2 {
+      margin: 5px 0;
+    }
+  }
+}

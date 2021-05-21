@@ -77,19 +77,18 @@ function GroupHub({ group }: GroupHubProps) {
   const { id } = useParams<{ id: string }>();
   const { goBack, push } = useHistory();
   const [leaveGroupMutation] = useMutation(LEAVE_GROUP);
-  const { profile: user} = useProfileInfo();
+  const { profile: user } = useProfileInfo();
 
   async function leaveGroup() {
     const payload = {
       user: user?.id,
-      group: id
-    }
-    let resp = await leaveGroupMutation({ variables: payload }); 
+      group: id,
+    };
+    let resp = await leaveGroupMutation({ variables: payload });
 
     if (resp["data"]["leaveGroup"]["success"]) {
       push("/groups");
-    }
-    else {
+    } else {
       alert("Error when attempting to leave group");
     }
   }
@@ -118,9 +117,6 @@ function GroupHub({ group }: GroupHubProps) {
         </div>
       </header>
       <div className="content">
-        <div className="actions">
-          <button onClick={leaveGroup}>Leave Group</button>
-        </div>
         <section>
           <h2>Group Bio</h2>
           <p>{group.bio}</p>
@@ -129,8 +125,9 @@ function GroupHub({ group }: GroupHubProps) {
           <h2 style={{ marginBottom: 0 }}>Activity</h2>
           <span className="entry-count">{group.artworks.length} entries</span>
           <div className="side-scroller">
-            {group.artworks.map((work) => (
+            {group.artworks.map((work, key) => (
               <ArtworkCard
+                key={key}
                 image={work.pictures[0]}
                 title={work.title}
                 onClick={() => push("/artwork/" + work.id)}
@@ -151,6 +148,14 @@ function GroupHub({ group }: GroupHubProps) {
               unit="Members"
               fallbackVal={0}
             />
+          </div>
+        </section>
+        <section>
+          <h2>Options</h2>
+          <div className="actions">
+            <button className="danger" onClick={leaveGroup}>
+              Leave Group
+            </button>
           </div>
         </section>
       </div>

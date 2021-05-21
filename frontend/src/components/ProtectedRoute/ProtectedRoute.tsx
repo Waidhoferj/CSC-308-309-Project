@@ -31,7 +31,6 @@ export default function ProtectedRoute({
             children
           );
         } else {
-          console.log(shouldRender ?? auth.currentUser());
           return <Redirect exact to={redirectPath} />;
         }
       }}

@@ -78,6 +78,7 @@ def init_db():
         Portfolio(artworks=[art[2], art[4]]),
         Portfolio(artworks=[art[1], art[2], art[3]]),
         Portfolio(artworks=[art[3], art[5]]),
+        Portfolio(artworks=[art[3]]),
     ]
 
     users = [
@@ -120,13 +121,13 @@ def init_db():
               bio=("Looking for sick art in West Coast cities. "
                    "Group founders are based in SF and we love our style!"),
               members=[users[0], users[1]],
-              group_portfolio=portfolios[0],
+              group_portfolio=portfolios[4],
               metrics=GroupMetrics(artwork_count=2, member_count=2)),
         Group(name="All Art Welcome",
               bio=("We're here for the community, not the categories. "
                    "Lets see how much art we can collect together!"),
               members=[users[2], users[3]],
-              group_portfolio=portfolios[1],
+              group_portfolio=portfolios[4],
               metrics=GroupMetrics(artwork_count=2, member_count=2))
     ]
 
