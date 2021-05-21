@@ -245,6 +245,12 @@ class JoinGroupMutation(graphene.Mutation):
     def mutate(self, info, user_id, group_id):
         group = UpdateGroupMutation.getGroup(group_id)
         user = UpdateUserMutation.getUser(user_id)
+        member = CheckMembershipMutation.checkMembership(
+            user = UpdateUserMutation.getUser(user_id),
+            group = UpdateGroupMutation.getGroup(group_id)
+        )
+        if member:
+            return JoinGroupMutation(success=False)
         expected_sizes = (len(group.members) + 1, len(user.groups) + 1)
         group.members.append(user)
         user.groups.append(group)
@@ -282,7 +288,7 @@ class CheckMembershipMutation(graphene.Mutation):
         return True
 
     def mutate(self, info, user_id, group_id):
-        member = checkMembership(
+        member = CheckMembershipMutation.checkMembership(
             user = UpdateUserMutation.getUser(user_id),
             group = UpdateGroupMutation.getGroup(group_id)
         )

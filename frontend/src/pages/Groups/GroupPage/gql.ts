@@ -75,11 +75,24 @@ export const LEAVE_GROUP = gql`
   }
 `;
 
+
+export const JOIN_GROUP = gql`
+  mutation join($user: String!, $group: String!) {
+    joinGroup(
+      userId: $user
+      groupId: $group
+    ) {
+      success
+    }
+  }
+`;
+
+
 export const CHECK_MEMBERSHIP = gql`
-  mutation checkMembership($user: String!, $group: String!) {
-    checkMember(
-      userId: $String!
-      groupId: $String!
+  mutation isMember($user: String!, $group: String!) {
+    checkMembership(
+      userId: $user
+      groupId: $group
     ) {
       member
     }
