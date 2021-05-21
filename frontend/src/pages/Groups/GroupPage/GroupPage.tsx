@@ -130,7 +130,6 @@ function GroupHub({ group }: GroupHubProps) {
         alert(memberResp.errors);
         push("/groups");
       }
-      console.log(joinResp)
       if (joinResp.data.joinGroup.success === true) {
         setMember(true);
         setLoading(false);
@@ -142,13 +141,14 @@ function GroupHub({ group }: GroupHubProps) {
       alert(error);
     }
   }
+
+
   if (!member) {
     checkMembership();
   }
   if (loading) {
     return <Spinner absCenter={true} />;
   }
-
 
   return (
     <article className="GroupPage">
