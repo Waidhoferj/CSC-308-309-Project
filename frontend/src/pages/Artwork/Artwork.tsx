@@ -9,7 +9,7 @@ import {
   Users,
   Camera as CamIcon,
 } from "react-feather";
-import { useMutation, gql } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
@@ -28,7 +28,6 @@ import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import Tag from "../../components/Tag/Tag";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import { useParams, useHistory, Route, Switch } from "react-router-dom";
-import { useQuery, useMutation } from "@apollo/client";
 import Spinner from "../../components/Spinner/Spinner";
 import Drawer from "../../components/Drawer/Drawer";
 import { useState } from "react";
