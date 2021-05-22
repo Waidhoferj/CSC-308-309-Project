@@ -9,12 +9,13 @@ import {
   Users,
   Camera as CamIcon,
 } from "react-feather";
-import { useQuery, useMutation, gql } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
 import Camera from "../Camera/Camera";
 import {
+  ADD_PHOTOS,
   GET_ARTWORK_DISCUSSION,
   POST_DISCUSSION_MESSAGE,
   GET_ARTWORK,
@@ -35,29 +36,11 @@ import { AnimatePresence } from "framer-motion";
 import useProfileInfo from "../../hooks/useProfileInfo";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 
-const ADD_PHOTOS_MUTATION = gql`
-  mutation addPhotos(
-    $artworkId: ID!
-    $pictures_to_add: [String]
-  ) {
-    updateArtwork(
-      artworkData: {
-        id: $artworkId
-        pictures: $pictures_to_add
-      }
-    ) {
-      artwork {
-        id
-      }
-    }
-  }
-`;
-
 export default function Artwork() {
   const { goBack, push } = useHistory();
   const { id } = useParams<{ id: string }>();
   const [showGroupDrawer, setShowGroupDrawer] = useState(false);
-  const [addPhotos] = useMutation(ADD_PHOTOS_MUTATION);
+  const [addPhotos] = useMutation(ADD_PHOTOS);
   const { images, clearLibrary } = usePhotoLibrary();
 
   const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, {

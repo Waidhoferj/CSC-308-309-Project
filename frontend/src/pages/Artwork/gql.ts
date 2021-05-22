@@ -1,5 +1,23 @@
 import { gql } from "@apollo/client";
 
+export const ADD_PHOTOS = gql`
+  mutation addPhotos(
+    $artworkId: ID!
+    $pictures_to_add: [String]
+  ) {
+    updateArtwork(
+      artworkData: {
+        id: $artworkId
+        pictures: $pictures_to_add
+      }
+    ) {
+      artwork {
+        id
+      }
+    }
+  }
+`;
+
 export const GET_ARTWORK_DISCUSSION = gql`
   query getDiscussion($id: ID!) {
     artwork(id: $id) {
