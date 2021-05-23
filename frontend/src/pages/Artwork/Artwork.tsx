@@ -11,7 +11,6 @@ import {
 } from "react-feather";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
 import Camera from "../Camera/Camera";
