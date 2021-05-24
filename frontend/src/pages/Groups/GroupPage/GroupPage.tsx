@@ -130,7 +130,6 @@ function GroupHub({ group }: GroupHubProps) {
       setLoading(false);
       return
     }
-  }
 
   useEffect(() => {
     setLoading(true);
