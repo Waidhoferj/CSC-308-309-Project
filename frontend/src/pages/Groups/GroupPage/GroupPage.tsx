@@ -130,6 +130,24 @@ function GroupHub({ group }: GroupHubProps) {
       setLoading(false);
       return
     }
+    
+    //  Is a member of the group   
+    if (memberResp.data.checkMembership.member) { 
+      setLoading(false);        
+      return      
+    }
+    
+    // Is not a member and is joining
+    const joinResp = await joinGroupMutation({ variables: payload });
+    if (joinResp?.errors) {
+      alert(memberResp.errors);
+      push("/groups");
+    }
+    if (joinResp.data.joinGroup.success) {
+      setLoading(false);
+      return
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
