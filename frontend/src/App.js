@@ -14,6 +14,8 @@ import SignUp from "./pages/SignUp/SignUp";
 import Login from "./pages/Login/Login";
 import { useEffect } from "react";
 import useProfileInfo from "./hooks/useProfileInfo";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   function CameraPage() {
@@ -67,6 +69,7 @@ function App() {
 
         {profile && <TabBar />}
       </Router>
+      <ToastContainer />
     </main>
   );
 }

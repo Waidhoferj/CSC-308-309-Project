@@ -10,7 +10,6 @@ import {
   Camera as CamIcon,
 } from "react-feather";
 import { useQuery, useMutation } from "@apollo/client";
-
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
 import Camera from "../Camera/Camera";
@@ -97,7 +96,7 @@ export default function Artwork() {
             </button>
             <h1>{artwork.title}</h1>
             <div className="options">
-              <button className="wrapper">
+              <button className="wrapper">  
                 <Upload />
               </button>
               <button className="wrapper">
