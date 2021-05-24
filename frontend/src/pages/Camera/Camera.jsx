@@ -7,7 +7,7 @@ import PhotoGallery from "./components/PhotoGallery";
 import { Route, useHistory } from "react-router-dom";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 
-export default function Camera() {
+export default function Camera({onSubmit}) {
   const { addImage } = usePhotoLibrary();
   const history = useHistory();
   return (
@@ -15,6 +15,7 @@ export default function Camera() {
       <CameraCapture
         onImageCapture={addImage}
         onShowPhotos={() => history.push("/camera/library")}
+        onSubmit={onSubmit}
       />
       <AnimatePresence>
         <Route path="/camera/library">
@@ -25,7 +26,7 @@ export default function Camera() {
             exit={{ opacity: 0, transform: "translateY(100vh)" }}
             transition={{ ease: ["easeInOut"], duration: 0.4 }}
           >
-            <PhotoGallery onHide={() => history.push("/camera")} />
+            <PhotoGallery onHide={() => history.goBack()} />
           </motion.div>
         </Route>
       </AnimatePresence>
