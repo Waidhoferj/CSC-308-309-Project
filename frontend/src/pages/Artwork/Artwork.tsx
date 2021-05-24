@@ -13,6 +13,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
 import Camera from "../Camera/Camera";
+import { toast } from "react-toastify";
 import {
   ADD_PHOTOS,
   GET_ARTWORK_DISCUSSION,
@@ -82,6 +83,7 @@ export default function Artwork() {
     addPhotos({ variables: payload }).then((res) => {
       clearLibrary();
       push("/artwork/" + res.data.updateArtwork.artwork.id);
+      toast("Images successfully submitted!");
     });
   }
 
