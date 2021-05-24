@@ -109,28 +109,28 @@ function GroupHub({ group }: GroupHubProps) {
     const memberResp = await checkMembershipMutation({ variables: payload });    
       
     // If there is an error  
-      if (memberResp?.errors) {        
-        alert(memberResp.errors);        
-        push("/groups");      
-      }
-      
-      //  Is a member of the group   
-      if (memberResp.data.checkMembership.member) { 
-        setLoading(false);        
-        return      
-      }
-      
-      // Is not a member and is joining
-      const joinResp = await joinGroupMutation({ variables: payload });
-      if (joinResp?.errors) {
-        alert(memberResp.errors);
-        push("/groups");
-      }
-      if (joinResp.data.joinGroup.success) {
-        setLoading(false);
-        return
-      }
+    if (memberResp?.errors) {        
+      alert(memberResp.errors);        
+      push("/groups");      
     }
+    
+    //  Is a member of the group   
+    if (memberResp.data.checkMembership.member) { 
+      setLoading(false);        
+      return      
+    }
+    
+    // Is not a member and is joining
+    const joinResp = await joinGroupMutation({ variables: payload });
+    if (joinResp?.errors) {
+      alert(memberResp.errors);
+      push("/groups");
+    }
+    if (joinResp.data.joinGroup.success) {
+      setLoading(false);
+      return
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
