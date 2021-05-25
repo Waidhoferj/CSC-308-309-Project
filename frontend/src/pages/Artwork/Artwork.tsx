@@ -12,8 +12,13 @@ import {
 import { useQuery, useMutation } from "@apollo/client";
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
+<<<<<<< HEAD
 import Camera from "../Camera/Camera";
 import { toast } from "react-toastify";
+||||||| merged common ancestors
+=======
+import ArtGallery from "../ArtGallery/ArtGallery";
+>>>>>>> Fix Routing
 import {
   ADD_PHOTOS,
   GET_ARTWORK_DISCUSSION,
@@ -102,7 +107,7 @@ export default function Artwork() {
                 <Upload />
               </button>
               <button className="wrapper">
-                <Maximize2 />
+                <Maximize2 onClick={() => push("/artwork/" + id + "/art-gallery")}/>
               </button>
             </div>
           </header>
@@ -169,9 +174,16 @@ export default function Artwork() {
           postResolver={artPostResolver}
         />
       </Route>
+<<<<<<< HEAD
       <Route exact path="/artwork/:id/add-photos">
         <Camera onSubmit={uploadImages}/>
       </Route>
+||||||| merged common ancestors
+=======
+      <Route exact path="/artwork/:id/art-gallery">
+        <ArtGallery />
+      </Route>
+>>>>>>> Fix Routing
     </Switch>
   );
 }

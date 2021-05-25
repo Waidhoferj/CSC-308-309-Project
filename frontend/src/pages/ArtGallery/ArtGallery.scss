@@ -1,0 +1,63 @@
+
+// .ArtGallery {
+//     display: flex;
+//     flex-direction: column;
+//     height: 100%;
+//     width: 100%;
+//     overflow-y: scroll;
+  
+//     header {
+//       position: relative;
+//       display: flex;
+//       flex-direction: column;
+//       justify-content: space-between;09ō
+//       align-items: flex-start;
+//       height: 33vh;
+//       width: 100%;
+//       padding: 20px;
+//       min-height: max-content;
+  
+//       nav {
+//         padding: 0;
+//       }
+  
+//       img {
+//         z-index: -1;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 100%;
+//         height: 100%;
+//         object-fit: cover;
+//       }
+//       h1 {
+//         margin: 0;
+//         color: white;
+//         filter: var(--text-shadow);
+//       }
+//     }
+  
+//     form {
+//       max-width: 900px;
+//       margin: auto;
+//       padding: 60px 30px;
+//       height: 100%;
+  
+//       .field-label {
+//         margin: 0;
+//       }
+  
+//       label {
+//         display: block;
+//         margin: 15px 0;
+//       }
+  
+//       #postReview {
+//         display: block;
+//         width: 200px;
+//         margin: auto;
+//         margin-top: 20px;
+//       }
+//     }
+//   }
+  
