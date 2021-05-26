@@ -355,12 +355,19 @@ class CreateUserMutation(graphene.Mutation):
         user_data = UserInput(required=True)
 
     def mutate(self, info, user_data=None):
+        # NOTE: Netlify creates the account regardless of this response
         portfolio = Portfolio()
         settings = Settings()
         metrics = UserMetrics()
         try:
             user = User.objects.get(pk=user_data.email)
+            if user:
+                # user already exists with that email
+                return CreateUserMutation(user=None, success=False)
         except Exception as e:  # email not taken
+            if "matching query does not exist" not in str(e):
+                # unexpected error during query
+                return CreateUserMutation(user=None, success=False)
             user = User(
                 name=user_data.name,
                 bio=user_data.bio,
