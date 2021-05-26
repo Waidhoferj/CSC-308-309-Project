@@ -12,13 +12,9 @@ import {
 import { useQuery, useMutation } from "@apollo/client";
 import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
-<<<<<<< HEAD
 import Camera from "../Camera/Camera";
 import { toast } from "react-toastify";
-||||||| merged common ancestors
-=======
 import ArtGallery from "../ArtGallery/ArtGallery";
->>>>>>> Fix Routing
 import {
   ADD_PHOTOS,
   GET_ARTWORK_DISCUSSION,
@@ -174,40 +170,12 @@ export default function Artwork() {
           postResolver={artPostResolver}
         />
       </Route>
-<<<<<<< HEAD
-<<<<<<< HEAD
       <Route exact path="/artwork/:id/add-photos">
         <Camera onSubmit={uploadImages}/>
-||||||| merged common ancestors
-<<<<<<< HEAD
-      <Route exact path="/artwork/:id/art-gallery">
-        <ArtGallery />
-=======
-      <Route exact path="/artwork/:id/art-gallery">
-        <ArtGallery />
->>>>>>> Change from .tsx to .jsx to fix bug
       </Route>
-<<<<<<< HEAD
-||||||| merged common ancestors
-=======
       <Route exact path="/artwork/:id/art-gallery">
         <ArtGallery />
-||||||| merged common ancestors
-||||||| merged common ancestors
-=======
-      <Route exact path="/artwork/:id/add-photos">
-        <Camera onSubmit={uploadImages}/>
-=======
-      <Route exact path="/artwork/:id/add-photos">
-        <Camera onSubmit={uploadImages}/>
->>>>>>> Change from .tsx to .jsx to fix bug
       </Route>
-<<<<<<< HEAD
->>>>>>> Fix Routing
-||||||| merged common ancestors
->>>>>>> main
-=======
->>>>>>> Change from .tsx to .jsx to fix bug
     </Switch>
   );
 }
