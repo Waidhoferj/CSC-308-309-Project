@@ -361,9 +361,9 @@ class CreateUserMutation(graphene.Mutation):
         metrics = UserMetrics()
         try:
             user = User.objects.get(pk=user_data.email)
-            if user:
-                # user already exists with that email
-                return CreateUserMutation(user=None, success=False)
+            # If no query error, then either the user exists or
+            # user variable becomes None. In both cases the response fails.
+            return CreateUserMutation(user=None, success=False)
         except Exception as e:  # email not taken
             if "matching query does not exist" not in str(e):
                 # unexpected error during query
