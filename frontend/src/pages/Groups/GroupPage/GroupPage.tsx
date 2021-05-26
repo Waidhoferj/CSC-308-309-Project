@@ -81,7 +81,7 @@ function GroupHub({ group }: GroupHubProps) {
   const [leaveGroupMutation] = useMutation(LEAVE_GROUP);
   const [joinGroupMutation] = useMutation(JOIN_GROUP);
   const [checkMembershipMutation] = useMutation(CHECK_MEMBERSHIP);
-  const { profile: user} = useProfileInfo();
+  const { profile: user } = useProfileInfo();
   const [loading, setLoading] = useState(true)
 
   async function leaveGroup() {
@@ -101,58 +101,41 @@ function GroupHub({ group }: GroupHubProps) {
     }
   }
 
-  async function checkMembership() {
+  useEffect(() => {
     const payload = {
       user: user?.id,
       group: id
     }
-    const memberResp = await checkMembershipMutation({ variables: payload });    
-      
-    // If there is an error  
-    if (memberResp?.errors) {        
-      alert(memberResp.errors);        
-      push("/groups");      
-    }
-    
-    //  Is a member of the group   
-    if (memberResp.data.checkMembership.member) { 
-      setLoading(false);        
-      return      
-    }
-    
-    // Is not a member and is joining
-    const joinResp = await joinGroupMutation({ variables: payload });
-    if (joinResp?.errors) {
-      alert(memberResp.errors);
-      push("/groups");
-    }
-    if (joinResp.data.joinGroup.success) {
-      setLoading(false);
-      return
-    }
-    
-    //  Is a member of the group   
-    if (memberResp.data.checkMembership.member) { 
-      setLoading(false);        
-      return      
-    }
-    
-    // Is not a member and is joining
-    const joinResp = await joinGroupMutation({ variables: payload });
-    if (joinResp?.errors) {
-      alert(memberResp.errors);
-      push("/groups");
-    }
-    if (joinResp.data.joinGroup.success) {
-      setLoading(false);
-      return
-    }
-  }
 
-  useEffect(() => {
+    async function checkMembership() {      
+      const memberResp = await checkMembershipMutation({ variables: payload });    
+        
+      // If there is an error  
+      if (memberResp?.errors) {        
+        alert(memberResp.errors);        
+        push("/groups");      
+      }
+      
+      //  Is a member of the group   
+      if (memberResp.data.checkMembership.member) { 
+        setLoading(false);        
+        return      
+      }
+      
+      // Is not a member and is joining
+      const joinResp = await joinGroupMutation({ variables: payload });
+      if (joinResp?.errors) {
+        alert(memberResp.errors);
+        push("/groups");
+      }
+      if (joinResp.data.joinGroup.success) {
+        setLoading(false);
+        return
+      }
+    }
     setLoading(true);
     checkMembership();
-  }, [])
+  }, [checkMembershipMutation, joinGroupMutation, push, id, user?.id])
 
   if (loading) {
     return <Spinner absCenter={true} />;
