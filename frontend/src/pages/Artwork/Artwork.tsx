@@ -175,15 +175,39 @@ export default function Artwork() {
         />
       </Route>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <Route exact path="/artwork/:id/add-photos">
         <Camera onSubmit={uploadImages}/>
+||||||| merged common ancestors
+<<<<<<< HEAD
+      <Route exact path="/artwork/:id/art-gallery">
+        <ArtGallery />
+=======
+      <Route exact path="/artwork/:id/art-gallery">
+        <ArtGallery />
+>>>>>>> Change from .tsx to .jsx to fix bug
       </Route>
+<<<<<<< HEAD
 ||||||| merged common ancestors
 =======
       <Route exact path="/artwork/:id/art-gallery">
         <ArtGallery />
+||||||| merged common ancestors
+||||||| merged common ancestors
+=======
+      <Route exact path="/artwork/:id/add-photos">
+        <Camera onSubmit={uploadImages}/>
+=======
+      <Route exact path="/artwork/:id/add-photos">
+        <Camera onSubmit={uploadImages}/>
+>>>>>>> Change from .tsx to .jsx to fix bug
       </Route>
+<<<<<<< HEAD
 >>>>>>> Fix Routing
+||||||| merged common ancestors
+>>>>>>> main
+=======
+>>>>>>> Change from .tsx to .jsx to fix bug
     </Switch>
   );
 }

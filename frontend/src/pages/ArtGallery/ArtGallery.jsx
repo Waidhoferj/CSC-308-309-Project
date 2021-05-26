@@ -1,18 +1,31 @@
-import { GET_ARTWORK } from "../Artwork/gql.ts";
+import { GET_ARTWORK, ArtworkQueryData } from "../Artwork/gql";
 
 import { gql, useQuery } from '@apollo/client';
 import { ArrowLeft } from "react-feather";
-import { useHistory } from "react-router-dom";
+import { useParams, useHistory, Route, Switch } from "react-router-dom";
 import AwesomeSlider from 'react-awesome-slider';
 import 'react-awesome-slider/dist/styles.css';
-import AwesomeSliderStyles from 'react-awesome-slider/src/styles';
+import 'react-awesome-slider/dist/custom-animations/cube-animation.css';
 
 
 export default function ArtGallery() {
-    const {loading, error, data }= useQuery(GET_ARTWORK);
+    const history = useHistory();
+    const { id } = useParams<{ id: string }>();
+
+    const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, {
+      variables: { id },
+    });
+
+    console.log("data is ");
     console.log(data);
 
-    const history = useHistory();
+    let picture: string;
+    //for (picture: data?.artwork.edges[0].node)
+
+    const artwork = data?.artwork.edges[0].node.pictures[0];
+
+    console.log("artwork is" + artwork);
+
 
     return (
         <section className="ArtGallery">
@@ -22,13 +35,12 @@ export default function ArtGallery() {
             </button>
           </nav>
 
-          {/* <AwesomeSlider cssModule={AwesomeSliderStyles}>
-            <div data-src="/../../../../backend/assets/sample-artworks/camila-waz-2l5U8g4f8hQ-unsplash.jpg" />
-            <div data-src="/path/to/image-1.png" />
-            <div data-src="/path/to/image-2.jpg" />
-            <img src="https://gravatar.com/avatar/nothing" />
-            <img src="../../../../backend/assets/sample-artworks/camila-waz-2l5U8g4f8hQ-unsplash.jpg" />
-          </AwesomeSlider> */}
+          <img src={artwork} />
+
+          <AwesomeSlider>
+            <div data-src={artwork} />
+          </AwesomeSlider>
+
         </section>
     );
 }
