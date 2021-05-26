@@ -1,43 +1,12 @@
 import "./GroupsList.scss";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import useProfileInfo from "../../../hooks/useProfileInfo";
 import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import Spinner from "../../../components/Spinner/Spinner";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { useHistory } from "react-router";
-
-const GROUP_LIST_QUERY = gql`
-  query getGroups($id: ID!) {
-    users(id: $id) {
-      edges {
-        node {
-          groups {
-            edges {
-              node {
-                name
-                id
-                metrics {
-                  artworkCount
-                  memberCount
-                }
-                groupPortfolio {
-                  artworks(first: 4) {
-                    edges {
-                      node {
-                        pictures
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+import { GROUP_LIST_QUERY } from "./gql";
 
 export default function GroupsList() {
   let { loading, groups } = useGroupList();
