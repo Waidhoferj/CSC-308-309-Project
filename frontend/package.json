@@ -35,7 +35,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "cypress:open": "./node_modules/.bin/cypress open"
+    "cypress": "npm start & wait-on http://localhost:3000 & cypress open"
   },
   "eslintConfig": {
     "extends": [
