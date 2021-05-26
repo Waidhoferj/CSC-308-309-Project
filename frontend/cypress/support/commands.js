@@ -9,8 +9,23 @@
 // ***********************************************
 //
 //
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
+Cypress.Commands.add(
+  "login",
+  (email = "john@john.com", password = "testing123") => {
+    cy.visit("http://localhost:3000");
+    cy.url().should("include", "/login");
+    cy.get("#email").type("john@john.com");
+    cy.get("#password").type("testing123");
+    const submitButton = cy.get(".submit-button");
+    submitButton.click();
+  }
+);
+Cypress.Commands.add("preserveCookies", () => {
+  cy.getCookies().then((cookies) => {
+    const namesOfCookies = cookies.map((c) => c.name);
+    Cypress.Cookies.preserveOnce(...namesOfCookies);
+  });
+});
 //
 //
 // -- This is a child command --
