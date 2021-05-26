@@ -1,5 +1,11 @@
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import { BrowserRouter as Router, Switch, Route, useHistory } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+  useHistory,
+} from "react-router-dom";
 import ArtMap from "./pages/ArtMap/ArtMap";
 import Camera from "./pages/Camera/Camera";
 import Artwork from "./pages/Artwork/Artwork";
@@ -20,7 +26,7 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   function CameraPage() {
     const history = useHistory();
-    return <Camera onSubmit={() => history.push("/art-submission")}/>;
+    return <Camera onSubmit={() => history.push("/art-submission")} />;
   }
 
   // Sets true height for mobile devices so that the menu bars don't overlay our UI.
@@ -63,7 +69,7 @@ function App() {
             <ProtectedRoute path="/portfolio" component={UserPortfolio} />
             <ProtectedRoute path="/groups" component={GroupsList} />
             <ProtectedRoute path="/group/:id" component={GroupPage} />
-            <Route path="*" component={profile ? ArtMap : Login} />
+            <Redirect to={profile ? "/map" : "/login"} />
           </Switch>
         </div>
 
