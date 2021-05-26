@@ -5,6 +5,8 @@ import {
   GET_COMMENTS_QUERY,
   POST_DISCUSSION_MESSAGE,
   LEAVE_GROUP,
+  JOIN_GROUP,
+  CHECK_MEMBERSHIP,
   groupResolver,
   groupCommentsResolver,
   Group,
@@ -13,7 +15,7 @@ import { ArrowLeft, MessageSquare, BookOpen } from "react-feather";
 import MetricBadge from "../../../components/MetricBadge/MetricBadge";
 import Spinner from "../../../components/Spinner/Spinner";
 import { Switch, useHistory, useParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/ConnectionErrorMessage.jsx";
 import { Route } from "react-router-dom";
 import Portfolio from "../../Portfolio/Portfolio";
@@ -77,9 +79,13 @@ function GroupHub({ group }: GroupHubProps) {
   const { id } = useParams<{ id: string }>();
   const { goBack, push } = useHistory();
   const [leaveGroupMutation] = useMutation(LEAVE_GROUP);
+  const [joinGroupMutation] = useMutation(JOIN_GROUP);
+  const [checkMembershipMutation] = useMutation(CHECK_MEMBERSHIP);
   const { profile: user } = useProfileInfo();
+  const [loading, setLoading] = useState(true)
 
   async function leaveGroup() {
+    setLoading(true);
     const payload = {
       user: user?.id,
       group: id,
@@ -88,9 +94,51 @@ function GroupHub({ group }: GroupHubProps) {
 
     if (resp["data"]["leaveGroup"]["success"]) {
       push("/groups");
-    } else {
-      alert("Error when attempting to leave group");
     }
+    else {
+      alert("Error when attempting to leave group");
+      push("/groups");
+    }
+  }
+
+  useEffect(() => {
+    const payload = {
+      user: user?.id,
+      group: id
+    }
+
+    async function checkMembership() {      
+      const memberResp = await checkMembershipMutation({ variables: payload });    
+        
+      // If there is an error  
+      if (memberResp?.errors) {        
+        alert(memberResp.errors);        
+        push("/groups");      
+      }
+      
+      //  Is a member of the group   
+      if (memberResp.data.checkMembership.member) { 
+        setLoading(false);        
+        return      
+      }
+      
+      // Is not a member and is joining
+      const joinResp = await joinGroupMutation({ variables: payload });
+      if (joinResp?.errors) {
+        alert(memberResp.errors);
+        push("/groups");
+      }
+      if (joinResp.data.joinGroup.success) {
+        setLoading(false);
+        return
+      }
+    }
+    setLoading(true);
+    checkMembership();
+  }, [checkMembershipMutation, joinGroupMutation, push, id, user?.id])
+
+  if (loading) {
+    return <Spinner absCenter={true} />;
   }
 
   return (
@@ -117,6 +165,9 @@ function GroupHub({ group }: GroupHubProps) {
         </div>
       </header>
       <div className="content">
+        <div className="actions">
+          <button onClick={() => leaveGroup()} disabled={loading}>Leave Group</button>
+        </div>
         <section>
           <h2>Group Bio</h2>
           <p>{group.bio}</p>

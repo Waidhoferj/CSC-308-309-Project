@@ -258,7 +258,7 @@ def create_groups(client, group_creators_with_members):
                     ) {{
                         success
                     }}
-                }}""".format(new_member[1], groups_with_ids[i][1],))
+                }}""".format(new_member[1], groups_with_ids[i][1]))
     return groups_with_ids
 
 

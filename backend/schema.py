@@ -34,6 +34,7 @@ class Mutations(graphene.ObjectType):
     update_group = UpdateGroupMutation.Field()
     join_group = JoinGroupMutation.Field()
     leave_group = LeaveGroupMutation.Field()
+    check_membership = CheckMembershipMutation.Field()
 
     create_achievement = CreateAchievementMutation.Field()
 
