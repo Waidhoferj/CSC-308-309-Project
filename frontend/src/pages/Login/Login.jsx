@@ -60,7 +60,11 @@ export default function Login() {
           />
         </div>
 
-        <input type="submit" disabled={submitDisabled} />
+        <input
+          type="submit"
+          className="submit-button"
+          disabled={submitDisabled}
+        />
       </form>
       <h4>New user?</h4>
       <div>
