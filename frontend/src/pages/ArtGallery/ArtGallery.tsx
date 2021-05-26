@@ -19,13 +19,12 @@ export default function ArtGallery() {
     console.log("data is ");
     console.log(data);
 
-    let picture: string;
-    //for (picture: data?.artwork.edges[0].node)
+    const pictures = data?.artwork.edges[0].node.pictures;
+    // const pictures = [...data?.artwork.edges[0].node.pictures];
 
-    const artwork = data?.artwork.edges[0].node.pictures[0];
-
-    console.log("artwork is" + artwork);
-
+    //Why is the len of this always 1? 
+    console.log("pics len is" + pictures?.length);
+    console.log ("from server, pics len is" + data?.artwork.edges[0].node.pictures.length);
 
     return (
         <section className="ArtGallery">
@@ -35,10 +34,13 @@ export default function ArtGallery() {
             </button>
           </nav>
 
-          <img src={artwork} />
+          {/* <img src={artwork} /> */}
 
           <AwesomeSlider>
-            <div data-src={artwork} />
+            {/* <div data-src={artwork} /> */}
+            {pictures?.map(picture =>
+              <div data-src={picture} />
+            )}
           </AwesomeSlider>
 
         </section>
