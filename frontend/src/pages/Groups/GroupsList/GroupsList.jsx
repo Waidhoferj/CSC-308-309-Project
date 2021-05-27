@@ -98,16 +98,21 @@ function CreateGroupPopup({ onClose }) {
         <label>
           <p className="field-title">Group Name:</p>
 
-          <input name="name" type="text" ref={register({ required: true })} />
+          <input
+            name="name"
+            required
+            type="text"
+            ref={register({ required: true })}
+          />
         </label>
         <label>
           <p className="field-title">Description:</p>
           <textarea
             name="description"
-            placeholder="Tell us about the art"
+            required
+            placeholder="What does this group do?"
             ref={register({
               required: true,
-              minLength: 10,
             })}
           ></textarea>
         </label>
