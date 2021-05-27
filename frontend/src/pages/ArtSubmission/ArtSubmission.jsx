@@ -2,12 +2,13 @@ import "./ArtSubmission.scss";
 
 import { useMutation, gql } from "@apollo/client";
 import Rating from "react-rating-stars-component";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft } from "react-feather";
 import { useHistory } from "react-router-dom";
 import { useForm, Controller, useController } from "react-hook-form";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
+import Spinner from "../../components/Spinner/Spinner";
 
 import Tag from "../../components/Tag/Tag";
 
@@ -56,12 +57,13 @@ export default function ArtSubmission() {
   const [uploadArt] = useMutation(CREATE_ARTWORK_MUTATION);
   const { images, clearLibrary } = usePhotoLibrary();
   const { profile } = useProfileInfo();
+  const [ location, setLocation ] = useState([0, 0]);
 
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
     const payload = {
       pictures: images,
-      location: [-120.664, 35.258], // For demo purposes. We'll attach geolocation to usePhotoLibrary later.
+      location: location,
       foundBy: profile.id,
       ...data,
       rating: data.rating * 20,
@@ -80,6 +82,24 @@ export default function ArtSubmission() {
     setTagInputVal("");
     const newTags = [...tags, tagInputVal];
     updateTagsForm(newTags);
+  }
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      return
+      // Geolocation is not supported by this browser.
+    }
+    navigator.geolocation.getCurrentPosition((position) => {
+      setLocation([position?.coords.longitude, position?.coords.latitude])
+    });
+  }, [])
+  
+  if (location === [0, 0]) {
+    return (
+      <div>
+        <Spinner absCenter={true} />
+        <h1>If loading doesn't end, it might be because the server can not reach your location</h1>
+      </div>);
   }
 
   return (
