@@ -39,7 +39,7 @@ def init_db():
         Artwork(title="Blue Bridge",
                 description=("Neon blue tentacles of paint "
                              "wind up the struts of the bridge"),
-                pictures=[get_sample_encoded_art_image()],
+                pictures=[get_sample_encoded_art_image(), get_sample_encoded_art_image(), get_sample_encoded_art_image()],
                 tags=["amazing"],
                 location=[-120.70919388389524, 35.292870133451174],
                 rating=90,

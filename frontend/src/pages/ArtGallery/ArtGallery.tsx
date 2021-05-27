@@ -12,6 +12,7 @@ export default function ArtGallery() {
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
 
+
     const { loading, error, data } = useQuery<ArtworkQueryData>(GET_ARTWORK, {
       variables: { id },
     });
@@ -19,12 +20,19 @@ export default function ArtGallery() {
     console.log("data is ");
     console.log(data);
 
-    const pictures = data?.artwork.edges[0].node.pictures;
+    //const pictures = data?.artwork.edges[0].node.pictures;
     // const pictures = [...data?.artwork.edges[0].node.pictures];
+
+    const pictures = data?.artwork.edges[0].node.pictures;
 
     //Why is the len of this always 1? 
     console.log("pics len is" + pictures?.length);
     console.log ("from server, pics len is" + data?.artwork.edges[0].node.pictures.length);
+
+
+    const picturelist = pictures?.map((picture, index) => {
+      return <div data-src={picture} key={`slider-${index}`}/>
+    })
 
     return (
         <section className="ArtGallery">
@@ -34,14 +42,19 @@ export default function ArtGallery() {
             </button>
           </nav>
 
-          {/* <img src={artwork} /> */}
-
-          <AwesomeSlider>
-            {/* <div data-src={artwork} /> */}
-            {pictures?.map(picture =>
-              <div data-src={picture} />
-            )}
+          {/*  
+          <AwesomeSlider animation="cubeAnimation">
+            {picturelist}
           </AwesomeSlider>
+          */}
+
+          <AwesomeSlider animation="cubeAnimation">
+            {pictures?.map((picture) => 
+              <div data-src={picture} /> 
+            )}
+          </AwesomeSlider> 
+
+      
 
         </section>
     );
