@@ -98,7 +98,7 @@ export default function ArtSubmission() {
     return (
       <div>
         <Spinner absCenter={true} />
-        <h1>If loading doesn't end, it might be because the server can not reach your location</h1>
+        <h1>Infinite loading? Make sure your location is enabled.</h1>
       </div>);
   }
 
