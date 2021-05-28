@@ -24,6 +24,17 @@ export default function SignUp() {
   const { register, handleSubmit } = useForm();
   const [submitDisabled, setSubmitDisabled] = useState(false);
 
+  function getInputtedFiles(e) {
+    const { files } = e.target;
+    const fr = new FileReader();
+    /*
+    fr.addEventListener("load", () => {
+      onImageCapture(fr.result.toString());
+    });
+    */
+    fr.readAsDataURL(files[0]);
+  }
+
   async function onSubmit(data) {
     setSubmitDisabled(true);
     const payload = {
@@ -51,53 +62,67 @@ export default function SignUp() {
         <h2>Sign Up</h2>
       </header>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="input">
-          <label htmlFor="email">Email</label>
-          <br />
-          <input
-            type="email"
-            name="email"
-            id="email"
-            ref={register({
-              required: true,
-            })}
-          />
-        </div>
+      <div className="content">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="input">
+            <label htmlFor="email">Email</label>
+            <br />
+            <input
+              type="email"
+              name="email"
+              id="email"
+              ref={register({
+                required: true,
+              })}
+            />
+          </div>
 
-        <div className="input">
-          <label htmlFor="username">Username</label>
-          <br />
-          <input
-            type="text"
-            name="name"
-            id="username"
-            autoComplete="username"
-            ref={register({
-              required: true,
-            })}
-          />
-        </div>
+          <div className="input">
+            <label htmlFor="username">Username</label>
+            <br />
+            <input
+              type="text"
+              name="name"
+              id="username"
+              autoComplete="username"
+              ref={register({
+                required: true,
+              })}
+            />
+          </div>
 
-        <div className="input">
-          <label htmlFor="password">Password</label>
-          <br />
-          <input
-            type="password"
-            name="password"
-            autoComplete="password"
-            id="password"
-            ref={register({
-              required: true,
-            })}
-          />
-        </div>
+          <div className="input">
+            <label htmlFor="password">Password</label>
+            <br />
+            <input
+              type="password"
+              name="password"
+              autoComplete="password"
+              id="password"
+              ref={register({
+                required: true,
+              })}
+            />
+          </div>
 
-        <input type="submit" disabled={submitDisabled} />
-      </form>
-      <h4>Already have an account?</h4>
-      <div>
-        <button onClick={() => push("/login")}>Log In</button>
+          <button className="input">
+            <label htmlFor="profile_pic">Profile Picture</label>
+            <br />
+            <input
+              type="file"
+              name="profile_pic"
+              accept="image"
+              style={{ display: "none" }}
+              onChange={getInputtedFiles}
+            />
+          </button>
+
+          <input type="submit" disabled={submitDisabled} />
+        </form>
+        <h4>Already have an account?</h4>
+        <div>
+          <button onClick={() => push("/login")}>Log In</button>
+        </div>
       </div>
     </article>
   );
