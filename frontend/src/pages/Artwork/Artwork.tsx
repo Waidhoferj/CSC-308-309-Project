@@ -117,7 +117,11 @@ export default function Artwork() {
                 </li>
               ))}
             </ul>
-
+            <button onClick={() => push("/map/lat=" + artwork.location?.coordinates[0]
+                                        + "/long=" + artwork.location?.coordinates[1])}
+              disabled={!artwork.location}>
+              View On Map
+            </button>
             <h2>Stats</h2>
             <div className="metric-badges">
               {metrics.map((metric, key) => (

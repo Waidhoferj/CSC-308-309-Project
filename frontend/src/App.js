@@ -46,6 +46,7 @@ function App() {
             <Route path="/login" component={Login} />
             <ProtectedRoute exact path="/map" component={ArtMap} />
             <ProtectedRoute exact path="/map/:artwork" component={ArtMap} />
+            <ProtectedRoute exact path="/map/lat=:lat/long=:long" component={ArtMap} />
             <ProtectedRoute
               exact
               path="/map/:artwork/track"

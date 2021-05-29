@@ -85,13 +85,24 @@ export default function ArtSubmission() {
   }
 
   useEffect(() => {
+    var options = {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 10000
+    };
+
     if (!navigator.geolocation) {
       return
       // Geolocation is not supported by this browser.
     }
-    navigator.geolocation.getCurrentPosition((position) => {
-      setLocation([position?.coords.longitude, position?.coords.latitude])
-    });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation([position?.coords.longitude, position?.coords.latitude])
+      },
+      (error) => {
+        return
+      },
+      options);
   }, [])
   
   if (location === [0, 0]) {

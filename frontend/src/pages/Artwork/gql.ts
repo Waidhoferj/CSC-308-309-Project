@@ -68,6 +68,9 @@ export const GET_ARTWORK = gql`
             totalVisits
           }
           rating
+          location {
+            coordinates
+          }
         }
       }
     }

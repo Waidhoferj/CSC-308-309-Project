@@ -22,4 +22,7 @@ interface GqlArtworkData {
     totalVisits: number;
   };
   rating: number;
+  location: {
+    coordinates: float[]
+  }
 }
