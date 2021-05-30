@@ -66,34 +66,23 @@ export const POST_DISCUSSION_MESSAGE = gql`
 
 export const LEAVE_GROUP = gql`
   mutation leaveGroup($user: String!, $group: String!) {
-    leaveGroup(
-      userId: $user
-      groupId: $group
-    ) {
+    leaveGroup(userId: $user, groupId: $group) {
       success
     }
   }
 `;
-
 
 export const JOIN_GROUP = gql`
   mutation join($user: String!, $group: String!) {
-    joinGroup(
-      userId: $user
-      groupId: $group
-    ) {
+    joinGroup(userId: $user, groupId: $group) {
       success
     }
   }
 `;
 
-
 export const CHECK_MEMBERSHIP = gql`
   mutation isMember($user: String!, $group: String!) {
-    checkMembership(
-      userId: $user
-      groupId: $group
-    ) {
+    checkMembership(userId: $user, groupId: $group) {
       member
     }
   }
@@ -144,7 +133,7 @@ export interface Group {
 }
 
 export function groupResolver(data: GqlGroupData): Group | undefined {
-  const group = data?.groups.edges?.[0].node;
+  const group = data?.groups.edges[0]?.node;
   const artworks: Artwork[] = group?.groupPortfolio.artworks.edges.map(
     ({ node }: { node: Artwork }) => ({
       title: node.title,
@@ -163,9 +152,10 @@ export function groupResolver(data: GqlGroupData): Group | undefined {
   );
 }
 
-export function groupCommentsResolver(
-  data: any
-): { comments: DiscussionComment[]; picture?: string } {
+export function groupCommentsResolver(data: any): {
+  comments: DiscussionComment[];
+  picture?: string;
+} {
   const comments: DiscussionComment[] = !data
     ? []
     : data.groups.edges?.[0].node.chat.edges.map(({ node }: { node: any }) => ({

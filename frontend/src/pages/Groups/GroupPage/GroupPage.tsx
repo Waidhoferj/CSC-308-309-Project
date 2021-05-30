@@ -37,7 +37,7 @@ export default function GroupPage() {
   }
 
   if (loading) return <Spinner absCenter={true} />;
-  if (error)
+  if (error || !group)
     return (
       <ConnectionErrorMessage>
         Could not find the group you are looking for.
