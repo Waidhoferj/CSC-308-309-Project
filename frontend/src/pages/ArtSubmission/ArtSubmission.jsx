@@ -9,6 +9,7 @@ import { useForm, Controller, useController } from "react-hook-form";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
 import Spinner from "../../components/Spinner/Spinner";
+import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 
 import Tag from "../../components/Tag/Tag";
 
@@ -109,7 +110,9 @@ export default function ArtSubmission() {
     return (
       <div>
         <Spinner absCenter={true} />
-        <h1>Infinite loading? Make sure your location is enabled.</h1>
+        <ConnectionErrorMessage>
+          Could not access the artwork you requested.
+        </ConnectionErrorMessage>
       </div>);
   }
 
