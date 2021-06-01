@@ -7,7 +7,7 @@
   header {
     height: 130px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     padding: 0 30px;
     box-shadow: var(--shadow-button);
@@ -73,6 +73,27 @@
           font-size: 14px;
         }
       }
+    }
+  }
+
+  .create-group-form {
+    padding: 10px;
+    .field-title {
+      display: inline-block;
+      margin: 5px;
+      margin-right: 7px;
+      width: 200px;
+    }
+    label {
+      margin: 10px 0;
+      display: block;
+    }
+    input[type="submit"] {
+      margin-top: 20px;
+    }
+
+    textarea {
+      max-height: 150px;
     }
   }
 }

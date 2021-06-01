@@ -3,7 +3,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect,
   useHistory,
 } from "react-router-dom";
 import ArtMap from "./pages/ArtMap/ArtMap";
@@ -69,7 +68,7 @@ function App() {
             <ProtectedRoute path="/portfolio" component={UserPortfolio} />
             <ProtectedRoute path="/groups" component={GroupsList} />
             <ProtectedRoute path="/group/:id" component={GroupPage} />
-            <Redirect to={profile ? "/map" : "/login"} />
+            <Route path="*" component={profile ? ArtMap : Login} />
           </Switch>
         </div>
 

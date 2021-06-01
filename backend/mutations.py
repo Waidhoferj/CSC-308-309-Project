@@ -1,7 +1,7 @@
 import graphene
 from bson import ObjectId
 from graphene.types.scalars import ID
-from models import (User, UserMetrics, Portfolio, Settings, Achievement,
+from models import (GroupMetrics, User, UserMetrics, Portfolio, Settings, Achievement,
                     Group, Artwork, ArtworkMetrics, Comment, Report)
 from api_types import (UserType, UserMetricsType, PortfolioType, SettingsType,
                        AchievementType, GroupType, ArtworkType, CommentType,
@@ -135,6 +135,7 @@ class CreateGroupMutation(graphene.Mutation):
             name=group_data.name,
             bio=group_data.bio,
             members=[user],
+            metrics=GroupMetrics(artwork_count=0, member_count=1),
             group_portfolio=group_portfolio,
             chat=[]
         )

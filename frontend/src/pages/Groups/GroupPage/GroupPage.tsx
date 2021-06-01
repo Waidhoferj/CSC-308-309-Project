@@ -37,7 +37,7 @@ export default function GroupPage() {
   }
 
   if (loading) return <Spinner absCenter={true} />;
-  if (error)
+  if (error || !group)
     return (
       <ConnectionErrorMessage>
         Could not find the group you are looking for.
@@ -82,7 +82,7 @@ function GroupHub({ group }: GroupHubProps) {
   const [joinGroupMutation] = useMutation(JOIN_GROUP);
   const [checkMembershipMutation] = useMutation(CHECK_MEMBERSHIP);
   const { profile: user } = useProfileInfo();
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   async function leaveGroup() {
     setLoading(true);
@@ -94,8 +94,7 @@ function GroupHub({ group }: GroupHubProps) {
 
     if (resp["data"]["leaveGroup"]["success"]) {
       push("/groups");
-    }
-    else {
+    } else {
       alert("Error when attempting to leave group");
       push("/groups");
     }
@@ -104,24 +103,24 @@ function GroupHub({ group }: GroupHubProps) {
   useEffect(() => {
     const payload = {
       user: user?.id,
-      group: id
-    }
+      group: id,
+    };
 
-    async function checkMembership() {      
-      const memberResp = await checkMembershipMutation({ variables: payload });    
-        
-      // If there is an error  
-      if (memberResp?.errors) {        
-        alert(memberResp.errors);        
-        push("/groups");      
+    async function checkMembership() {
+      const memberResp = await checkMembershipMutation({ variables: payload });
+
+      // If there is an error
+      if (memberResp?.errors) {
+        alert(memberResp.errors);
+        push("/groups");
       }
-      
-      //  Is a member of the group   
-      if (memberResp.data.checkMembership.member) { 
-        setLoading(false);        
-        return      
+
+      //  Is a member of the group
+      if (memberResp.data.checkMembership.member) {
+        setLoading(false);
+        return;
       }
-      
+
       // Is not a member and is joining
       const joinResp = await joinGroupMutation({ variables: payload });
       if (joinResp?.errors) {
@@ -130,12 +129,12 @@ function GroupHub({ group }: GroupHubProps) {
       }
       if (joinResp.data.joinGroup.success) {
         setLoading(false);
-        return
+        return;
       }
     }
     setLoading(true);
     checkMembership();
-  }, [checkMembershipMutation, joinGroupMutation, push, id, user?.id])
+  }, [checkMembershipMutation, joinGroupMutation, push, id, user?.id]);
 
   if (loading) {
     return <Spinner absCenter={true} />;
@@ -144,7 +143,9 @@ function GroupHub({ group }: GroupHubProps) {
   return (
     <article className="GroupPage">
       <header>
-        <img src={group.artworks[0].pictures[0]} alt="Art" />
+        {group.artworks.length > 0 && (
+          <img src={group.artworks[0].pictures[0]} alt="Art" />
+        )}
         <button className="wrapper back-button" onClick={goBack}>
           <ArrowLeft />
         </button>
@@ -165,9 +166,6 @@ function GroupHub({ group }: GroupHubProps) {
         </div>
       </header>
       <div className="content">
-        <div className="actions">
-          <button onClick={() => leaveGroup()} disabled={loading}>Leave Group</button>
-        </div>
         <section>
           <h2>Group Bio</h2>
           <p>{group.bio}</p>

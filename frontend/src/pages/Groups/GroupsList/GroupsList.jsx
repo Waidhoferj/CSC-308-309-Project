@@ -1,50 +1,32 @@
 import "./GroupsList.scss";
-import { useQuery, gql } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { motion, AnimatePresence } from "framer-motion";
+import { useMemo, useState } from "react";
+import { useHistory } from "react-router";
+import { useForm } from "react-hook-form";
+import { Plus } from "react-feather";
+import { toast } from "react-toastify";
+
 import useProfileInfo from "../../../hooks/useProfileInfo";
 import ConnectionErrorMessage from "../../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import Spinner from "../../../components/Spinner/Spinner";
-import { motion } from "framer-motion";
-import { useMemo } from "react";
-import { useHistory } from "react-router";
-
-const GROUP_LIST_QUERY = gql`
-  query getGroups($id: ID!) {
-    users(id: $id) {
-      edges {
-        node {
-          groups {
-            edges {
-              node {
-                name
-                id
-                metrics {
-                  artworkCount
-                  memberCount
-                }
-                groupPortfolio {
-                  artworks(first: 4) {
-                    edges {
-                      node {
-                        pictures
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+import Popup from "../../../components/Popup/Popup";
+import { GROUP_LIST_QUERY, CREATE_GROUP_MUTATION, resolveGroups } from "./gql";
 
 export default function GroupsList() {
-  let { loading, groups } = useGroupList();
+  const { profile } = useProfileInfo();
+  const { loading, data, refetch } = useQuery(GROUP_LIST_QUERY, {
+    variables: { id: profile?.id },
+    notifyOnNetworkStatusChange: true,
+  });
+  const groups = useMemo(() => resolveGroups(data), [data]);
+  const [popupShouldOpen, setPopupShouldOpen] = useState(false);
   let history = useHistory();
+
   function openGroup(id) {
     history.push("group/" + id);
   }
+
   if (loading) return <Spinner absCenter={true} />;
   if (!groups.length)
     return (
@@ -56,36 +38,93 @@ export default function GroupsList() {
     <article className="GroupsList">
       <header>
         <h1>Groups</h1>
+        <button className="wrapper" onClick={() => setPopupShouldOpen(true)}>
+          <Plus size={35} />
+        </button>
       </header>
       <ul className="groups">
         {groups.map((group, key) => (
           <GroupCard key={key} {...group} onClick={() => openGroup(group.id)} />
         ))}
       </ul>
+      <AnimatePresence>
+        {popupShouldOpen && (
+          <CreateGroupPopup
+            onClose={() => {
+              setPopupShouldOpen(false);
+              refetch();
+            }}
+          />
+        )}
+      </AnimatePresence>
     </article>
   );
 }
 
-function useGroupList() {
+/**
+ * Widget used for creating new groups. The new group will be added to the user's group list.
+ */
+function CreateGroupPopup({ onClose }) {
+  const [createGroup] = useMutation(CREATE_GROUP_MUTATION);
+  const [loading, setLoading] = useState(false);
+  const { register, handleSubmit } = useForm();
   const { profile } = useProfileInfo();
-  const { loading, data } = useQuery(GROUP_LIST_QUERY, {
-    variables: { id: profile?.id },
-  });
-  const groups = useMemo(
-    () =>
-      data?.users.edges?.[0].node.groups.edges.map(({ node: group }) => ({
-        name: group.name,
-        metrics: group.metrics,
-        id: group.id,
-        pictures: group.groupPortfolio.artworks.edges.flatMap(
-          ({ node: work }) => work.pictures
-        ),
-      })) || [],
-    [data]
+
+  async function onSubmit(data) {
+    setLoading(true);
+    try {
+      await createGroup({
+        variables: {
+          name: data.name,
+          bio: data.description,
+          creator: profile.id,
+        },
+      });
+      toast(
+        `Created ${data.name}! Open the group page and invite your friend via URL`
+      );
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast("Something went wrong, try again in a few minutes");
+    }
+    setLoading(false);
+  }
+
+  return (
+    <Popup onClose={onClose}>
+      <h1>Create New Group</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="create-group-form">
+        <label>
+          <p className="field-title">Group Name:</p>
+
+          <input
+            name="name"
+            required
+            type="text"
+            ref={register({ required: true })}
+          />
+        </label>
+        <label>
+          <p className="field-title">Description:</p>
+          <textarea
+            name="description"
+            required
+            placeholder="What does this group do?"
+            ref={register({
+              required: true,
+            })}
+          ></textarea>
+        </label>
+        <input type="submit" value="Create Group" disabled={loading} />
+      </form>
+    </Popup>
   );
-  return { loading, groups };
 }
 
+/**
+ * Represents a group in the Group List
+ */
 function GroupCard({ name, pictures, metrics, id, onClick }) {
   return (
     <li className="GroupCard" onClick={onClick}>
