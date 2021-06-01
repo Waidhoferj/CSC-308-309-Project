@@ -36,7 +36,7 @@ const mapStyles = {
 
 export default function ArtMap() {
   const { profile } = useProfileInfo();
-  const { artwork: artId } = useParams();
+  const { artwork: artId, lat, long } = useParams();
   const { loading: loadingArt, data: rawArtData } = useQuery(
     queries.getArtworks
   );
@@ -116,8 +116,10 @@ export default function ArtMap() {
    */
   function onMapLoad(map) {
     const geoControl = new GeolocateControl({ trackUserLocation: true });
+    if (lat && long) {
+      setMapLocation([lat, long])
+    }
     map.addControl(geoControl);
-
     geoControl.on("geolocate", (e) => {
       setUserLocation([e.coords.longitude, e.coords.latitude]);
     });
