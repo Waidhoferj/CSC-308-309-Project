@@ -20,6 +20,7 @@
     "react-dom": "^16.14.0",
     "react-feather": "^2.0.9",
     "react-hook-form": "^6.15.4",
+    "react-image-gallery": "^1.1.1",
     "react-mapbox-gl": "^5.1.1",
     "react-rating-stars-component": "^2.2.0",
     "react-router-dom": "^5.2.0",
@@ -56,6 +57,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-image-gallery": "^1.0.3",
     "@types/react-router-dom": "^5.1.7",
     "cypress": "^7.4.0"
   }
