@@ -13,11 +13,11 @@ Cypress.Commands.add(
   "login",
   (email = "john@john.com", password = "testing123") => {
     cy.visit("http://localhost:3000");
-    cy.url().should("include", "/login");
     cy.get("#email").type("john@john.com");
     cy.get("#password").type("testing123");
     const submitButton = cy.get(".submit-button");
     submitButton.click();
+    cy.url().should("include", "/map");
   }
 );
 Cypress.Commands.add("preserveCookies", () => {
