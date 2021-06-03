@@ -62,3 +62,11 @@ To run Cypress tests:
 1. Navigate to the [`frontend`](./frontend) folder
 2. Run `npm run cypress`
 3. When Cypress boots up, select the test you want to run.
+
+
+## Unit/Integration Tests
+
+Unit and integration tests are crutial in confirming the functionality of our program. We maintain a testing file on the backend that contains all of our unit tests for our GraphQL api.
+
+- See our wiki for details about unit testing coverage for the backend: https://github.com/Waidhoferj/CSC-308-309-Project/wiki/Unit-Integration-Test-Coverage
+
