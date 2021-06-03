@@ -43,7 +43,7 @@ export default function SignUp() {
       password: data.password,
       profilePic: "",
     };
-    fr.addEventListener("load", () => payload.profilePic = fr.result.toString(), false)
+    fr.addEventListener("load", () => payload.profilePic = fr.result.toString(), false);
     try {
       await auth.signup(data.email, data.password, { name: data.name });
       await auth.login(data.email, data.password, true);

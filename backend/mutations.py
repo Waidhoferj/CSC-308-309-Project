@@ -403,11 +403,14 @@ class UpdateUserMutation(graphene.Mutation):
           - change email
           - change password
         '''
+        print("fuck")
         user = UpdateUserMutation.getUser(user_data.id)
         if user_data.name:
             user.name = user_data.name
         if user_data.bio:
             user.bio = user_data.bio
+        if user_data.profile_pic:
+            user.profile_pic = user_data.profile_pic
         if user_data.art_to_add:
             artToAdd = UpdateArtworkMutation.getArtwork(user_data.art_to_add)
             # Check if none
