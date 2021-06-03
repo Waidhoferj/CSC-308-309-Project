@@ -2,6 +2,16 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/en/)
+
+## Getting Started
+
+1. Install Dependencies: run `npm install` in the `frontend` folder.
+2. Start dev server: `npm start`
+3. Open [http://localhost:3000](http://localhost:3000) to view the app in the browser.
+
 ## Available Scripts
 
 In the project directory, you can run:

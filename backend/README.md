@@ -8,15 +8,16 @@ Street Art App backend. Includes:
 
 ## Requirements
 
+- Python 3.8
 - [Pipenv](https://pipenv.pypa.io/en/latest/#install-pipenv-today)
 
 ## Getting Started
 
 1. Navigate to the `backend` directory.
-2. install python packages: `pipenv install`.
+2. Install python packages: `pipenv install`.
 3. Activate the virtual environment: `pipenv shell`.
-4. From inside the virtual environment, run the development server: `python app.py`
-5. Interact with the API. Go to [http://127.0.0.1:5000/graphql](http://127.0.0.1:5000/graphql)
+4. From inside the virtual environment, run the development server: `python app.py -l`
+5. To interact with the API directly. Go to [http://127.0.0.1:5000/graphql](http://127.0.0.1:5000/graphql)
 
 ## Resources
 
