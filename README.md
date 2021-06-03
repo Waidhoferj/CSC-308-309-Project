@@ -56,3 +56,9 @@ Acceptance tests are important for defining user flows in a way that all shareho
 
 - Acceptance test documents exist in an [online document](https://docs.google.com/document/d/1ztd6LJCcpQI31MZ0_H-gIPZa1ru35pd5HM4Jyvr3y0M/edit?usp=sharing)
 - Automated tests can be found in the [`integration`](./frontend/cypress/integration) folder
+
+To run Cypress tests:
+
+1. Navigate to the [`frontend`](./frontend) folder
+2. Run `npm run cypress`
+3. When Cypress boots up, select the test you want to run.
