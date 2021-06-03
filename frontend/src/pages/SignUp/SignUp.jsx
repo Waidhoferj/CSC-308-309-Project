@@ -7,8 +7,13 @@ import useProfileInfo from "../../hooks/useProfileInfo";
 import { useState } from "react";
 
 const NEW_ACCOUNT_MUTATION = gql`
-  mutation addUser($email: String!, $name: String!, $password: String!) {
-    createUser(userData: { email: $email, name: $name, password: $password }) {
+  mutation addUser(
+    $email: String! 
+    $name: String! 
+    $password: String!
+    $profilePic: String!
+  ) {
+    createUser(userData: { email: $email, name: $name, password: $password, profilePic: $profilePic }) {
       user {
         id
       }
@@ -24,24 +29,21 @@ export default function SignUp() {
   const { register, handleSubmit } = useForm();
   const [submitDisabled, setSubmitDisabled] = useState(false);
 
-  function getInputtedFiles(e) {
-    const { files } = e.target;
-    const fr = new FileReader();
-    /*
-    fr.addEventListener("load", () => {
-      onImageCapture(fr.result.toString());
-    });
-    */
-    fr.readAsDataURL(files[0]);
-  }
-
   async function onSubmit(data) {
+    debugger;
     setSubmitDisabled(true);
+
+    const fr = new FileReader();
+    if (data.profile_pic.length == 1) {
+      fr.readAsDataURL(data.profile_pic[0]);
+    }
     const payload = {
       email: data.email,
       name: data.name,
       password: data.password,
+      profilePic: "",
     };
+    fr.addEventListener("load", () => payload.profilePic = fr.result.toString(), false)
     try {
       await auth.signup(data.email, data.password, { name: data.name });
       await auth.login(data.email, data.password, true);
@@ -105,17 +107,19 @@ export default function SignUp() {
             />
           </div>
 
-          <button className="input">
-            <label htmlFor="profile_pic">Profile Picture</label>
+          <div className="input">
+            <label htmlFor="profile_pic">Profile Picture (optional)</label>
             <br />
             <input
               type="file"
-              name="profile_pic"
               accept="image"
-              style={{ display: "none" }}
-              onChange={getInputtedFiles}
+              name="profile_pic"
+              id="profile_pic"
+              ref={register({
+                required: false,
+              })}
             />
-          </button>
+          </div>
 
           <input type="submit" disabled={submitDisabled} />
         </form>
