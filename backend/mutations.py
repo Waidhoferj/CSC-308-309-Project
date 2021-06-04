@@ -403,7 +403,6 @@ class UpdateUserMutation(graphene.Mutation):
           - change email
           - change password
         '''
-        print("fuck")
         user = UpdateUserMutation.getUser(user_data.id)
         if user_data.name:
             user.name = user_data.name
