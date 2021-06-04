@@ -1,8 +1,9 @@
 import graphene
 from bson import ObjectId
 from graphene.types.scalars import ID
-from models import (GroupMetrics, User, UserMetrics, Portfolio, Settings, Achievement,
-                    Group, Artwork, ArtworkMetrics, Comment, Report)
+from models import (GroupMetrics, User, UserMetrics, Portfolio,
+                    Settings, Achievement, Group, Artwork,
+                    ArtworkMetrics, Comment, Report)
 from api_types import (UserType, UserMetricsType, PortfolioType, SettingsType,
                        AchievementType, GroupType, ArtworkType, CommentType,
                        AchievementType, ReportType)
@@ -242,13 +243,13 @@ class JoinGroupMutation(graphene.Mutation):
     class Arguments:
         user_id = graphene.String()
         group_id = graphene.String()
-    
+
     def mutate(self, info, user_id, group_id):
         group = UpdateGroupMutation.getGroup(group_id)
         user = UpdateUserMutation.getUser(user_id)
         member = CheckMembershipMutation.checkMembership(
-            user = UpdateUserMutation.getUser(user_id),
-            group = UpdateGroupMutation.getGroup(group_id)
+            user=UpdateUserMutation.getUser(user_id),
+            group=UpdateGroupMutation.getGroup(group_id)
         )
         if member:
             return JoinGroupMutation(success=False)
@@ -267,7 +268,7 @@ class JoinGroupMutation(graphene.Mutation):
 
 
 class CheckMembershipMutation(graphene.Mutation):
-    ''' 
+    '''
     Returns true if user is a member of the group, false otherwise
     Note: Membership is defined as the user being in the group's member list
             AND the user contains the group in their group list
@@ -277,7 +278,7 @@ class CheckMembershipMutation(graphene.Mutation):
     class Arguments:
         user_id = graphene.String()
         group_id = graphene.String()
-    
+
     @staticmethod
     def checkMembership(user, group):
         if (user not in group.members) and (group not in user.groups):
@@ -286,8 +287,8 @@ class CheckMembershipMutation(graphene.Mutation):
 
     def mutate(self, info, user_id, group_id):
         member = CheckMembershipMutation.checkMembership(
-            user = UpdateUserMutation.getUser(user_id),
-            group = UpdateGroupMutation.getGroup(group_id)
+            user=UpdateUserMutation.getUser(user_id),
+            group=UpdateGroupMutation.getGroup(group_id)
         )
         return CheckMembershipMutation(member=member)
 
@@ -299,7 +300,6 @@ class LeaveGroupMutation(graphene.Mutation):
     class Arguments:
         user_id = graphene.String()
         group_id = graphene.String()
-
 
     def mutate(self, info, user_id, group_id):
         #  checking success by size of list here
