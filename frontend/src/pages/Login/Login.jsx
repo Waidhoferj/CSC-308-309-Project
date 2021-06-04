@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import useProfileInfo from "../../hooks/useProfileInfo";
 import auth from "../../auth";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { setUser } = useProfileInfo();
@@ -21,7 +22,8 @@ export default function Login() {
         push("/map");
       }, 300);
     } catch (err) {
-      alert(err.message);
+      if (err.message.startsWith("invalid_grant:"))
+        toast.error(err.message.replace("invalid_grant:", ""));
       setSubmitDisabled(false);
     }
   }

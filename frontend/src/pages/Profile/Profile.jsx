@@ -30,7 +30,6 @@ export default function Profile() {
   }
 
   async function changeProfilePic(e) {
-    debugger;
     const { files } = e.target;
     if (files.length === 0) {
       return;
@@ -50,7 +49,8 @@ export default function Profile() {
           await submitProfilePic({ variables: payload });
           toast("Profile picture updated");
         } catch (err) {
-          alert(err.message);
+          console.error(err.message);
+          toast.error("Cannot submit profile picture.");
         }
       },
       false
