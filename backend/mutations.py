@@ -161,7 +161,6 @@ class UpdateGroupMutation(graphene.Mutation):
     @staticmethod
     def updateMetrics(group):
         group.metrics.artwork_count = len(group.group_portfolio.artworks)
-        print(len(group.members))
         group.metrics.member_count = len(group.members)
         group.save()
 
