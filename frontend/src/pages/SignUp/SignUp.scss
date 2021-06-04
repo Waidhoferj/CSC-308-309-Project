@@ -13,29 +13,31 @@
     }
   }
 
-  form {
+  .content {
     margin-left: 30px;
 
-    > * {
-      margin: 0px;
-      margin-bottom: 10px;
+    form {
+      > * {
+        margin: 0px;
+        margin-bottom: 10px;
+      }
+
+      .input input {
+        padding: 10px;
+      }
+
+      > input {
+        margin-top: 10px;
+        outline: none;
+      }
     }
 
-    .input input {
-      padding: 10px;
+    h4 {
+      display: inline-block;
+      margin-left: 0px;
     }
-
-    > input {
-      margin-top: 10px;
-      outline: none;
+    button {
+      margin-left: 0px;
     }
-  }
-
-  h4 {
-    display: inline-block;
-    margin-left: 30px;
-  }
-  button {
-    margin-left: 30px;
   }
 }
