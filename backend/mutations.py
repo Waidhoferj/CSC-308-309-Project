@@ -2,8 +2,8 @@ import graphene
 from bson import ObjectId
 from graphene.types.scalars import ID
 from models import (GroupMetrics, User, UserMetrics, Portfolio,
-                    Settings, Achievement, Group, Artwork,
-                    ArtworkMetrics, Comment, Report)
+                    Settings, Achievement, Group, Artwork, ArtworkMetrics,
+                    Comment, Report)
 from api_types import (UserType, UserMetricsType, PortfolioType, SettingsType,
                        AchievementType, GroupType, ArtworkType, CommentType,
                        AchievementType, ReportType)
@@ -158,6 +158,12 @@ class UpdateGroupMutation(graphene.Mutation):
     def getGroup(id, decode=True):   # can also check for none here
         return Group.objects.get(pk=decodeId(id))
 
+    @staticmethod
+    def updateMetrics(group):
+        group.metrics.artwork_count = len(group.group_portfolio.artworks)
+        group.metrics.member_count = len(group.members)
+        group.save()
+
     def mutate(self, info, group_data=None):
         group = UpdateGroupMutation.getGroup(group_data.id)
         if group_data.bio:
@@ -211,6 +217,7 @@ class UpdateGroupMutation(graphene.Mutation):
             else:
                 group.chat.pop(index)
         group.save()
+        UpdateGroupMutation.updateMetrics(group)
 
         return UpdateGroupMutation(group=group)
 
@@ -262,6 +269,7 @@ class JoinGroupMutation(graphene.Mutation):
             user.save()
             group.save()
             success = True
+            UpdateGroupMutation.updateMetrics(group)
         else:
             success = False
         return JoinGroupMutation(success=success)
@@ -319,6 +327,7 @@ class LeaveGroupMutation(graphene.Mutation):
             success = True
             #  if the last member of the group left, delete the group
             #  could add checks here
+            UpdateGroupMutation.updateMetrics(updated_group)
             if len(updated_group.members) == 0:
                 updated_group.delete()
         else:
@@ -394,6 +403,11 @@ class UpdateUserMutation(graphene.Mutation):
         user_data = UserInput(required=True)
 
     @staticmethod
+    def updateMetrics(user):
+        user.metrics.works_visited = len(user.personal_portfolio.artworks)
+        user.save()
+
+    @staticmethod
     def getUser(id):   # can also check for none here
         return User.objects.get(pk=decodeId(id))
 
@@ -414,6 +428,9 @@ class UpdateUserMutation(graphene.Mutation):
             artToAdd = UpdateArtworkMutation.getArtwork(user_data.art_to_add)
             # Check if none
             user.personal_portfolio.artworks.append(artToAdd)
+            user.metrics.works_visited += 1
+            artToAdd.metrics.total_visits += 1
+            artToAdd.save()
         if user_data.art_to_remove:
             artToRemove = (UpdateArtworkMutation.
                            getArtwork(user_data.art_to_remove))
@@ -431,6 +448,7 @@ class UpdateUserMutation(graphene.Mutation):
         # Need to add success/failure responses
         checkAchievements(user)
         user.save()
+        UpdateUserMutation.updateMetrics(user)
 
         return UpdateUserMutation(user=user)
 
@@ -504,7 +522,9 @@ class CreateArtworkMutation(graphene.Mutation):
         # Add artwork to user portfolio
         user = UpdateUserMutation.getUser(artwork_data.found_by)
         user.personal_portfolio.artworks.append(artwork)
+        user.metrics.works_found += 1
         user.save()
+        UpdateUserMutation.updateMetrics(user)
 
         return CreateArtworkMutation(artwork=artwork)
 

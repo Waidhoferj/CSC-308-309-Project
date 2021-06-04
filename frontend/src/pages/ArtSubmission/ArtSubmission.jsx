@@ -10,6 +10,7 @@ import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 import useProfileInfo from "../../hooks/useProfileInfo";
 import Spinner from "../../components/Spinner/Spinner";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
+import { toast } from "react-toastify";
 
 import Tag from "../../components/Tag/Tag";
 
@@ -62,6 +63,10 @@ export default function ArtSubmission() {
 
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
+    if (location[0] === 0 && location[1] === 0) {
+      toast("You need to activate your location to submit an artwork.");
+      return;
+    }
     const payload = {
       pictures: images,
       location: location,
