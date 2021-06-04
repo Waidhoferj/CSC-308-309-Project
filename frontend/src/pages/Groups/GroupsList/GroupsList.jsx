@@ -28,12 +28,6 @@ export default function GroupsList() {
   }
 
   if (loading) return <Spinner absCenter={true} />;
-  if (!groups.length)
-    return (
-      <ConnectionErrorMessage>
-        Doesn't look like you've joined any groups
-      </ConnectionErrorMessage>
-    );
   return (
     <article className="GroupsList">
       <header>
@@ -42,11 +36,22 @@ export default function GroupsList() {
           <Plus size={35} />
         </button>
       </header>
-      <ul className="groups">
-        {groups.map((group, key) => (
-          <GroupCard key={key} {...group} onClick={() => openGroup(group.id)} />
-        ))}
-      </ul>
+      {groups.length ? (
+        <ul className="groups">
+          {groups.map((group, key) => (
+            <GroupCard
+              key={key}
+              {...group}
+              onClick={() => openGroup(group.id)}
+            />
+          ))}
+        </ul>
+      ) : (
+        <ConnectionErrorMessage>
+          Doesn't look like you've joined any groups
+        </ConnectionErrorMessage>
+      )}
+
       <AnimatePresence>
         {popupShouldOpen && (
           <CreateGroupPopup
