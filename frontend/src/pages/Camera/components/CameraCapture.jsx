@@ -12,7 +12,11 @@ const videoConstraints = {
   facingMode: "environment",
 };
 
-export default function CameraCapture({ onShowPhotos, onImageCapture, onSubmit}) {
+export default function CameraCapture({
+  onShowPhotos,
+  onImageCapture,
+  onSubmit,
+}) {
   const cameraRef = useRef(null);
   const flashRef = useRef(null);
   const { images } = usePhotoLibrary();

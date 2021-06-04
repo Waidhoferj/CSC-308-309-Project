@@ -78,7 +78,7 @@ export default function Artwork() {
 
   function uploadImages() {
     const payload = {
-      artworkId: id, 
+      artworkId: id,
       pictures_to_add: images,
     };
     addPhotos({ variables: payload }).then((res) => {
@@ -99,11 +99,13 @@ export default function Artwork() {
             </button>
             <h1>{artwork.title}</h1>
             <div className="options">
-              <button className="wrapper">  
+              <button className="wrapper">
                 <Upload />
               </button>
               <button className="wrapper">
-                <Maximize2 onClick={() => push("/artwork/" + id + "/art-gallery")}/>
+                <Maximize2
+                  onClick={() => push("/artwork/" + id + "/art-gallery")}
+                />
               </button>
             </div>
           </header>
@@ -118,9 +120,17 @@ export default function Artwork() {
                 </li>
               ))}
             </ul>
-            <button onClick={() => push("/map/lat=" + artwork.location?.coordinates[0]
-                                        + "/long=" + artwork.location?.coordinates[1])}
-              disabled={!artwork.location}>
+            <button
+              onClick={() =>
+                push(
+                  "/map/lat=" +
+                    artwork.location?.coordinates[0] +
+                    "/long=" +
+                    artwork.location?.coordinates[1]
+                )
+              }
+              disabled={!artwork.location}
+            >
               View On Map
             </button>
             <h2>Stats</h2>
@@ -171,7 +181,7 @@ export default function Artwork() {
         />
       </Route>
       <Route exact path="/artwork/:id/add-photos">
-        <Camera onSubmit={uploadImages}/>
+        <Camera onSubmit={uploadImages} />
       </Route>
       <Route exact path="/artwork/:id/art-gallery">
         <ArtGallery />

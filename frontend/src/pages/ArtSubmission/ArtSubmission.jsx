@@ -59,7 +59,7 @@ export default function ArtSubmission() {
   const [uploadArt] = useMutation(CREATE_ARTWORK_MUTATION);
   const { images, clearLibrary } = usePhotoLibrary();
   const { profile } = useProfileInfo();
-  const [ location, setLocation ] = useState([0, 0]);
+  const [location, setLocation] = useState([0, 0]);
 
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
@@ -94,23 +94,24 @@ export default function ArtSubmission() {
     var options = {
       enableHighAccuracy: true,
       timeout: 5000,
-      maximumAge: 10000
+      maximumAge: 10000,
     };
 
     if (!navigator.geolocation) {
-      return
+      return;
       // Geolocation is not supported by this browser.
     }
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLocation([position?.coords.longitude, position?.coords.latitude])
+        setLocation([position?.coords.longitude, position?.coords.latitude]);
       },
       (error) => {
-        return
+        return;
       },
-      options);
-  }, [])
-  
+      options
+    );
+  }, []);
+
   if (location === [0, 0]) {
     return (
       <div>
@@ -118,7 +119,8 @@ export default function ArtSubmission() {
         <ConnectionErrorMessage>
           Could not access the artwork you requested.
         </ConnectionErrorMessage>
-      </div>);
+      </div>
+    );
   }
 
   return (

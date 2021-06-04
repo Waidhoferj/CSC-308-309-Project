@@ -1,16 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const ADD_PHOTOS = gql`
-  mutation addPhotos(
-    $artworkId: ID!
-    $pictures_to_add: [String]
-  ) {
-    updateArtwork(
-      artworkData: {
-        id: $artworkId
-        pictures: $pictures_to_add
-      }
-    ) {
+  mutation addPhotos($artworkId: ID!, $pictures_to_add: [String]) {
+    updateArtwork(artworkData: { id: $artworkId, pictures: $pictures_to_add }) {
       artwork {
         id
       }
