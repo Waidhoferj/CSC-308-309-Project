@@ -50,7 +50,8 @@ export default function Profile() {
           await submitProfilePic({ variables: payload });
           toast("Profile picture updated");
         } catch (err) {
-          alert(err.message);
+          console.error(err.message);
+          toast.error("Cannot submit profile picture.");
         }
       },
       false

@@ -5,15 +5,23 @@ import { useHistory } from "react-router-dom";
 import auth from "../../auth";
 import useProfileInfo from "../../hooks/useProfileInfo";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const NEW_ACCOUNT_MUTATION = gql`
   mutation addUser(
-    $email: String! 
-    $name: String! 
+    $email: String!
+    $name: String!
     $password: String!
     $profilePic: String!
   ) {
-    createUser(userData: { email: $email, name: $name, password: $password, profilePic: $profilePic }) {
+    createUser(
+      userData: {
+        email: $email
+        name: $name
+        password: $password
+        profilePic: $profilePic
+      }
+    ) {
       user {
         id
       }
@@ -43,7 +51,11 @@ export default function SignUp() {
       password: data.password,
       profilePic: "",
     };
-    fr.addEventListener("load", () => payload.profilePic = fr.result.toString(), false);
+    fr.addEventListener(
+      "load",
+      () => (payload.profilePic = fr.result.toString()),
+      false
+    );
     try {
       await auth.signup(data.email, data.password, { name: data.name });
       await auth.login(data.email, data.password, true);
@@ -54,7 +66,8 @@ export default function SignUp() {
       push("/map");
     } catch (err) {
       setSubmitDisabled(false);
-      alert(err.message);
+      console.error(err.message);
+      toast.error("Could not add profile picture.");
     }
   }
 

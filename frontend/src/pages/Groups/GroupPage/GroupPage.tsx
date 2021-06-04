@@ -21,6 +21,7 @@ import { Route } from "react-router-dom";
 import Portfolio from "../../Portfolio/Portfolio";
 import Discussion from "../../Discussion/Discussion";
 import useProfileInfo from "../../../hooks/useProfileInfo";
+import { toast } from "react-toastify";
 
 /**
  * Wrapper component around individual group activities.
@@ -95,7 +96,7 @@ function GroupHub({ group }: GroupHubProps) {
     if (resp["data"]["leaveGroup"]["success"]) {
       push("/groups");
     } else {
-      alert("Error when attempting to leave group");
+      toast.error("Error when attempting to leave group");
       push("/groups");
     }
   }
@@ -111,7 +112,7 @@ function GroupHub({ group }: GroupHubProps) {
 
       // If there is an error
       if (memberResp?.errors) {
-        alert(memberResp.errors);
+        console.error(memberResp.errors);
         push("/groups");
       }
 
@@ -124,7 +125,7 @@ function GroupHub({ group }: GroupHubProps) {
       // Is not a member and is joining
       const joinResp = await joinGroupMutation({ variables: payload });
       if (joinResp?.errors) {
-        alert(memberResp.errors);
+        console.error(memberResp.errors);
         push("/groups");
       }
       if (joinResp.data.joinGroup.success) {
