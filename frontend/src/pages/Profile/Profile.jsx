@@ -9,10 +9,7 @@ import { gql, useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 
 const CHANGE_PROFILE_PIC_MUTATION = gql`
-  mutation changeProfilePic(
-    $id: String!
-    $profilePic: String!
-  ) {
+  mutation changeProfilePic($id: String!, $profilePic: String!) {
     updateUser(userData: { id: $id, profilePic: $profilePic }) {
       user {
         id
@@ -31,7 +28,7 @@ export default function Profile() {
     setUser(null);
     history.push("/login");
   }
-  
+
   async function changeProfilePic(e) {
     debugger;
     const { files } = e.target;
@@ -41,22 +38,23 @@ export default function Profile() {
 
     const fr = new FileReader();
 
+    fr.addEventListener(
+      "load",
+      async function () {
+        const payload = {
+          id: user.id,
+          profilePic: fr.result.toString(),
+        };
 
-    fr.addEventListener("load", 
-                        async function () {
-                          const payload = {
-                            id: user.id,
-                            profilePic: fr.result.toString(),
-                          };
-
-                          try {
-                            await submitProfilePic({ variables: payload });
-                            toast("Profile picture updated");
-                          } catch (err) {
-                            alert(err.message);
-                          }
-                        }, 
-                        false);
+        try {
+          await submitProfilePic({ variables: payload });
+          toast("Profile picture updated");
+        } catch (err) {
+          alert(err.message);
+        }
+      },
+      false
+    );
     fr.readAsDataURL(files[0]);
   }
 
