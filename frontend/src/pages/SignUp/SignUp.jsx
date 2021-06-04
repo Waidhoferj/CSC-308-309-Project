@@ -34,7 +34,7 @@ export default function SignUp() {
     setSubmitDisabled(true);
 
     const fr = new FileReader();
-    if (data.profile_pic.length == 1) {
+    if (data.profile_pic.length === 1) {
       fr.readAsDataURL(data.profile_pic[0]);
     }
     const payload = {

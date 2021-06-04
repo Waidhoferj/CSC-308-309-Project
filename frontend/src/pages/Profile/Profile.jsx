@@ -1,5 +1,5 @@
 import "./Profile.scss";
-import { LogOut, Upload } from "react-feather";
+import { LogOut } from "react-feather";
 import MetricBadge from "../../components/MetricBadge/MetricBadge";
 import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/ConnectionErrorMessage";
 import useProfileInfo from "../../hooks/useProfileInfo";
@@ -35,7 +35,7 @@ export default function Profile() {
   async function changeProfilePic(e) {
     debugger;
     const { files } = e.target;
-    if (files.length == 0) {
+    if (files.length === 0) {
       return;
     }
 
