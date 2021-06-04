@@ -142,7 +142,10 @@ export default function ArtMap() {
     setSelectedArtwork(artwork);
     goTo("/map/" + artwork.id);
     setZoom([15]);
-    setMapLocation([...artwork.coordinates]);
+    const coords = [...artwork.coordinates];
+    const usingPhone = matchMedia("screen and (max-width:735px)").matches;
+    if (usingPhone) coords[1] -= 0.003;
+    setMapLocation(coords);
   }
 
   /**
