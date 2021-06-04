@@ -1,7 +1,6 @@
 @use "../../styles/utils.scss" as utils;
 
 .ArtMap {
-
   svg {
     color: var(--c-primary);
   }
@@ -51,7 +50,6 @@
       @include utils.viewport(medium) {
         padding-bottom: 20px;
       }
-
     }
   }
 
@@ -109,7 +107,7 @@
     position: absolute;
     bottom: 30px;
     left: 50%;
-    transform:translate(-50%, 0);
+    transform: translate(-50%, 0);
   }
 }
 

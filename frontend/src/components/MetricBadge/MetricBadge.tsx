@@ -1,9 +1,9 @@
 import "./MetricBadge.scss";
 
 interface MetricBadgeProps {
-  value: string | number,
-  unit: string,
-  fallbackVal?: string | number
+  value: string | number;
+  unit: string;
+  fallbackVal?: string | number;
 }
 
 export default function MetricBadge({

@@ -23,6 +23,6 @@ interface GqlArtworkData {
   };
   rating: number;
   location: {
-    coordinates: float[]
-  }
+    coordinates: float[];
+  };
 }

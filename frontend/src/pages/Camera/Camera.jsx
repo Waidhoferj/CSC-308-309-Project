@@ -7,7 +7,7 @@ import PhotoGallery from "./components/PhotoGallery";
 import { Route, useHistory } from "react-router-dom";
 import usePhotoLibrary from "../../hooks/usePhotoLibrary";
 
-export default function Camera({onSubmit}) {
+export default function Camera({ onSubmit }) {
   const { addImage } = usePhotoLibrary();
   const history = useHistory();
   return (

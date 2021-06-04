@@ -117,7 +117,7 @@ export default function ArtMap() {
   function onMapLoad(map) {
     const geoControl = new GeolocateControl({ trackUserLocation: true });
     if (lat && long) {
-      setMapLocation([lat, long])
+      setMapLocation([lat, long]);
     }
     map.addControl(geoControl);
     geoControl.on("geolocate", (e) => {

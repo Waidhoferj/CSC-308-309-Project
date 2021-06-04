@@ -48,8 +48,8 @@ export default function ArtReview({ artwork }) {
   });
   const {
     field: { onChange: updateRating },
-    meta: { invalid: invalidRating }
-  } = useController({ name: "rating", control, rules: { required: true }});
+    meta: { invalid: invalidRating },
+  } = useController({ name: "rating", control, rules: { required: true } });
   const [tagInputVal, setTagInputVal] = useState("");
   const history = useHistory();
   const [uploadArtReview] = useMutation(CREATE_ART_REVIEW_MUTATION);
@@ -58,8 +58,8 @@ export default function ArtReview({ artwork }) {
   //onSubmit function is passed to handleSubmit function
   function onSubmit(data) {
     const payload = {
-      artworkId: artwork.id, 
-      author: profile?.id, 
+      artworkId: artwork.id,
+      author: profile?.id,
       content: data.description,
       rating: data.rating * 20,
       tags: data.tags,
@@ -104,11 +104,11 @@ export default function ArtReview({ artwork }) {
             isHalf={false}
             activeColor="#ffd700"
           />
-          {invalidRating && 
+          {invalidRating && (
             <p className="errorMsg" style={{ color: "Red" }}>
               Rating is required.
             </p>
-          }
+          )}
         </label>
 
         <label className="art-tags">
@@ -145,20 +145,20 @@ export default function ArtReview({ artwork }) {
           ></textarea>
         </label>
 
-        {errors.description && errors.description.type === "required" && 
+        {errors.description && errors.description.type === "required" && (
           <p className="errorMsg" style={{ color: "Red" }}>
             Description is required.
           </p>
-        }
+        )}
 
-        {errors.description && errors.description.type === "minLength" && 
+        {errors.description && errors.description.type === "minLength" && (
           <p className="errorMsg" style={{ color: "Red" }}>
             Description should be at-least 10 characters.
           </p>
-        }
+        )}
 
         {/* give an id since there's multiple input tags */}
-        <input type="submit" value="Post Review" id="postReview"/>
+        <input type="submit" value="Post Review" id="postReview" />
       </form>
     </section>
   );
