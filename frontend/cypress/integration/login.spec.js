@@ -1,6 +1,6 @@
 describe("Login Page", () => {
   beforeEach(() => {
-    cy.visit("http://localhost:3000");
+    cy.visit("http://localhost:3000/login");
   });
   it("Allows user to log in successfully when auth is correct.", () => {
     cy.url().should("include", "/login");
