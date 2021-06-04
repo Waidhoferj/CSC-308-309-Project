@@ -5,14 +5,59 @@ import ConnectionErrorMessage from "../../components/ConnectionErrorMessage/Conn
 import useProfileInfo from "../../hooks/useProfileInfo";
 import auth from "../../auth";
 import { useHistory } from "react-router";
+import { gql, useMutation } from "@apollo/client";
+import { toast } from "react-toastify";
+
+const CHANGE_PROFILE_PIC_MUTATION = gql`
+  mutation changeProfilePic(
+    $id: String!
+    $profilePic: String!
+  ) {
+    updateUser(userData: { id: $id, profilePic: $profilePic }) {
+      user {
+        id
+      }
+    }
+  }
+`;
 
 export default function Profile() {
   const { profile: user, error, setUser } = useProfileInfo();
   const history = useHistory();
+  const [submitProfilePic] = useMutation(CHANGE_PROFILE_PIC_MUTATION);
+
   function logOut() {
     auth.currentUser()?.logout();
     setUser(null);
     history.push("/login");
+  }
+  
+  async function changeProfilePic(e) {
+    debugger;
+    const { files } = e.target;
+    if (files.length === 0) {
+      return;
+    }
+
+    const fr = new FileReader();
+
+
+    fr.addEventListener("load", 
+                        async function () {
+                          const payload = {
+                            id: user.id,
+                            profilePic: fr.result.toString(),
+                          };
+
+                          try {
+                            await submitProfilePic({ variables: payload });
+                            toast("Profile picture updated");
+                          } catch (err) {
+                            alert(err.message);
+                          }
+                        }, 
+                        false);
+    fr.readAsDataURL(files[0]);
   }
 
   return (
@@ -48,6 +93,20 @@ export default function Profile() {
 
             <h2>Bio</h2>
             <p>{user?.bio}</p>
+
+            <div className="input">
+              <label htmlFor="profile_pic">Change Profile Picture</label>
+              <br />
+              <input
+                type="file"
+                accept="image"
+                name="profile_pic"
+                id="profile_pic"
+                title=""
+                style={{ color: "transparent" }}
+                onChange={changeProfilePic}
+              />
+            </div>
           </div>
         </>
       )}

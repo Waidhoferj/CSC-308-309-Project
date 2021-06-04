@@ -537,7 +537,7 @@ def test_leaving_group(client, groups_with_ids, group_creators_with_members):
                                 edges {{
                                     node {{
                                         id
-                                        name                             
+                                        name
                                     }}
                                 }}
                             }}
@@ -547,7 +547,7 @@ def test_leaving_group(client, groups_with_ids, group_creators_with_members):
             }}""".format(member_id))
         return (user_groups['data']['users']['edges']
                 [0]['node']['groups']['edges'])
-    
+
     def get_group_members(group_id):
         group_members = client.execute("""
         query {{
@@ -558,7 +558,7 @@ def test_leaving_group(client, groups_with_ids, group_creators_with_members):
                             edges {{
                                 node {{
                                     id
-                                    name                                    
+                                    name
                                 }}
                             }}
                         }}
@@ -569,10 +569,9 @@ def test_leaving_group(client, groups_with_ids, group_creators_with_members):
         return (group_members['data']['groups']['edges']
                 [0]['node']['members']['edges'])
 
-
-    # first group, not creator, first member on list, id of member 
+    # first group, not creator, first member on list, id of member
     member_id = group_creators_with_members[0][1][0][1]
-    
+
     # first group, id of group
     group_id = groups_with_ids[0][1]
 
@@ -645,7 +644,7 @@ def test_group_deletion(client, user):
         }}""".format(new_group["id"]))['data']['groups']['edges']
 
     assert len(deleted_group) == 0
-        
+
 
 if __name__ == "__main__":
     connect(host="mongomock://localhost")

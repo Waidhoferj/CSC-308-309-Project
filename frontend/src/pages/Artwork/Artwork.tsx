@@ -14,6 +14,7 @@ import ArtReview from "../ArtReview/ArtReview";
 import Discussion from "../Discussion/Discussion";
 import Camera from "../Camera/Camera";
 import { toast } from "react-toastify";
+import ArtGallery from "../ArtGallery/ArtGallery";
 import {
   ADD_PHOTOS,
   GET_ARTWORK_DISCUSSION,
@@ -102,7 +103,7 @@ export default function Artwork() {
                 <Upload />
               </button>
               <button className="wrapper">
-                <Maximize2 />
+                <Maximize2 onClick={() => push("/artwork/" + id + "/art-gallery")}/>
               </button>
             </div>
           </header>
@@ -171,6 +172,9 @@ export default function Artwork() {
       </Route>
       <Route exact path="/artwork/:id/add-photos">
         <Camera onSubmit={uploadImages}/>
+      </Route>
+      <Route exact path="/artwork/:id/art-gallery">
+        <ArtGallery />
       </Route>
     </Switch>
   );
