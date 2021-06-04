@@ -30,7 +30,6 @@ export default function Profile() {
   }
 
   async function changeProfilePic(e) {
-    debugger;
     const { files } = e.target;
     if (files.length === 0) {
       return;

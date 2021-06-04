@@ -38,7 +38,6 @@ export default function SignUp() {
   const [submitDisabled, setSubmitDisabled] = useState(false);
 
   async function onSubmit(data) {
-    debugger;
     setSubmitDisabled(true);
 
     const fr = new FileReader();
