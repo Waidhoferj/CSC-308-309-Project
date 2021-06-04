@@ -429,6 +429,8 @@ class UpdateUserMutation(graphene.Mutation):
             # Check if none
             user.personal_portfolio.artworks.append(artToAdd)
             user.metrics.works_visited += 1
+            artToAdd.metrics.total_visits += 1
+            artToAdd.save()
         if user_data.art_to_remove:
             artToRemove = (UpdateArtworkMutation.
                            getArtwork(user_data.art_to_remove))
