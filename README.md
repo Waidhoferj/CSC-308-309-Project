@@ -52,7 +52,7 @@ Upon merge:
 
 ## Acceptance Tests
 
-Acceptance tests are important for defining user flows in a way that all shareholders can understand. We used the [Gherkin Language](https://cucumber.io/docs/gherkin/reference/) to describe the user flows and [Cypress](https://www.cypress.io/) to create automated tests around the spec.
+Acceptance tests are important for defining user flows in a way that all stakeholders can understand. We used the [Gherkin Language](https://cucumber.io/docs/gherkin/reference/) to describe the user flows and [Cypress](https://www.cypress.io/) to create automated tests around the spec.
 
 - Acceptance test documents exist in an [online document](https://docs.google.com/document/d/1ztd6LJCcpQI31MZ0_H-gIPZa1ru35pd5HM4Jyvr3y0M/edit?usp=sharing)
 - Automated tests can be found in the [`integration`](./frontend/cypress/integration) folder
